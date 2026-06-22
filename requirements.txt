@@ -1,0 +1,7 @@
+torch
+transformers>=4.50.0
+accelerate
+bitsandbytes
+pandas
+scikit-learn
+matplotlib

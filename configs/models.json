@@ -1,0 +1,32 @@
+{
+  "primary_pair": {
+    "name": "qwen3_4b_instruct_vs_thinking",
+    "baseline": "Qwen/Qwen3-4B-Instruct-2507",
+    "reasoning": "Qwen/Qwen3-4B-Thinking-2507",
+    "notes": "First Kaggle-friendly matched pair. Treat as reasoning-specialization evidence, not causal RLVR evidence."
+  },
+  "secondary_pairs": [
+    {
+      "name": "olmo3_7b_instruct_vs_think",
+      "baseline": "allenai/Olmo-3-7B-Instruct",
+      "reasoning": "allenai/Olmo-3-7B-Think",
+      "notes": "Second-stage open-model comparison if compute allows."
+    },
+    {
+      "name": "olmo3_7b_instruct_vs_rl_zero_mix",
+      "baseline": "allenai/Olmo-3-7B-Instruct",
+      "reasoning": "allenai/Olmo-3-7B-RL-Zero-Mix",
+      "notes": "More direct RLVR-lineage comparison if setup is stable."
+    }
+  ],
+  "generation": {
+    "max_new_tokens": 384,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "do_sample": false,
+    "batch_size": 1,
+    "load_in_4bit": true,
+    "record_response_length": true,
+    "strip_thinking_for_primary_score": true
+  }
+}
