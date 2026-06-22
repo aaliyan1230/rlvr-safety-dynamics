@@ -10,10 +10,10 @@ As of the initial scaffold, the project has concrete artifacts rather than only 
 * Added a Hugging Face generation runner intended for Kaggle/free-tier GPU use.
 * Added a manual scoring CSV-template generator.
 * Added local gates: prompt validation, script compilation, and a non-GPU scoring-template smoke test.
+* Added a BlueDot Unit 2 project log with the required project summary, assumptions, cruxes, and first-cheap-test plan.
 
 Remaining pre-submission gates:
 
-1. Run `make validate`, `make compile`, and `make smoke-score`.
+1. Run the first cheap Qwen3 4B subset test on Kaggle or equivalent GPU.
 2. Create the GitHub repository or another public work link.
-3. Optionally run a tiny CPU smoke test with a toy model, or run the first real generation pass on Kaggle.
-4. Update the grant application with the public repo link and this concrete progress.
+3. Update the grant application with the public repo link and this concrete progress.
