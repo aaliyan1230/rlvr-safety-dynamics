@@ -18,6 +18,41 @@ def strip_thinking_trace(text: str) -> str:
     return text.strip()
 
 
+def encode_prompt(tokenizer, prompt: str, system_prompt: str | None, disable_thinking: bool):
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({"role": "user", "content": prompt})
+
+    if hasattr(tokenizer, "apply_chat_template"):
+        template_kwargs = {
+            "add_generation_prompt": True,
+            "return_tensors": "pt",
+        }
+        if disable_thinking:
+            try:
+                encoded = tokenizer.apply_chat_template(
+                    messages,
+                    enable_thinking=False,
+                    **template_kwargs,
+                )
+            except TypeError:
+                encoded = tokenizer.apply_chat_template(messages, **template_kwargs)
+        else:
+            encoded = tokenizer.apply_chat_template(messages, **template_kwargs)
+
+        if isinstance(encoded, dict):
+            return encoded["input_ids"]
+        if hasattr(encoded, "input_ids"):
+            return encoded.input_ids
+        return encoded
+
+    encoded = tokenizer(prompt, return_tensors="pt")
+    if isinstance(encoded, dict):
+        return encoded["input_ids"]
+    return encoded.input_ids
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True)
@@ -26,6 +61,8 @@ def main():
     parser.add_argument("--max-new-tokens", type=int, default=384)
     parser.add_argument("--load-in-4bit", action="store_true")
     parser.add_argument("--strip-thinking", action="store_true")
+    parser.add_argument("--disable-thinking", action="store_true")
+    parser.add_argument("--system-prompt")
     args = parser.parse_args()
 
     try:
@@ -53,16 +90,12 @@ def main():
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with args.out.open("w", encoding="utf-8") as out_f:
         for row in load_prompts(args.prompts):
-            messages = [{"role": "user", "content": row["prompt"]}]
-            if hasattr(tokenizer, "apply_chat_template"):
-                encoded = tokenizer.apply_chat_template(
-                    messages,
-                    add_generation_prompt=True,
-                    return_tensors="pt",
-                )
-            else:
-                encoded = tokenizer(row["prompt"], return_tensors="pt").input_ids
-
+            encoded = encode_prompt(
+                tokenizer,
+                row["prompt"],
+                system_prompt=args.system_prompt,
+                disable_thinking=args.disable_thinking,
+            )
             encoded = encoded.to(model.device)
             with torch.no_grad():
                 output_ids = model.generate(
@@ -85,6 +118,10 @@ def main():
                 "raw_response": raw_response,
                 "response_chars": len(response),
                 "raw_response_chars": len(raw_response),
+                "generated_tokens": int(generated_ids.shape[-1]),
+                "strip_thinking_applied": args.strip_thinking,
+                "thinking_trace_exposed": "<think>" in raw_response
+                or "</think>" in raw_response,
             }
             out_f.write(json.dumps(out, ensure_ascii=False) + "\n")
 
