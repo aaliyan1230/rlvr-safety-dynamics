@@ -13,10 +13,10 @@
       "notes": "Second-stage open-model comparison if compute allows."
     },
     {
-      "name": "olmo3_7b_instruct_vs_rl_zero_mix",
+      "name": "olmo3_7b_instruct_vs_rl_zero_general",
       "baseline": "allenai/Olmo-3-7B-Instruct",
-      "reasoning": "allenai/Olmo-3-7B-RL-Zero-Mix",
-      "notes": "More direct RLVR-lineage comparison if setup is stable."
+      "reasoning": "allenai/Olmo-3-7B-RL-Zero-General",
+      "notes": "More direct RLVR-lineage comparison if setup is stable. This replaces the earlier RL-Zero-Mix placeholder with the current public checkpoint name."
     }
   ],
   "generation": {

@@ -35,7 +35,6 @@ This initial scaffold is meant to pass a "is this project real and runnable?" ga
 * `scripts/select_prompt_subset.py`: deterministic balanced subset builder for the first cheap test.
 * `scripts/run_behavioral_eval.py`: Hugging Face generation runner for a first Kaggle pass.
 * `scripts/score_manual_template.py`: creates a CSV template for manual scoring.
-* `docs/unit2_project_log.md`: BlueDot Unit 2 project summary, assumptions, cruxes, and first-cheap-test plan.
 
 ## MVP Plan
 
@@ -44,15 +43,6 @@ This initial scaffold is meant to pass a "is this project real and runnable?" ga
 3. Manually score outputs before using any LLM judge.
 4. Add paraphrases for the highest-signal prompts only.
 5. Collect final-token or answer-token hidden states for a small subset if the behavioral signal is nontrivial.
-
-## BlueDot Unit 2 Check
-
-The Unit 2 prompts are answered in `docs/unit2_project_log.md`:
-
-* 3-5 sentence project summary
-* Long list of assumptions
-* High-stakes/high-uncertainty cruxes
-* First cheap test with prediction and change-course criteria
 
 ## Quickstart
 
