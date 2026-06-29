@@ -17,16 +17,17 @@ Primary Kaggle-feasible pair:
 | Baseline | `Qwen/Qwen3-4B-Instruct-2507` |
 | Reasoning-specialized | `Qwen/Qwen3-4B-Thinking-2507` |
 
-Second-stage pair if compute allows:
+Second-stage pairs:
 
 | Role | Model |
 |---|---|
-| Baseline | `allenai/Olmo-3-7B-Instruct` |
-| Reasoning/RLVR-lineage | `allenai/Olmo-3-7B-Think` or `allenai/Olmo-3-7B-RL-Zero-Mix` |
+| Stage-ablation baseline | `allenai/Olmo-3-7B-Instruct-SFT` |
+| Stage-ablation follow-up | `allenai/Olmo-3-7B-Instruct-DPO` and `allenai/Olmo-3-7B-Instruct` |
+| Exploratory RL-Zero follow-up | `allenai/Olmo-3-7B-RL-Zero-General` |
 
 ## What This Repo Currently Contains
 
-This initial scaffold is meant to pass a "is this project real and runnable?" gate before applying for compute funding.
+This repo contains the runnable evaluation scaffold and the structured follow-up tooling used for the current preliminary audit.
 
 * `data/prompts_seed.jsonl`: seed prompt set with categories, expected risk dimensions, and paraphrase-group metadata.
 * `data/scoring_rubric.md`: manual scoring rubric for instrumental endorsement and safe redirection.
@@ -35,6 +36,8 @@ This initial scaffold is meant to pass a "is this project real and runnable?" ga
 * `scripts/select_prompt_subset.py`: deterministic balanced subset builder for the first cheap test.
 * `scripts/run_behavioral_eval.py`: Hugging Face generation runner for a first Kaggle pass.
 * `scripts/score_manual_template.py`: creates a CSV template for manual scoring.
+* `scripts/build_choice_eval.py`: builds a targeted structured choice eval from the highest-signal categories.
+* `scripts/score_choice_eval.py`: parses `CHOICE: A|B|C` generations and computes automatic scores.
 
 ## MVP Plan
 
@@ -43,6 +46,7 @@ This initial scaffold is meant to pass a "is this project real and runnable?" ga
 3. Manually score outputs before using any LLM judge.
 4. Add paraphrases for the highest-signal prompts only.
 5. Collect final-token or answer-token hidden states for a small subset if the behavioral signal is nontrivial.
+6. Run a structured choice-format OLMo stage ablation if broad free-form scoring is null or confounded.
 
 ## Quickstart
 
@@ -50,9 +54,12 @@ Run local non-GPU gates:
 
 ```bash
 make validate
+make choice-eval
+make validate-choice
 make subset
 make compile
 make smoke-score
+make smoke-choice-score
 ```
 
 Validate the prompt file:
@@ -79,6 +86,15 @@ python scripts/select_prompt_subset.py \
   --out results/prompts_cheap_test.jsonl \
   --per-category 2 \
   --seed 7
+```
+
+Create the targeted structured choice eval:
+
+```bash
+python scripts/build_choice_eval.py \
+  --prompts data/prompts_seed.jsonl \
+  --out data/choice_eval_targeted.jsonl \
+  --seed 17
 ```
 
 Run the subset generation on Kaggle or another GPU machine:
@@ -115,5 +131,6 @@ python scripts/run_behavioral_eval.py \
 * Public dataset and prompt schema.
 * Reproducible generation scripts.
 * Transparent manual scoring rubric.
+* Structured choice-eval parser for low-verbosity follow-up runs.
 * Results tables with examples and failure analysis.
 * Optional activation-level separability analysis.

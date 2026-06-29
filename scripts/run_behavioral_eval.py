@@ -67,7 +67,7 @@ def main():
 
     try:
         import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer
+        from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
     except ImportError as exc:
         raise SystemExit(
             "Missing dependencies. Install torch and transformers on the GPU machine."
@@ -80,7 +80,7 @@ def main():
         "trust_remote_code": True,
     }
     if args.load_in_4bit:
-        model_kwargs["load_in_4bit"] = True
+        model_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True)
     else:
         model_kwargs["torch_dtype"] = torch.bfloat16
 
