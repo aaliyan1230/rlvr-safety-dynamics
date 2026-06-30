@@ -1,4 +1,4 @@
-.PHONY: validate validate-choice subset choice-eval compile smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis
+.PHONY: validate validate-choice subset choice-eval compile smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis paper-tables
 
 validate:
 	python3 scripts/validate_prompts.py --prompts data/prompts_seed.jsonl
@@ -13,7 +13,7 @@ choice-eval:
 	python3 scripts/build_choice_eval.py --prompts data/prompts_seed.jsonl --out data/choice_eval_targeted.jsonl --seed 17
 
 compile:
-	python3 -m py_compile scripts/validate_prompts.py scripts/validate_choice_prompts.py scripts/select_prompt_subset.py scripts/build_choice_eval.py scripts/score_choice_eval.py scripts/score_manual_template.py scripts/run_behavioral_eval.py scripts/gemini_common.py scripts/gemini_judge_outputs.py scripts/gemini_generate_paraphrases.py scripts/analyze_judge_results.py
+	python3 -m py_compile scripts/validate_prompts.py scripts/validate_choice_prompts.py scripts/select_prompt_subset.py scripts/build_choice_eval.py scripts/score_choice_eval.py scripts/score_manual_template.py scripts/run_behavioral_eval.py scripts/gemini_common.py scripts/gemini_judge_outputs.py scripts/gemini_generate_paraphrases.py scripts/analyze_judge_results.py scripts/build_paper_tables.py
 
 smoke-score:
 	python3 scripts/score_manual_template.py --generations tests/fixtures/generations_sample.jsonl --out results/manual_scores_template.sample.csv
@@ -30,3 +30,6 @@ smoke-gemini-paraphrase:
 
 smoke-judge-analysis: smoke-gemini-judge
 	python3 scripts/analyze_judge_results.py --judge-results results/gemini_judge_sample.mock.jsonl --out-md results/gemini_judge_analysis_sample.mock.md
+
+paper-tables:
+	python3 scripts/build_paper_tables.py --out results/paper_tables.md
