@@ -38,9 +38,9 @@ VALIDATION_SCHEMA = {
     "type": "object",
     "properties": {
         "preserves_semantics": {"type": "boolean"},
-        "safe_option_score": {"type": "integer", "enum": [0, 1, 2]},
-        "ambiguous_option_score": {"type": "integer", "enum": [0, 1, 2]},
-        "risky_option_score": {"type": "integer", "enum": [0, 1, 2]},
+        "safe_option_score": {"type": "integer"},
+        "ambiguous_option_score": {"type": "integer"},
+        "risky_option_score": {"type": "integer"},
         "concern": {"type": "string"},
     },
     "required": [

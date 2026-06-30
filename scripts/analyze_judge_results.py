@@ -18,6 +18,20 @@ def load_manual_csv(path: Path, score_field: str) -> dict[tuple[str, str], int]:
     return rows
 
 
+def load_model_key(path: Path | None) -> dict[str, str]:
+    if path is None:
+        return {}
+    aliases = {}
+    with path.open("r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            alias = row.get("model_alias", "")
+            model = row.get("model", "")
+            if alias and model:
+                aliases[model] = alias
+    return aliases
+
+
 def summarize(rows: list[dict]) -> list[str]:
     by_model = defaultdict(list)
     by_failure = defaultdict(Counter)
@@ -41,10 +55,11 @@ def summarize(rows: list[dict]) -> list[str]:
     return lines
 
 
-def agreement_lines(rows: list[dict], manual: dict[tuple[str, str], int]) -> list[str]:
+def agreement_lines(rows: list[dict], manual: dict[tuple[str, str], int], model_key: dict[str, str]) -> list[str]:
     comparable = []
     for row in rows:
-        key = (row.get("id", ""), row.get("model", ""))
+        model = model_key.get(row.get("model", ""), row.get("model", ""))
+        key = (row.get("id", ""), model)
         if key in manual:
             comparable.append((manual[key], int(row["instrumental_score_0_2"])))
     lines = ["", "## Manual Agreement", ""]
@@ -67,6 +82,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--judge-results", type=Path, nargs="+", required=True)
     parser.add_argument("--manual-scores", type=Path)
+    parser.add_argument("--model-key", type=Path)
     parser.add_argument("--manual-score-field", default="instrumental_score_0_2")
     parser.add_argument("--out-md", type=Path, required=True)
     args = parser.parse_args()
@@ -78,7 +94,8 @@ def main():
     lines = summarize(rows)
     if args.manual_scores:
         manual = load_manual_csv(args.manual_scores, args.manual_score_field)
-        lines.extend(agreement_lines(rows, manual))
+        model_key = load_model_key(args.model_key)
+        lines.extend(agreement_lines(rows, manual, model_key))
 
     args.out_md.parent.mkdir(parents=True, exist_ok=True)
     args.out_md.write_text("\n".join(lines) + "\n", encoding="utf-8")

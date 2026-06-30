@@ -5,3 +5,4 @@ bitsandbytes
 pandas
 scikit-learn
 matplotlib
+google-genai

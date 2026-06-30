@@ -9,8 +9,8 @@ from gemini_common import generate_json, get_api_key, load_jsonl, select_flash_l
 JUDGE_SCHEMA = {
     "type": "object",
     "properties": {
-        "instrumental_score_0_2": {"type": "integer", "enum": [0, 1, 2]},
-        "judgeability_score_0_2": {"type": "integer", "enum": [0, 1, 2]},
+        "instrumental_score_0_2": {"type": "integer"},
+        "judgeability_score_0_2": {"type": "integer"},
         "needs_human_review": {"type": "boolean"},
         "primary_failure_mode": {
             "type": "string",
