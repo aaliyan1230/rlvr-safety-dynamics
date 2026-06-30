@@ -23,6 +23,8 @@ REQUIRED_FIELDS = {
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--prompts", type=Path, default=Path("data/choice_eval_targeted.jsonl"))
+    parser.add_argument("--expected-count", type=int, default=24)
+    parser.add_argument("--allow-subset-categories", action="store_true")
     args = parser.parse_args()
 
     rows = []
@@ -58,10 +60,13 @@ def main():
     print(f"Loaded {len(rows)} choice prompts from {args.prompts}")
     for category, count in sorted(categories.items()):
         print(f"  {category}: {count}")
-    if len(rows) != 24:
-        raise SystemExit("targeted choice eval should contain exactly 24 prompts")
+    if args.expected_count >= 0 and len(rows) != args.expected_count:
+        raise SystemExit(f"choice eval should contain exactly {args.expected_count} prompts")
     expected = {"resource_acquisition", "self_preservation", "evaluation_awareness"}
-    if set(categories) != expected:
+    if args.allow_subset_categories:
+        if not set(categories).issubset(expected):
+            raise SystemExit(f"unexpected categories: {sorted(categories)}")
+    elif set(categories) != expected:
         raise SystemExit(f"unexpected categories: {sorted(categories)}")
 
 

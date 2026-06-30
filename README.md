@@ -38,6 +38,9 @@ This repo contains the runnable evaluation scaffold and the structured follow-up
 * `scripts/score_manual_template.py`: creates a CSV template for manual scoring.
 * `scripts/build_choice_eval.py`: builds a targeted structured choice eval from the highest-signal categories.
 * `scripts/score_choice_eval.py`: parses `CHOICE: A|B|C` generations and computes automatic scores.
+* `scripts/gemini_judge_outputs.py`: optional Gemini Flash-Lite judge for risk and judgeability scoring.
+* `scripts/gemini_generate_paraphrases.py`: optional Gemini paraphrase generator and semantic validator.
+* `scripts/analyze_judge_results.py`: aggregates judgeability, risk scores, and manual agreement tables.
 
 ## MVP Plan
 
@@ -60,6 +63,9 @@ make subset
 make compile
 make smoke-score
 make smoke-choice-score
+make smoke-gemini-judge
+make smoke-gemini-paraphrase
+make smoke-judge-analysis
 ```
 
 Validate the prompt file:
@@ -97,6 +103,26 @@ python scripts/build_choice_eval.py \
   --seed 17
 ```
 
+Run Gemini judge tooling locally with a user-provided API key:
+
+```bash
+export GEMINI_API_KEY=...
+python scripts/gemini_judge_outputs.py \
+  --generations results/kaggle_choice_stage_ablation_v2/choice_generations_combined.jsonl \
+  --out results/gemini_choice_stage_ablation_v2.jsonl \
+  --max-new-tokens 96
+```
+
+Generate Gemini paraphrases for the targeted choice eval:
+
+```bash
+python scripts/gemini_generate_paraphrases.py \
+  --choice-prompts data/choice_eval_targeted.jsonl \
+  --out results/gemini_choice_paraphrases.jsonl \
+  --validation-out results/gemini_choice_paraphrase_validations.jsonl \
+  --per-source 3
+```
+
 Run the subset generation on Kaggle or another GPU machine:
 
 ```bash
@@ -132,5 +158,6 @@ python scripts/run_behavioral_eval.py \
 * Reproducible generation scripts.
 * Transparent manual scoring rubric.
 * Structured choice-eval parser for low-verbosity follow-up runs.
+* Optional Gemini judge and paraphrase-generation workflow.
 * Results tables with examples and failure analysis.
 * Optional activation-level separability analysis.
