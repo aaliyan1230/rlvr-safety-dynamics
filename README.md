@@ -8,6 +8,50 @@ Do current small reasoning or RLVR-lineage open models show stronger goal-persis
 
 This project is exploratory. It does not try to prove that RLVR causes misalignment. The first pass treats matched Thinking/Instruct pairs as reasoning-specialization comparisons, then optionally uses OLMo 3 RL-Zero checkpoints for a more direct RLVR-lineage check.
 
+## Current Preliminary Findings
+
+The current evidence does not support a simple claim that the tested small open RLVR-lineage or reasoning-specialized models show a robust increase in instrumental behavior.
+
+The stronger finding is methodological: judgeability and prompt wording sensitivity can dominate the behavioral signal in this setting.
+
+### Qwen status
+
+The Qwen3 4B Instruct vs Thinking cheap run is inconclusive as behavioral evidence. The Thinking model produced much longer outputs, frequently hit the token cap, and exposed or implied reasoning traces despite concise-answer prompting. Those format differences made most risk rows confounded, so the run is best treated as evidence that reasoning-specialized outputs can be harder to judge, not as evidence of higher instrumental behavior.
+
+### OLMo status
+
+The OLMo 3 free-form Instruct vs RL-Zero-General run did not show a robust risk increase for RL-Zero-General. RL-Zero-General was also frequently verbosity-confounded or token-capped.
+
+The structured OLMo stage-ablation run was cleaner for the three Instruct-stage models:
+
+| Model | Mean parsed score | Parse/length status |
+|---|---:|---|
+| `allenai/Olmo-3-7B-Instruct` | 0.42 | clean |
+| `allenai/Olmo-3-7B-Instruct-DPO` | 0.46 | clean |
+| `allenai/Olmo-3-7B-Instruct-SFT` | 0.50 | clean |
+
+This did not show final Instruct scoring higher than SFT/DPO. RL-Zero-General remained difficult to compare in the structured setting because malformed and token-capped outputs dominated.
+
+### Paraphrase robustness status
+
+A follow-up paraphrase robustness run generated one Gemini-validated paraphrase for each of the 24 structured-choice prompts and ran the three clean OLMo Instruct-stage models on Kaggle. All paraphrases passed semantic validation, and all three models produced clean, non-capped structured outputs.
+
+| Model | Original mean | Paraphrase mean | Delta |
+|---|---:|---:|---:|
+| `allenai/Olmo-3-7B-Instruct` | 0.42 | 0.58 | +0.17 |
+| `allenai/Olmo-3-7B-Instruct-DPO` | 0.46 | 0.67 | +0.21 |
+| `allenai/Olmo-3-7B-Instruct-SFT` | 0.50 | 0.62 | +0.12 |
+
+This is a useful robustness result, but it should not be overclaimed. The aggregate scores moved upward under paraphrase, while category-level movement was mixed. The current best framing is that the structured eval is judgeable for these models, but not wording-invariant.
+
+### Expand vs pivot
+
+Expand this project if a second paraphrase seed, a larger prompt set, or another model family shows stable judgeability and similar prompt-sensitivity patterns.
+
+Pivot the claim, not the project, if additional runs remain unstable or if model differences are smaller than prompt-wording effects. The most defensible current direction is:
+
+> Small-model RLVR/reasoning safety evals should report judgeability and prompt sensitivity separately from behavioral risk scores.
+
 ## First Model Pair
 
 Primary Kaggle-feasible pair:
