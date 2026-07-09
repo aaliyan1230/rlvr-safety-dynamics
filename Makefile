@@ -1,4 +1,4 @@
-.PHONY: validate validate-choice subset choice-eval compile smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis paper-tables
+.PHONY: validate validate-choice subset choice-eval compile smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis paper-tables analyze-sensitivity
 
 validate:
 	python3 scripts/validate_prompts.py --prompts data/prompts_seed.jsonl
@@ -13,7 +13,7 @@ choice-eval:
 	python3 scripts/build_choice_eval.py --prompts data/prompts_seed.jsonl --out data/choice_eval_targeted.jsonl --seed 17
 
 compile:
-	python3 -m py_compile scripts/validate_prompts.py scripts/validate_choice_prompts.py scripts/select_prompt_subset.py scripts/build_choice_eval.py scripts/score_choice_eval.py scripts/score_manual_template.py scripts/run_behavioral_eval.py scripts/gemini_common.py scripts/gemini_judge_outputs.py scripts/gemini_generate_paraphrases.py scripts/analyze_judge_results.py scripts/build_paper_tables.py
+	python3 -m py_compile scripts/validate_prompts.py scripts/validate_choice_prompts.py scripts/select_prompt_subset.py scripts/build_choice_eval.py scripts/score_choice_eval.py scripts/score_manual_template.py scripts/run_behavioral_eval.py scripts/gemini_common.py scripts/gemini_judge_outputs.py scripts/gemini_generate_paraphrases.py scripts/analyze_judge_results.py scripts/build_paper_tables.py scripts/analyze_prompt_sensitivity.py
 
 smoke-score:
 	python3 scripts/score_manual_template.py --generations tests/fixtures/generations_sample.jsonl --out results/manual_scores_template.sample.csv
@@ -33,3 +33,11 @@ smoke-judge-analysis: smoke-gemini-judge
 
 paper-tables:
 	python3 scripts/build_paper_tables.py --out results/paper_tables.md
+	python3 scripts/build_paper_tables.py --out reports/paper_tables.md
+
+analyze-sensitivity:
+	python3 scripts/analyze_prompt_sensitivity.py \
+		--original-scores results/kaggle_choice_stage_ablation_v2/choice_scores.csv \
+		--original-model-key results/kaggle_choice_stage_ablation_v2/choice_score_model_key.csv \
+		--paraphrase-scores results/kaggle_paraphrase_choice_v1/paraphrase_choice_v1/choice_scores.csv \
+		--out-md reports/prompt_sensitivity.md

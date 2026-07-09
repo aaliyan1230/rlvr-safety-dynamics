@@ -5,5 +5,7 @@ __pycache__/
 .env
 results/**
 !results/.gitkeep
+!results/paper_tables.md
+!results/*.sample.*
 local
 docs/
