@@ -180,6 +180,95 @@ def paraphrase_comparison_table(orig_scores: Path, orig_key: Path, para_scores: 
     return lines
 
 
+def paraphrase_combined_table(orig_scores: Path, orig_key: Path, para1_scores: Path, para2_scores: Path) -> list[str]:
+    aliases = model_key(orig_key)
+
+    def paired_rows(para_path: Path) -> dict[tuple[str, str], dict]:
+        orig_by_source: dict[tuple[str, str], int] = {}
+        for row in read_csv(orig_scores):
+            score = row.get("instrumental_score_0_2", "")
+            if score == "":
+                continue
+            model = aliases.get(row["model"], row["model"])
+            orig_by_source[(row["source_id"], model)] = int(score)
+
+        paired = {}
+        for row in read_csv(para_path):
+            score = row.get("instrumental_score_0_2", "")
+            if score == "":
+                continue
+            key = (row["source_id"], row["model"])
+            orig_score = orig_by_source.get(key)
+            if orig_score is not None:
+                paired[key] = {
+                    "model": row["model"],
+                    "category": row["category"],
+                    "orig": orig_score,
+                    "para": int(score),
+                }
+        return paired
+
+    seed1_paired = paired_rows(para1_scores)
+    seed2_paired = paired_rows(para2_scores)
+
+    all_models = sorted(set(p["model"] for p in seed1_paired.values()))
+
+    lines = ["", "## Table 5: Combined Paraphrase Sensitivity (Two Validated Seeds)", ""]
+    lines.append("| Model | Orig | Seed 1 mean | Seed 2 mean | Seed 1 delta | Seed 2 delta | Seed 1 flip | Seed 2 flip | Seed 1 MAD | Seed 2 MAD |")
+    lines.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
+
+    per_model = defaultdict(list)
+    for model in all_models:
+        per_model[model] = {
+            "orig": mean(p["orig"] for k, p in seed1_paired.items() if p["model"] == model),
+            "seed1_mean": mean(p["para"] for k, p in seed1_paired.items() if p["model"] == model),
+            "seed2_mean": mean(p["para"] for k, p in seed2_paired.items() if p["model"] == model),
+            "seed1_flip": sum(1 for k, p in seed1_paired.items() if p["model"] == model and p["para"] != p["orig"]),
+            "seed2_flip": sum(1 for k, p in seed2_paired.items() if p["model"] == model and p["para"] != p["orig"]),
+            "seed1_n": sum(1 for p in seed1_paired.values() if p["model"] == model),
+            "seed2_n": sum(1 for p in seed2_paired.values() if p["model"] == model),
+            "seed1_abs": mean(abs(p["para"] - p["orig"]) for k, p in seed1_paired.items() if p["model"] == model),
+            "seed2_abs": mean(abs(p["para"] - p["orig"]) for k, p in seed2_paired.items() if p["model"] == model),
+        }
+
+    for model in all_models:
+        m = per_model[model]
+        s1d = m["seed1_mean"] - m["orig"]
+        s2d = m["seed2_mean"] - m["orig"]
+        lines.append(
+            f"| {model} | {m['orig']:.2f} | {m['seed1_mean']:.2f} | {m['seed2_mean']:.2f} | "
+            f"{s1d:+.2f} | {s2d:+.2f} | {m['seed1_flip']}/{m['seed1_n']} | {m['seed2_flip']}/{m['seed2_n']} | "
+            f"{m['seed1_abs']:.2f} | {m['seed2_abs']:.2f} |"
+        )
+
+    lines.append("")
+    lines.append("### Category-Level Deltas")
+    lines.append("")
+    lines.append("| Model | Category | Orig | Seed 1 mean | Seed 2 mean | Seed 1 delta | Seed 2 delta | Seed 1 flip | Seed 2 flip |")
+    lines.append("|---|---:|---:|---:|---:|---:|---:|---:|")
+
+    for model in all_models:
+        cats = sorted(set(
+            p["category"] for p in seed1_paired.values() if p["model"] == model
+        ))
+        for cat in cats:
+            s1_rows = [(k, p) for k, p in seed1_paired.items() if p["model"] == model and p["category"] == cat]
+            s2_rows = [(k, p) for k, p in seed2_paired.items() if p["model"] == model and p["category"] == cat]
+            orig_m = mean(p["orig"] for _, p in s1_rows)
+            s1_m = mean(p["para"] for _, p in s1_rows)
+            s2_m = mean(p["para"] for _, p in s2_rows)
+            s1_f = sum(1 for _, p in s1_rows if p["para"] != p["orig"])
+            s2_f = sum(1 for _, p in s2_rows if p["para"] != p["orig"])
+            lines.append(
+                f"| {model} | {cat} | {orig_m:.2f} | {s1_m:.2f} | {s2_m:.2f} | "
+                f"{s1_m - orig_m:+.2f} | {s2_m - orig_m:+.2f} | {s1_f}/{len(s1_rows)} | {s2_f}/{len(s2_rows)} |"
+            )
+
+    lines.append("")
+    lines.append("*Seed 1 evaluated 2026-07-06; Seed 2 evaluated 2026-07-08. Both seeds passed Gemini validation (24/24 label preservation).*")
+    return lines
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", type=Path, default=Path("results/paper_tables.md"))
@@ -190,6 +279,7 @@ def main():
     parser.add_argument("--gemini-freeform", type=Path, default=Path("results/gemini_olmo_rlzero_full_v1.jsonl"))
     parser.add_argument("--gemini-choice", type=Path, default=Path("results/gemini_choice_stage_ablation_v2.jsonl"))
     parser.add_argument("--paraphrase-scores", type=Path, default=Path("results/kaggle_paraphrase_choice_v1/paraphrase_choice_v1/choice_scores.csv"))
+    parser.add_argument("--paraphrase-scores-seed2", type=Path, default=Path("results/kaggle_paraphrase_choice_v2/choice_scores.csv"))
     args = parser.parse_args()
 
     lines = ["# Paper Tables", ""]
@@ -199,6 +289,7 @@ def main():
     lines.extend(agreement_table(args.gemini_freeform, args.freeform_manual, args.freeform_key))
     lines.extend(agreement_table(args.gemini_choice, args.choice_scores, args.choice_key))
     lines.extend(paraphrase_comparison_table(args.choice_scores, args.choice_key, args.paraphrase_scores))
+    lines.extend(paraphrase_combined_table(args.choice_scores, args.choice_key, args.paraphrase_scores, args.paraphrase_scores_seed2))
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text("\n".join(lines) + "\n", encoding="utf-8")

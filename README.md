@@ -6,14 +6,14 @@ Small, reproducible audit of whether current open reasoning/RLVR-lineage models 
 
 The current evidence does not support a robust positive behavioral-risk claim. The stronger finding is methodological:
 
-> Small-model RLVR/reasoning safety evals should report judgeability and prompt sensitivity separately from behavioral risk scores.
+> Small-model RLVR/reasoning safety evals should report judgeability and prompt sensitivity separately from behavioral risk scores. In this setup, prompt wording effects exceeded model-stage differences across two validated paraphrase seeds.
 
 ### Key findings
 
 - **Qwen3 4B Thinking was confounded** by token caps and exposed reasoning traces — higher apparent risk was dominated by format artifacts.
 - **OLMo 3 RL-Zero-General did not score higher** than Instruct in free-form scoring, and remained less judgeable under structured choice prompting.
-- **OLMo stage ablation found no monotonic increase**: final Instruct (0.42) did not score higher than SFT (0.50) or DPO (0.46) on structured choice prompts.
-- **Paraphrase robustness**: A Gemini-validated paraphrase of the 24 choice prompts shifted aggregate scores upward for all three clean OLMo models (deltas +0.12 to +0.21), but category movement was mixed. The eval is judgeable but not wording-invariant.
+- **OLMo stage ablation found no monotonic increase**: final Instruct (0.42) did not score higher than SFT (0.50) or DPO (0.46) on structured choice prompts. Model-stage spread: 0.08.
+- **Prompt wording sensitivity exceeded model-stage differences**: Across two validated Gemini paraphrase seeds, all three clean OLMo models shifted upward (Seed 1: +0.12 to +0.21; Seed 2: +0.29 to +0.33). Mean absolute deltas (0.54-0.71) were 7-9x the model-stage spread. Self-preservation drove the movement; resource-acquisition declined or stayed flat. The eval is judgeable but not wording-invariant.
 
 ## Repo Map
 
@@ -56,5 +56,5 @@ Gemini judge passes require `GEMINI_API_KEY` (see `scripts/gemini_judge_outputs.
 - Prompt set is small and hand-written.
 - Scoring rubric is transparent but subjective.
 - Thinking/Instruct and RL-Zero/Instruct comparisons do not isolate causal effects of RLVR.
-- Paraphrase robustness covers one seed per prompt.
+- Paraphrase robustness covers two validated Gemini paraphrase seeds. Additional independent paraphrases would strengthen sensitivity-interval claims.
 - Small models may not express the same behaviors as frontier reasoning models.

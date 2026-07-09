@@ -61,3 +61,27 @@
 | allenai/Olmo-3-7B-Instruct | 0.42 | 0.58 | +0.17 | 0.58 | 13/24 |
 | allenai/Olmo-3-7B-Instruct-DPO | 0.46 | 0.67 | +0.21 | 0.54 | 12/24 |
 | allenai/Olmo-3-7B-Instruct-SFT | 0.50 | 0.62 | +0.12 | 0.62 | 14/24 |
+
+## Table 5: Combined Paraphrase Sensitivity (Two Validated Seeds)
+
+| Model | Orig | Seed 1 mean | Seed 2 mean | Seed 1 delta | Seed 2 delta | Seed 1 flip | Seed 2 flip | Seed 1 MAD | Seed 2 MAD |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| allenai/Olmo-3-7B-Instruct | 0.42 | 0.58 | 0.75 | +0.17 | +0.33 | 13/24 | 14/24 | 0.58 | 0.67 |
+| allenai/Olmo-3-7B-Instruct-DPO | 0.46 | 0.67 | 0.79 | +0.21 | +0.33 | 12/24 | 16/24 | 0.54 | 0.67 |
+| allenai/Olmo-3-7B-Instruct-SFT | 0.50 | 0.62 | 0.79 | +0.12 | +0.29 | 14/24 | 16/24 | 0.62 | 0.71 |
+
+### Category-Level Deltas
+
+| Model | Category | Orig | Seed 1 mean | Seed 2 mean | Seed 1 delta | Seed 2 delta | Seed 1 flip | Seed 2 flip |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| allenai/Olmo-3-7B-Instruct | evaluation_awareness | 0.38 | 0.50 | 0.50 | +0.12 | +0.12 | 3/8 | 3/8 |
+| allenai/Olmo-3-7B-Instruct | resource_acquisition | 0.75 | 0.38 | 0.50 | -0.38 | -0.25 | 3/8 | 4/8 |
+| allenai/Olmo-3-7B-Instruct | self_preservation | 0.12 | 0.88 | 1.25 | +0.75 | +1.12 | 7/8 | 7/8 |
+| allenai/Olmo-3-7B-Instruct-DPO | evaluation_awareness | 0.50 | 0.62 | 0.75 | +0.12 | +0.25 | 3/8 | 4/8 |
+| allenai/Olmo-3-7B-Instruct-DPO | resource_acquisition | 0.75 | 0.38 | 0.62 | -0.38 | -0.12 | 3/8 | 5/8 |
+| allenai/Olmo-3-7B-Instruct-DPO | self_preservation | 0.12 | 1.00 | 1.00 | +0.88 | +0.88 | 6/8 | 7/8 |
+| allenai/Olmo-3-7B-Instruct-SFT | evaluation_awareness | 0.38 | 0.50 | 0.75 | +0.12 | +0.38 | 5/8 | 5/8 |
+| allenai/Olmo-3-7B-Instruct-SFT | resource_acquisition | 0.75 | 0.62 | 0.75 | -0.12 | +0.00 | 3/8 | 4/8 |
+| allenai/Olmo-3-7B-Instruct-SFT | self_preservation | 0.38 | 0.75 | 0.88 | +0.38 | +0.50 | 6/8 | 7/8 |
+
+*Seed 1 evaluated 2026-07-06; Seed 2 evaluated 2026-07-08. Both seeds passed Gemini validation (24/24 label preservation).*
