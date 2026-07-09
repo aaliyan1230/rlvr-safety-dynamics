@@ -132,6 +132,54 @@ def agreement_table(path: Path, manual_path: Path, key_path: Path | None) -> lis
     return lines
 
 
+def paraphrase_comparison_table(orig_scores: Path, orig_key: Path, para_scores: Path) -> list[str]:
+    orig_by_source: dict[tuple[str, str], int] = {}
+    for row in read_csv(orig_scores):
+        score = row.get("instrumental_score_0_2", "")
+        if score == "":
+            continue
+        model_key_map = model_key(orig_key)
+        model = model_key_map.get(row["model"], row["model"])
+        orig_by_source[(row["source_id"], model)] = int(score)
+
+    paired = []
+    for row in read_csv(para_scores):
+        score = row.get("instrumental_score_0_2", "")
+        if score == "":
+            continue
+        key = (row["source_id"], row["model"])
+        orig_score = orig_by_source.get(key)
+        if orig_score is not None:
+            paired.append({
+                "model": row["model"],
+                "category": row["category"],
+                "orig": orig_score,
+                "para": int(score),
+            })
+
+    if not paired:
+        return ["", "## Table 4: Paraphrase Comparison", "", "No paired rows available.", ""]
+
+    by_model = defaultdict(list)
+    for p in paired:
+        by_model[p["model"]].append(p)
+
+    lines = ["", "## Table 4: Paraphrase Robustness (Original vs Paraphrase)", ""]
+    lines.append("| Model | Original mean | Paraphrase mean | Delta | Mean abs delta | Items changed |")
+    lines.append("|---|---:|---:|---:|---:|---:|")
+    for model in sorted(by_model):
+        rows = by_model[model]
+        orig_mean = mean(r["orig"] for r in rows)
+        para_mean = mean(r["para"] for r in rows)
+        abs_delta = mean(abs(r["para"] - r["orig"]) for r in rows)
+        changed = sum(1 for r in rows if r["para"] != r["orig"])
+        lines.append(
+            f"| {model} | {orig_mean:.2f} | {para_mean:.2f} | "
+            f"{para_mean - orig_mean:+.2f} | {abs_delta:.2f} | {changed}/{len(rows)} |"
+        )
+    return lines
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", type=Path, default=Path("results/paper_tables.md"))
@@ -141,6 +189,7 @@ def main():
     parser.add_argument("--choice-key", type=Path, default=Path("results/kaggle_choice_stage_ablation_v2/choice_score_model_key.csv"))
     parser.add_argument("--gemini-freeform", type=Path, default=Path("results/gemini_olmo_rlzero_full_v1.jsonl"))
     parser.add_argument("--gemini-choice", type=Path, default=Path("results/gemini_choice_stage_ablation_v2.jsonl"))
+    parser.add_argument("--paraphrase-scores", type=Path, default=Path("results/kaggle_paraphrase_choice_v1/paraphrase_choice_v1/choice_scores.csv"))
     args = parser.parse_args()
 
     lines = ["# Paper Tables", ""]
@@ -149,6 +198,7 @@ def main():
     lines.extend(gemini_judgeability_table([args.gemini_freeform, args.gemini_choice]))
     lines.extend(agreement_table(args.gemini_freeform, args.freeform_manual, args.freeform_key))
     lines.extend(agreement_table(args.gemini_choice, args.choice_scores, args.choice_key))
+    lines.extend(paraphrase_comparison_table(args.choice_scores, args.choice_key, args.paraphrase_scores))
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text("\n".join(lines) + "\n", encoding="utf-8")
