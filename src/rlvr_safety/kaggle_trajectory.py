@@ -139,9 +139,6 @@ def run_worker(
         out_dir / f"model_{model_index}_metadata.json",
         {**metadata, "step": model_spec["step"], "gpu_slot": gpu_id, "completed_utc": utc_now()},
     )
-    cache_path = os.environ.get("HF_HOME")
-    if cache_path:
-        shutil.rmtree(cache_path, ignore_errors=True)
     print(f"Worker {model_index} completed {len(rows)} rows on GPU slot {gpu_id}", flush=True)
 
 
@@ -160,7 +157,7 @@ def launch_workers(
         env = dict(os.environ)
         env["CUDA_VISIBLE_DEVICES"] = str(slot)
         env["PYTHONUNBUFFERED"] = "1"
-        env["HF_HOME"] = str(out_dir / f"hf_cache_model_{model_index}")
+        env["HF_HUB_DISABLE_XET"] = "1"
         command = [
             sys.executable,
             str(wrapper_path),
@@ -180,6 +177,7 @@ def launch_workers(
         return_code = process.wait()
         if return_code != 0:
             errors.append({"model_index": model_index, "return_code": return_code})
+    shutil.rmtree(Path.home() / ".cache/huggingface", ignore_errors=True)
     return errors
 
 
@@ -314,6 +312,8 @@ def main(wrapper_path: Path | None = None) -> None:
             "requested_dependencies": PINNED_DEPENDENCIES,
             "package_source": str(source_root),
             "package_versions": package_versions(),
+            "huggingface_cache": "shared_default_deleted_after_both_workers",
+            "hf_hub_disable_xet": True,
             "gpus": names,
             "source_prompt_path": str(source_prompts_path),
             "source_prompt_rows": len(prompt_rows),

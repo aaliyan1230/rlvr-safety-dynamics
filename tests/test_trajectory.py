@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import inspect
 import json
 import unittest
 from pathlib import Path
 
+from rlvr_safety import kaggle_trajectory
 from rlvr_safety.io import read_jsonl
 from rlvr_safety.kaggle_trajectory import validate_prompt_pack, validate_wave_config
 
@@ -33,6 +35,12 @@ class TrajectoryWaveTests(unittest.TestCase):
         config["models"][1]["step"] = 0
         with self.assertRaises(ValueError):
             validate_wave_config(config)
+
+    def test_worker_cache_is_outside_persisted_output_and_xet_is_disabled(self) -> None:
+        source = inspect.getsource(kaggle_trajectory.launch_workers)
+        self.assertIn('env["HF_HUB_DISABLE_XET"] = "1"', source)
+        self.assertNotIn('env["HF_HOME"]', source)
+        self.assertIn('Path.home() / ".cache/huggingface"', source)
 
 
 if __name__ == "__main__":
