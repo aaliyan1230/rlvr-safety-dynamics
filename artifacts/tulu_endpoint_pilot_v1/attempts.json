@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "remote_kernel": "aaliyanshaikh/rlvr-tulu-grpo-endpoint-pilot-v1",
+  "attempts": [
+    {
+      "kernel_version": 1,
+      "completed_utc": "2026-07-12T15:52:48.299815+00:00",
+      "config_sha256": "4c5f5b378d2cdffae1964ecffd278f7bc41f5689dfa753d0d2b8208636083dc8",
+      "rows": 96,
+      "malformed": 0,
+      "token_capped": 0,
+      "disposition": "superseded_protocol_warning",
+      "reason": "Generation omitted an attention mask while pad_token_id equaled eos_token_id. The pilot was not interpreted scientifically; the protocol was repaired and rerun."
+    },
+    {
+      "kernel_version": 2,
+      "completed_utc": "2026-07-12T17:17:18.597123+00:00",
+      "config_sha256": "a67ad0ff9036399fc1f3ba28f70f9e03203354b324a1060625bfbf997dcc197c",
+      "rows": 96,
+      "malformed": 0,
+      "token_capped": 0,
+      "attention_mask_mode": "explicit_all_ones",
+      "disposition": "accepted_feasibility_artifact"
+    }
+  ],
+  "attempt_1_vs_attempt_2": {
+    "paired_cells": 96,
+    "choice_agreement": 1.0,
+    "semantic_score_agreement": 1.0,
+    "exact_response_agreement": 1.0
+  }
+}

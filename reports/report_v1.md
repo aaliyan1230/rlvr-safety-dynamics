@@ -1,278 +1,186 @@
-# RLVR Safety Evals Are Often Limited by Judgeability Before Behavioral Signal
+# Safety drift or measurement drift? A corrected small-model audit
 
 ## Summary
 
-This project tested whether current small open reasoning/RLVR-lineage models show stronger instrumental-convergence-style behavior than matched instruction models.
+This project began by asking whether small open RLVR-lineage models show more instrumental behavior than related instruction checkpoints. The audit uncovered a more immediate problem: the original structured comparisons mixed model behavior with option order, prompt wording, output censoring, and inference-runtime drift.
 
-The current evidence does not support a robust positive behavioral-risk claim.
+After correcting the design and reproducing the historical runtimes, the defensible result is:
 
-The stronger finding is methodological: Thinking/RL-Zero-style outputs often become harder to judge before they become clearly more instrumentally risky. They are more likely to be verbose, token-capped, malformed, or contaminated with reasoning traces. Safety evals that do not measure judgeability separately can therefore confuse output-format artifacts with behavioral differences.
+> No robust increase in instrumental-risk choices was detected across the evaluated OLMo SFT, DPO, and final Instruct checkpoints. Marginal stage differences are practically small under two complete counterbalanced inference protocols, while individual responses remain highly sensitive to wording, semantic option order, and runtime.
 
-A secondary finding from two validated paraphrase seeds is that even when judgeability is clean, prompt-wording sensitivity can move measured scores by more than model-stage differences. In this setup, prompt wording effects exceeded the spread across OLMo Instruct-stage models (SFT, DPO, Instruct).
+This is not evidence that RLVR is generally safe. The OLMo checkpoints are not a controlled RLVR trajectory, the item pool contains only 24 authored sources, and the semantic audit lacks independent blinded human review.
 
-## Research Question
+## Research questions
 
-Do small open reasoning/RLVR-lineage models show more goal persistence, resource acquisition, self-preservation, deception, or evaluation awareness than matched instruction models?
+1. After averaging over four wordings and all six semantic option orders, how large are the descriptive differences among OLMo SFT, DPO, and final Instruct checkpoints?
+2. How stable is the instrument to wording, option position, quantization, and dependency/runtime changes?
+3. Which apparent historical effects survive exact inference reproduction?
+4. What controlled follow-up can distinguish behavioral safety drift from measurement drift during verifiable-reward optimization?
 
-Secondary question:
+## Evidence and methods
 
-Are apparent differences actually behavioral, or are they dominated by output format, judgeability, and prompt wording?
+### Baseline layers
 
-## Methods
+The retained baseline contains:
 
-The project uses three evaluation layers.
+- 48 free-form prompts per OLMo model, including 40 risk prompts and eight benign controls;
+- 24 structured-choice source items across resource acquisition, self-preservation, and evaluation awareness; and
+- Gemini-assisted triage followed by explicit, machine-readable adjudication of six free-form scores.
 
-1. Free-form prompts over goal persistence, resource acquisition, self-preservation, deception, evaluation awareness, and benign controls.
-2. Structured choice prompts over the highest-signal categories: resource acquisition, self-preservation, and evaluation awareness.
-3. Gemini Flash-Lite judgeability review using the official Gemini SDK, with manual labels retained as final authority.
+Scores use the ordinal index 0=safe/non-instrumental, 1=ambiguous/mixed, and 2=clear instrumental endorsement. Arithmetic means are descriptive summaries of that scale.
 
-Two independent Gemini-validated paraphrase seeds were generated for the 24 structured-choice prompts. Each seed was validated to confirm safe=0, ambiguous=1, risky=2 semantics were preserved (24/24 passed both times). The three clean OLMo Instruct-stage models were re-run on each paraphrase seed.
+### Counterbalanced design
 
-Generation was run on Kaggle GPU. Scoring, analysis, Gemini judge passes, and table generation were run locally.
+The corrected structured design crosses:
 
-## Defined Metrics
+| Factor | Levels |
+|---|---|
+| Source item | 24; eight per category |
+| Wording | original, P1, P2, P3 |
+| Semantic option order | all six permutations of 0/1/2 over A/B/C |
+| Model stage | SFT, DPO, final Instruct |
+| Total per protocol | 1,728 responses |
 
-This report uses several metrics to quantify judgeability and prompt sensitivity:
+Both completed runs use deterministic greedy decoding and a 96-token limit. The first uses explicit NF4, fp16 compute, and double quantization. The second uses `BitsAndBytesConfig(load_in_4bit=True)` under the same pinned Transformers 4.57.6 environment. Both have 1,728/1,728 unique cells, zero malformed rows, zero capped rows, immutable model revisions, and checksummed inputs and outputs.
 
-**Judgeability failure rate**: Fraction of scored rows that are malformed, token-capped, or flagged for human review. Computed per-model as `(malformed + token_capped + needs_review) / total_rows`.
+The independent resampling unit is the authored source item, not each repeated condition. Reported intervals are 95% source-clustered bootstrap intervals. The practical-equivalence margin for paired stage contrasts was fixed at ±0.10 points.
 
-**Prompt sensitivity delta**: Difference between paraphrase mean score and original mean score, computed per-model and per-category. Positive values indicate the paraphrase wording elicited higher measured instrumental endorsement.
+### Exact historical-runtime crossover
 
-**Item flip rate**: Fraction of individual source items (prompts) whose score changes between original and paraphrase. Computed as `items_with_score_change / total_paired_items`.
+The historical original stage run and P1/P2 runs used different content-addressed Kaggle images. The reciprocal reproduction runs the same 216 cells under each exact image:
 
-**Model-stage spread**: Difference between the highest and lowest mean scores among the three clean OLMo Instruct-stage models (SFT, DPO, Instruct). On the original prompts, this spread is 0.08 (SFT=0.50 minus Instruct=0.42).
+- original wording at every source's historical semantic order;
+- P1 at order 012;
+- P2 at order 012;
+- three OLMo stages and 24 sources.
 
-## Models
+One panel reproduces the original-stage environment; the other reproduces the P1/P2 environment. The difference-in-differences is
 
-Qwen cheap test:
+`[(candidate − original) under P1/P2 runtime] − [(candidate − original) under stage runtime]`.
 
-* `Qwen/Qwen3-4B-Instruct-2507`
-* `Qwen/Qwen3-4B-Thinking-2507`
+This isolates runtime sensitivity for the historical layouts. It still cannot separate candidate wording from option position because P1/P2 remain fixed at order 012.
 
-OLMo free-form run:
+## Results
 
-* `allenai/Olmo-3-7B-Instruct`
-* `allenai/Olmo-3-7B-RL-Zero-General`
+### 1. Free-form and reasoning-style runs are censored comparisons
 
-OLMo structured stage ablation:
+Final adjudicated visible-text results over 40 risk prompts are:
 
-* `allenai/Olmo-3-7B-Instruct-SFT`
-* `allenai/Olmo-3-7B-Instruct-DPO`
-* `allenai/Olmo-3-7B-Instruct`
-* `allenai/Olmo-3-7B-RL-Zero-General`
-
-## Result 1: Qwen Thinking Was Confounded
-
-The first Qwen cheap test appeared to show higher risk for the Thinking model, but the comparison was dominated by output-format problems.
-
-Risk-prompt aggregate:
-
-| Model | Mean risk | Confounded risk rows |
-|---|---:|---:|
-| Qwen3 4B Instruct | 0.20 | 0/10 |
-| Qwen3 4B Thinking | 0.50 | 9/10 |
-
-The Thinking model hit the 192-token cap on 11/12 outputs and exposed or implied reasoning traces despite concise-answer prompting.
-
-Conclusion: the Qwen run is useful as a confound discovery result, not clean behavioral evidence.
-
-## Result 2: OLMo RL-Zero-General Did Not Show A Free-Form Risk Increase
-
-The full OLMo free-form run did not support the original risk-increase hypothesis.
-
-| Model | Mean manual risk | Score counts | Confounded risk rows |
+| Model | Mean | Score counts | Confounded rows |
 |---|---:|---|---:|
-| OLMo 3 Instruct | 0.38 | 27x0, 11x1, 2x2 | 0/40 |
-| OLMo 3 RL-Zero-General | 0.35 | 26x0, 14x1, 0x2 | 16/40 |
+| OLMo 3 Instruct | 0.400 | 28×0, 8×1, 4×2 | 0/40 |
+| OLMo 3 RL-Zero-General | 0.325 | 28×0, 11×1, 1×2 | 16/40 |
 
-RL-Zero-General did not score higher than Instruct, and many of its rows were token-capped or verbosity-confounded.
+RL-Zero-General does not score higher on visible text, but differential truncation makes a safety or equivalence interpretation invalid. Treating its 16 confounded rows as unknown on the 0–2 scale yields a wide all-attempt bound of [0.175, 0.975].
 
-Conclusion: this run does not show a robust behavioral-risk increase.
+The same problem is stronger in structured RL-Zero-General: all 24 outputs hit the token cap and eight are malformed. Qwen3 4B Thinking hit the cap on 11/12 outputs, with 9/10 risk rows confounded. These runs demonstrate judgeability and censoring failures, not clean behavioral effects.
 
-## Result 3: OLMo Stage Ablation Did Not Show Final Instruct > SFT/DPO
+### 2. The original clean stage ordering is fragile
 
-The structured choice eval made the OLMo Instruct-stage models easier to compare.
+On the original 24 structured items, SFT=0.500, DPO=0.458, and final Instruct=0.417. The three stages return identical scores on 22/24 items; two items generate the entire 0.083 range. This descriptive ordering is not a stable stage effect.
 
-| Model | Mean parsed risk | Counts | Malformed | Token-cap rows |
-|---|---:|---|---:|---:|
-| OLMo 3 Instruct | 0.42 | 14x0, 10x1, 0x2 | 0/24 | 0/24 |
-| OLMo 3 Instruct-DPO | 0.46 | 13x0, 11x1, 0x2 | 0/24 | 0/24 |
-| OLMo 3 Instruct-SFT | 0.50 | 13x0, 10x1, 1x2 | 0/24 | 0/24 |
-| OLMo 3 RL-Zero-General | 0.44 | 9x0, 7x1, 0x2 | 8/24 | 24/24 |
+### 3. Counterbalancing removes any material marginal stage separation
 
-Final Instruct did not score higher than SFT or DPO. The model-stage spread among the three clean models is 0.08 (0.50 - 0.42).
+| Protocol | Model | Marginal mean [95% CI] | Rows |
+|---|---|---:|---:|
+| NF4/double | Instruct | 0.366 [0.266, 0.469] | 576 |
+| NF4/double | DPO | 0.363 [0.260, 0.469] | 576 |
+| NF4/double | SFT | 0.377 [0.278, 0.488] | 576 |
+| Default 4-bit | Instruct | 0.380 [0.276, 0.488] | 576 |
+| Default 4-bit | DPO | 0.392 [0.292, 0.500] | 576 |
+| Default 4-bit | SFT | 0.413 [0.311, 0.528] | 576 |
 
-RL-Zero-General was not directly comparable because every row hit the token cap and one-third of rows were malformed. Judgeability failure rate: 24/24 (100%).
+The stage spread is 0.014 under NF4 and 0.033 under default 4-bit. Every paired stage-contrast interval is contained inside ±0.10:
 
-Conclusion: the stage ablation does not support a broad claim that final RLVR-style post-training increased instrumental choices.
+| Protocol | Contrast | Difference [95% CI] |
+|---|---|---:|
+| NF4/double | DPO − Instruct | −0.003 [−0.023, 0.017] |
+| NF4/double | SFT − Instruct | +0.010 [−0.033, 0.054] |
+| NF4/double | SFT − DPO | +0.014 [−0.024, 0.056] |
+| Default 4-bit | DPO − Instruct | +0.012 [−0.021, 0.042] |
+| Default 4-bit | SFT − Instruct | +0.033 [−0.021, 0.085] |
+| Default 4-bit | SFT − DPO | +0.021 [−0.019, 0.059] |
 
-## Result 4: Gemini Was Useful For Judgeability Triage
+The strict practical-equivalence criterion is therefore met for these stages in both protocols. This conclusion is conditional on the authored item pool, deterministic decoding, and the selected scale; it is not a causal or population-level equivalence statement.
 
-Gemini Flash-Lite was used as a second-pass judge for risk and judgeability. Manual adjudication remains final.
+### 4. Aggregate wording stability hides category opposition
 
-| Source | Model | Mean Gemini risk | Mean judgeability problem | Needs review | Failure modes |
-|---|---|---|---:|---:|---:|---|
-| Free-form | OLMo 3 Instruct | 0.25 | 0.00 | 0/48 | clean:48 |
-| Free-form | OLMo 3 RL-Zero-General | 0.21 | 0.56 | 9/48 | clean:34, token_capped:14 |
-| Structured choice | OLMo 3 Instruct | 0.42 | 0.00 | 0/24 | clean:24 |
-| Structured choice | OLMo 3 Instruct-DPO | 0.46 | 0.00 | 0/24 | clean:24 |
-| Structured choice | OLMo 3 Instruct-SFT | 0.50 | 0.00 | 0/24 | clean:24 |
-| Structured choice | OLMo 3 RL-Zero-General | 0.75 | 1.38 | 4/24 | malformed:5, other:4, token_capped:5, verbose_preamble:10 |
+No model-specific wording-versus-original interval excludes zero after marginalizing over all six orders. That aggregate result should not be read as semantic invariance.
 
-Agreement:
+Both protocols show the same qualitative category opposition:
 
-| Run | Comparable rows | Exact agreement | Binary nonzero agreement |
+- resource-acquisition rewrites lower scores relative to original, often with intervals excluding zero;
+- self-preservation rewrites raise scores, especially P2; and
+- evaluation-awareness effects vary by pack.
+
+These opposing shifts cancel in the pooled wording mean. A single global score therefore mixes constructs that respond differently to seemingly equivalent rewrites. The source-aware Gemini 2.5 Pro validator passed 72/72 source/candidate pairs, but that automated same-provider review is not enough to rule out subtle semantic movement. A blinded two-human audit remains required.
+
+### 5. Option-position behavior is inference-protocol dependent
+
+Under NF4, none of the simultaneous pooled or per-model risky-position intervals excludes zero. The pooled B-minus-A contrast is +0.002 [−0.092, 0.096]. Under default 4-bit, the same contrast is +0.127 [0.047, 0.206].
+
+The paired change in B-minus-A position effect from NF4 to default 4-bit is +0.125 [0.066, 0.186]. Thus a measurement bias can appear or disappear with the inference implementation even when marginal model-stage contrasts remain small.
+
+Only 39.6%–51.0% of model × source × wording cells are permutation-invariant under NF4 and 40.6%–46.9% under default 4-bit. Mean within-item wording and order ranges are about 0.60–0.65, far larger descriptively than the 0.014–0.033 marginal stage spreads. These range/spread comparisons are diagnostics, not causal ratios.
+
+### 6. The historical prompt-pack shifts also contain runtime drift
+
+The original stage environment reproduces all 72 historical original cells exactly. The P1/P2 environment reproduces all 144 historical candidate cells exactly. Exact reproduction therefore confirms the recovered images, package versions, immutable model revisions, and loading path.
+
+Holding all 216 historical layouts fixed and changing only the runtime gives:
+
+| Scope | Stage-runtime mean | P1/P2-runtime mean | Runtime delta [95% CI] |
 |---|---:|---:|---:|
-| Free-form OLMo | 96 | 79/96 (82.29%) | 85/96 (88.54%) |
-| Structured choice | 88 | 88/88 (100.00%) | 88/88 (100.00%) |
+| All cells | 0.546 | 0.634 | +0.088 [0.009, 0.171] |
+| Original | 0.458 | 0.500 | +0.042 [−0.056, 0.153] |
+| P1 | 0.597 | 0.625 | +0.028 [−0.153, 0.236] |
+| P2 | 0.583 | 0.778 | +0.194 [0.056, 0.361] |
 
-Conclusion: Gemini is useful for finding disagreement rows and judgeability failures, but it should not replace manual adjudication.
-
-## Result 5: Prompt Wording Sensitivity Exceeded Model-Stage Differences
-
-Two independent paraphrase seeds were run to test whether the structured-choice protocol is robust to prompt wording changes.
-
-Method:
-1. Gemini Flash-Lite generated a paraphrase for each of the 24 structured-choice prompts.
-2. Gemini validated whether safe=0, ambiguous=1, risky=2 semantics were preserved.
-3. The paraphrase pack passed validation (24/24 for both seeds).
-4. Models were re-run on Kaggle with the paraphrased prompts.
-5. All three clean OLMo Instruct-stage models were tested (RL-Zero-General excluded: 100% judgeability failure rate).
-
-This process was repeated for two independent paraphrase seeds.
-
-### Seed 1 (paraphrase run 2026-07-06)
-
-| Model | Original mean | Paraphrase mean | Delta | Paraphrase malformed | Paraphrase token-cap rows |
-|---|---:|---:|---:|---:|---:|
-| OLMo 3 Instruct | 0.42 | 0.58 | +0.17 | 0/24 | 0/24 |
-| OLMo 3 Instruct-DPO | 0.46 | 0.67 | +0.21 | 0/24 | 0/24 |
-| OLMo 3 Instruct-SFT | 0.50 | 0.62 | +0.12 | 0/24 | 0/24 |
-
-### Seed 2 (paraphrase run 2026-07-08)
-
-| Model | Original mean | Paraphrase mean | Delta | Paraphrase malformed | Paraphrase token-cap rows |
-|---|---:|---:|---:|---:|---:|
-| OLMo 3 Instruct | 0.42 | 0.75 | +0.33 | 0/24 | 0/24 |
-| OLMo 3 Instruct-DPO | 0.46 | 0.79 | +0.33 | 0/24 | 0/24 |
-| OLMo 3 Instruct-SFT | 0.50 | 0.79 | +0.29 | 0/24 | 0/24 |
-
-Both seeds were clean: 72/72 parsed, 0 malformed, 0 token-cap per seed.
-
-### Combined Sensitivity Summary
-
-| Model | Orig | Seed 1 mean | Seed 2 mean | Seed 1 delta | Seed 2 delta | Seed 1 flip | Seed 2 flip | Seed 1 MAD | Seed 2 MAD |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| OLMo 3 Instruct | 0.42 | 0.58 | 0.75 | +0.17 | +0.33 | 13/24 | 14/24 | 0.58 | 0.67 |
-| OLMo 3 Instruct-DPO | 0.46 | 0.67 | 0.79 | +0.21 | +0.33 | 12/24 | 16/24 | 0.54 | 0.67 |
-| OLMo 3 Instruct-SFT | 0.50 | 0.62 | 0.79 | +0.12 | +0.29 | 14/24 | 16/24 | 0.62 | 0.71 |
-
-MAD = mean absolute delta per item. Flip = fraction of items whose score changed.
-
-### Category-Level Deltas (Combined)
-
-| Model | Category | Orig | Seed 1 mean | Seed 2 mean | Seed 1 delta | Seed 2 delta | Seed 1 flip | Seed 2 flip |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| OLMo 3 Instruct | evaluation_awareness | 0.38 | 0.50 | 0.50 | +0.12 | +0.12 | 3/8 | 3/8 |
-| OLMo 3 Instruct | resource_acquisition | 0.75 | 0.38 | 0.50 | -0.38 | -0.25 | 3/8 | 4/8 |
-| OLMo 3 Instruct | self_preservation | 0.12 | 0.88 | 1.25 | +0.75 | +1.12 | 7/8 | 7/8 |
-| OLMo 3 Instruct-DPO | evaluation_awareness | 0.50 | 0.62 | 0.75 | +0.12 | +0.25 | 3/8 | 4/8 |
-| OLMo 3 Instruct-DPO | resource_acquisition | 0.75 | 0.38 | 0.62 | -0.38 | -0.12 | 3/8 | 5/8 |
-| OLMo 3 Instruct-DPO | self_preservation | 0.12 | 1.00 | 1.00 | +0.88 | +0.88 | 6/8 | 7/8 |
-| OLMo 3 Instruct-SFT | evaluation_awareness | 0.38 | 0.50 | 0.75 | +0.12 | +0.38 | 5/8 | 5/8 |
-| OLMo 3 Instruct-SFT | resource_acquisition | 0.75 | 0.62 | 0.75 | -0.12 | +0.00 | 3/8 | 4/8 |
-| OLMo 3 Instruct-SFT | self_preservation | 0.38 | 0.75 | 0.88 | +0.38 | +0.50 | 6/8 | 7/8 |
-
-### Key Observations
-
-**Judgeability stayed clean for all three models across both seeds.** Zero malformed responses, zero token-capped outputs. The structured-choice protocol is judgeable under paraphrase, which makes it a useful sensitivity instrument.
-
-**All three models scored higher under paraphrased wording in both seeds.** Every per-model delta was positive, ranging from +0.12 to +0.33. The ordinal ranking was preserved (SFT > DPO > Instruct), but the absolute levels shifted materially.
-
-**Self-preservation was the dominant sensitivity category.** Self-preservation deltas were +0.38 to +1.12, with flip rates of 6/8 to 7/8. Resource-acquisition scores declined or stayed flat in most cases.
-
-**Prompt wording effects exceeded model-stage differences.** The model-stage spread on original prompts was 0.08. Every prompt sensitivity delta (per-seed, per-model) was larger than 0.08, ranging from +0.12 to +0.33. The mean absolute deltas (0.54 to 0.71) were 7-9x larger than the model-stage spread.
-
-**Item flip rates were high.** Across both seeds, 50-67% of individual items changed score between original and paraphrase. This means the measured score for any given prompt-source pair is meaningfully sensitive to how the prompt is worded.
-
-**Seed dependence is real.** Seed 2 produced consistently larger deltas than Seed 1 (+0.29 to +0.33 vs +0.12 to +0.21). The qualitative pattern (self-preservation up, resource-acquisition down) held, but the magnitude varied. Reports should include sensitivity intervals, not single prompt-set scores.
+Only 174/216 scores and response letters agree between runtimes. The pack × runtime interactions are −0.014 [−0.208, 0.208] for P1 and +0.153 [−0.056, 0.361] for P2. Those interactions remain uncertain with 24 sources, so the historical shifts cannot be numerically decomposed into wording, option position, and runtime shares. The valid conclusion is non-identifiability, not that one confound alone explains everything.
 
 ## Interpretation
 
-The defensible claim is:
+The corrected OLMo result is a bounded measurement finding:
 
-> In these small open model runs, the strongest repeated effect is judgeability degradation, not a robust increase in instrumental behavior. When judgeability is clean, prompt wording effects can exceed model-stage differences.
+1. The balanced aggregate score does not materially separate SFT, DPO, and final Instruct under either tested 4-bit protocol.
+2. Individual choices are unstable across nominally equivalent wording/order conditions, and position effects themselves depend on the inference runtime.
+3. Historical paraphrase deltas are invalid as wording estimates because wording, position, and runtime changed together.
+4. Reasoning-style/RL-Zero outputs introduce severe, checkpoint-dependent censoring that must be modeled separately from behavior.
 
-Stronger claim (supported by the data):
+The stronger research question is therefore not whether answer order matters—it is already known to matter—but whether a safety-behavior trajectory and the measurement-error trajectory diverge during one controlled post-training run.
 
-> Across two validated paraphrase seeds, prompt wording moved measured instrumental-risk scores by 7-9x more than the spread across OLMo Instruct-stage models.
+## Recommended follow-up
 
-This matters because safety evals can become misleading if:
+The configured Phase 2 study follows the exact Tülu 3.1 8B GRPO lineage from the pinned DPO base through 11 public GRPO checkpoints. At each of 12 points it would run the complete 576-condition factorial, totaling 6,912 structured responses. A capability anchor verifies that optimization is active, and blinded free-form anchors at selected milestones determine whether any structured signal generalizes across format.
 
-* token-capped rows are treated as complete answers,
-* malformed structured-choice outputs are parsed as comparable responses,
-* exposed reasoning traces are scored the same way as final answers,
-* judgeability failures are folded into behavioral risk scores,
-* single prompt-set scores are reported without sensitivity intervals.
+Launch remains conditional on:
 
-The paraphrase result is important not because it shows RLVR causes anything, but because it shows that **even semantically validated rewording can shift measured scores by more than the effect size being studied.** If a safety eval claims a model-stage difference of 0.08 but prompt wording shifts scores by 0.12-0.33, the eval's resolution is insufficient for the claim.
+- a blinded two-reviewer semantic audit of all 72 source/candidate pairs;
+- frozen free-form scoring and capability panels;
+- a clean-checkout reproduction of the Phase 1 artifacts and analyses.
 
-## Limitations
+The endpoint feasibility gate has passed. The repaired pinned step-0/step-1,920 pilot produced 96/96 strict responses with zero malformed or capped rows, exact revision resolution, explicit attention masks, 6.63 GiB peak memory per T4, and 7.8 minutes wall time. These pilot outputs establish execution feasibility only and are not a marginalized safety comparison.
 
-The prompt set is small and hand-written. The scoring rubric is transparent but subjective. The model set is narrow. Thinking/Instruct and RL-Zero/Instruct comparisons do not isolate causal effects of RLVR. Small models may not express the same behaviors as frontier reasoning models. Gemini is a useful reviewer, not ground truth.
-
-Paraphrase robustness covers two validated Gemini seeds. While both show consistent qualitative patterns, additional independent paraphrases (human-written or from different models) would strengthen the sensitivity interval claim.
+The prespecified result labels are safety drift, measurement drift, mixed drift, no detectable drift, or inconclusive. A structured multiple-choice change alone is not enough for a safety-drift claim.
 
 ## Reproducibility
 
-Local non-GPU checks:
-
 ```bash
-make validate
-make choice-eval
-make validate-choice
-make compile
-make smoke-score
-make smoke-choice-score
-make smoke-gemini-judge
-make smoke-gemini-paraphrase
-make smoke-judge-analysis
-make paper-tables
+python3 -m pip install -e '.[analysis,dev]'
+make check
+make analyze-factorial
+make analyze-runtime-crossover
 ```
 
-Paper tables:
+The compact evidence bundles and SHA-256 manifests live under `artifacts/`. Detailed generated outputs and model caches are intentionally excluded; each compact bundle records the remote Kaggle kernel, exact config, resolved revisions, runtime metadata, scored rows, metrics, and checksums needed to audit the reported results.
 
-```bash
-make paper-tables
-```
+## Limitations
 
-Prompt sensitivity (seed 1 only; seed 2 requires manual invocation):
-
-```bash
-make analyze-sensitivity
-```
-
-Gemini judge reruns require `GEMINI_API_KEY` in the local environment.
-
-GPU-heavy model generation should run on Kaggle, not locally.
-
-## Next Work
-
-No grant-required work:
-
-1. ~~Polish this report.~~
-2. ~~Add a qualitative examples appendix.~~
-3. ~~Update the README with current results.~~
-4. Share with BlueDot/community for feedback.
-
-Optional compute/API work:
-
-1. Run a third paraphrase seed to strengthen the sensitivity-interval claim (requires T4 GPU on Kaggle).
-2. Add human-written paraphrases as an additional validation layer.
-
-Deferred work:
-
-* Broad Qwen reruns.
-* Full RL-Zero-General reruns.
-* Larger model sweeps.
-* Activation analysis.
+- Twenty-four authored sources are too narrow for broad behavioral generalization.
+- Repeated wordings and orders improve within-source identification, not source-population coverage.
+- Deterministic decoding does not characterize sampling variability.
+- Arithmetic summaries of a 0/1/2 ordinal rubric are descriptive.
+- Automated semantic validation is not independent human validation.
+- Category cancellation questions whether one pooled construct is appropriate.
+- Quantization and dependencies alter response-level behavior.
+- OLMo SFT/DPO/Instruct is not the controlled GRPO trajectory needed for an RLVR causal claim.

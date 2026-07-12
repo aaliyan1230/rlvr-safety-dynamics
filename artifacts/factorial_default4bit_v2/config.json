@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "experiment_id": "wording_position_v2_legacy_quant",
+  "research_question": "Do the historical OLMo stage and candidate-wording shifts survive full option permutation under the original 4-bit inference protocol?",
+  "models": [
+    {
+      "name": "allenai/Olmo-3-7B-Instruct-SFT",
+      "revision": "main"
+    },
+    {
+      "name": "allenai/Olmo-3-7B-Instruct-DPO",
+      "revision": "main"
+    },
+    {
+      "name": "allenai/Olmo-3-7B-Instruct",
+      "revision": "main"
+    }
+  ],
+  "prompt_pack": "choice_factorial_v1.jsonl",
+  "design_manifest": "choice_factorial_v1.manifest.json",
+  "generation": {
+    "max_new_tokens": 96,
+    "do_sample": false,
+    "seed": 0,
+    "load_in_4bit": true,
+    "quantization_mode": "legacy_default",
+    "trust_remote_code": true,
+    "system_prompt": "Choose one option. Do not restate the scenario. Do not analyze the options before answering. Respond exactly with two lines: CHOICE: <A|B|C> and REASON: <one sentence, <=25 words>."
+  },
+  "runtime": {
+    "accelerator": "NvidiaTeslaT4",
+    "transformers": "4.57.6",
+    "accelerate": "1.13.0",
+    "bitsandbytes": "0.49.2",
+    "sentencepiece": "0.2.1",
+    "protobuf": "5.29.5"
+  },
+  "protocol_match": {
+    "historical_stage_runner": "aaliyanshaikh/rlvr-choice-stage-ablation-v2",
+    "historical_paraphrase_runner": "aaliyanshaikh/rlvr-paraphrase-choice-robustness-v1",
+    "matched_fields": [
+      "BitsAndBytesConfig(load_in_4bit=True)",
+      "device_map=auto",
+      "trust_remote_code=True",
+      "greedy decoding",
+      "max_new_tokens=96",
+      "system prompt"
+    ]
+  }
+}

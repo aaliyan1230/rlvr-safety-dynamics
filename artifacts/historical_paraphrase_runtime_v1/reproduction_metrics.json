@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "comparisons": [
+    {
+      "wording_id": "p1",
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "rows": 24,
+      "historical_mean": 0.5833333333333334,
+      "factorial_mean": 0.5833333333333334,
+      "factorial_minus_historical": 0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0,
+      "score_agreement": 1.0,
+      "choice_agreement": 1.0
+    },
+    {
+      "wording_id": "p1",
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "rows": 24,
+      "historical_mean": 0.6666666666666666,
+      "factorial_mean": 0.6666666666666666,
+      "factorial_minus_historical": 0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0,
+      "score_agreement": 1.0,
+      "choice_agreement": 1.0
+    },
+    {
+      "wording_id": "p1",
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "rows": 24,
+      "historical_mean": 0.625,
+      "factorial_mean": 0.625,
+      "factorial_minus_historical": 0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0,
+      "score_agreement": 1.0,
+      "choice_agreement": 1.0
+    },
+    {
+      "wording_id": "p2",
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "rows": 24,
+      "historical_mean": 0.75,
+      "factorial_mean": 0.75,
+      "factorial_minus_historical": 0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0,
+      "score_agreement": 1.0,
+      "choice_agreement": 1.0
+    },
+    {
+      "wording_id": "p2",
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "rows": 24,
+      "historical_mean": 0.7916666666666666,
+      "factorial_mean": 0.7916666666666666,
+      "factorial_minus_historical": 0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0,
+      "score_agreement": 1.0,
+      "choice_agreement": 1.0
+    },
+    {
+      "wording_id": "p2",
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "rows": 24,
+      "historical_mean": 0.7916666666666666,
+      "factorial_mean": 0.7916666666666666,
+      "factorial_minus_historical": 0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0,
+      "score_agreement": 1.0,
+      "choice_agreement": 1.0
+    }
+  ],
+  "different_score_cells": 0,
+  "difference_examples": []
+}

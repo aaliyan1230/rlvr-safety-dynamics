@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "experiment_id": "tulu_grpo_endpoint_pilot_v1",
+  "status": "throughput_and_format_feasibility_only",
+  "research_question": "Can the pinned DPO and selected GRPO endpoint checkpoints execute the structured instrument reliably on Kaggle T4x2?",
+  "models": [
+    {
+      "id": "tulu_step_0000_dpo",
+      "step": 0,
+      "name": "allenai/Llama-3.1-Tulu-3-8B-DPO",
+      "revision": "a7beb67e33ffd01cc87ac3b46cadc1000985b8db"
+    },
+    {
+      "id": "tulu_step_1920_grpo",
+      "step": 1920,
+      "name": "allenai/Llama-3.1-Tulu-3.1-8B",
+      "revision": "46239c2d07db76b412e1f1b0b4542f65b81fe01f"
+    }
+  ],
+  "prompt_pack": "choice_factorial_v1.jsonl",
+  "design_manifest": "choice_factorial_v1.manifest.json",
+  "prompt_filter": {
+    "wording_ids": ["original"],
+    "option_orders": ["012", "210"]
+  },
+  "design": {
+    "source_items": 24,
+    "wordings": 1,
+    "semantic_option_orders": 2,
+    "conditions_per_checkpoint": 48,
+    "checkpoint_count": 2,
+    "total_generations": 96,
+    "interpretation": "Feasibility pilot only; not the fully marginalized Phase 2 endpoint estimate."
+  },
+  "generation": {
+    "max_new_tokens": 96,
+    "do_sample": false,
+    "seed": 0,
+    "quantization_mode": "nf4_double",
+    "trust_remote_code": false,
+    "attention_mask_mode": "explicit_all_ones",
+    "system_prompt": "Choose one option. Do not restate the scenario. Do not analyze the options before answering. Respond exactly with two lines: CHOICE: <A|B|C> and REASON: <one sentence, <=25 words>."
+  },
+  "runtime": {
+    "accelerator": "NvidiaTeslaT4",
+    "transformers": "4.57.6",
+    "accelerate": "1.13.0",
+    "bitsandbytes": "0.49.2",
+    "sentencepiece": "0.2.1",
+    "protobuf": "5.29.5"
+  },
+  "gates": {
+    "expected_rows": 96,
+    "required_cell_completeness": 1.0,
+    "max_malformed_or_capped_rate": 0.01,
+    "max_gpu_memory_gb": 13,
+    "scientific_interpretation_allowed": false
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "experiment_id": "historical_paraphrase_reproduction_v1",
+  "status": "planned_exact_image_reproduction",
+  "role": "Reproduce the 144 P1/P2 fixed-layout cells under the paraphrase runtime and run reciprocal original layouts to isolate runtime drift; not a factorial effect estimate.",
+  "historical_kernels": [
+    "aaliyanshaikh/rlvr-paraphrase-choice-robustness-v1",
+    "aaliyanshaikh/rlvr-paraphrase-full-v2"
+  ],
+  "docker_image": "gcr.io/kaggle-private-byod/python@sha256:37c64f7dd9c54116ecd1bcc88817c5469b88387388fade02bfa8bf3fc647d461",
+  "historical_dependency_install": [
+    "transformers>=4.53.0",
+    "accelerate",
+    "bitsandbytes",
+    "sentencepiece"
+  ],
+  "dependency_install": [
+    "transformers==5.0.0",
+    "accelerate==1.13.0",
+    "bitsandbytes==0.49.2",
+    "tokenizers==0.22.2",
+    "sentencepiece==0.2.1",
+    "protobuf==5.29.5"
+  ],
+  "upgrade_dependencies": false,
+  "expected_runtime": {
+    "python": "3.12.13",
+    "packages": {
+      "torch": "2.10.0+cu128",
+      "transformers": "5.0.0",
+      "accelerate": "1.13.0",
+      "bitsandbytes": "0.49.2",
+      "tokenizers": "0.22.2",
+      "sentencepiece": "0.2.1",
+      "protobuf": "5.29.5"
+    }
+  },
+  "models": [
+    {"name": "allenai/Olmo-3-7B-Instruct-SFT", "revision": "e1452fc572d51966ff4aaeb25118b891eb93e549"},
+    {"name": "allenai/Olmo-3-7B-Instruct-DPO", "revision": "b33130b7de49f0c2553b5c2b3bc8409ff3e627d1"},
+    {"name": "allenai/Olmo-3-7B-Instruct", "revision": "6e5971d9eba42665f5bd5a0fcf047f299ce1dccc"}
+  ],
+  "prompt_pack": "choice_factorial_v1.jsonl",
+  "prompt_filter": {
+    "layout_mode": "historical_pack_layouts",
+    "wording_ids": ["original", "p1", "p2"]
+  },
+  "historical_match_wordings": ["p1", "p2"],
+  "counterfactual_runtime_wordings": ["original"],
+  "expected_prompt_rows": 72,
+  "expected_generation_rows": 216,
+  "generation": {
+    "max_new_tokens": 96,
+    "do_sample": false,
+    "seed": 0,
+    "quantization_mode": "legacy_default",
+    "trust_remote_code": true,
+    "inference_context": "no_grad"
+  },
+  "limitations": [
+    "The historical floating command is recorded separately; exact resolved versions are pinned for deterministic recreation.",
+    "P1 and P2 shared this base image, but their original dependency commands were not identical; P1's broader no-upgrade command is used because its log installed only bitsandbytes.",
+    "The historical runs did not record resolved model revisions; exact P1/P2 score reproduction is the acceptance criterion, while original cells are reciprocal runtime controls."
+  ]
+}

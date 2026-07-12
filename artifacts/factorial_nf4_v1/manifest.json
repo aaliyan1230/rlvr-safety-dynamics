@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "experiment_id": "wording_position_v1",
+  "role": "Completed NF4/double-quant robustness run; not the historical-protocol primary replication.",
+  "remote_kernel": "aaliyanshaikh/rlvr-wording-position-factorial-v1-run",
+  "completion": {
+    "rows": 1728,
+    "expected_rows": 1728,
+    "malformed": 0,
+    "token_capped": 0,
+    "prompt_sha256": "040de139b26f4d78230dc47ec9ee4f9be933b13bbeb3e44eb1a3d6630bb7ed29",
+    "config_sha256": "79b376450f233fa74206a9f80f3232dc86da9efccf048a9a27d58e53f399029b"
+  },
+  "files": {
+    "choice_scores.csv": "ef6c7dd1840a233ca9a4efe1a7f99526e8a8e6264a70f03bdc3aed3b01d28267",
+    "factorial_metrics.json": "e659653955ed6222ef4e08b5ef39ab12fd4dbf122b9f66a55a586a598aaf71fa",
+    "kernel-metadata.json": "a8bf6c4c7c4169be76d188b095b85896bedadf5b9cf29ac546a4056bc6f48c89",
+    "model_0_metadata.json": "30a407e8481eae8c5d26fa4d966947bf542a9bc967f28c1addb16d265671eddd",
+    "model_1_metadata.json": "5f60f9416960fae0c927c60b4ae5362972d5a27582ef9f8a1ae77ce7d132eb82",
+    "model_2_metadata.json": "c55c6a204dcc4bcf8d2be3f1f1140c324dff9e1f4970a26606970a56525de995",
+    "reproduction_metrics.json": "dc58d701d333c668b65fe4e93c356f1b8aefa8a6ac8484cb074166c5dd103421",
+    "run_factorial.py": "b65ad45c1cb9bcf438a1c2540652ef63c777b2cb9d796cded560a47fc095a997",
+    "run_metadata.json": "e747348ae50382b0c111898fefb7e1b9a5c17a51fcf567509281627a7ec8cf72",
+    "run_summary.json": "a72942956a6f42445cef5da4c5059ef30e72f4e4d5d4c6977abb9798ef99b2c6"
+  }
+}

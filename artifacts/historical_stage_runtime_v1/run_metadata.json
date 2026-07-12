@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "experiment_id": "historical_stage_reproduction_v1",
+  "started_utc": "2026-07-10T19:49:33.432870+00:00",
+  "python": "3.12.13",
+  "platform": "Linux-6.12.90+-x86_64-with-glibc2.35",
+  "requested_docker_image": "gcr.io/kaggle-private-byod/python@sha256:57e612b484cf3df5026ee4dcc3cb176974b22b2bc0937fb1e16132a8be4cb13c",
+  "historical_dependency_install": [
+    "transformers>=4.57.0",
+    "accelerate",
+    "bitsandbytes"
+  ],
+  "dependency_install": [
+    "transformers==5.12.1",
+    "accelerate==1.14.0",
+    "bitsandbytes==0.49.2",
+    "tokenizers==0.22.2",
+    "sentencepiece==0.2.1",
+    "protobuf==5.29.5"
+  ],
+  "upgrade_dependencies": false,
+  "package_source": "/kaggle/input/datasets/aaliyanshaikh/rlvr-wording-position-factorial-v1/src",
+  "package_versions": {
+    "torch": "2.10.0+cu128",
+    "transformers": "5.12.1",
+    "accelerate": "1.14.0",
+    "bitsandbytes": "0.49.2",
+    "sentencepiece": "0.2.1",
+    "protobuf": "5.29.5",
+    "tokenizers": "0.22.2",
+    "huggingface-hub": "1.10.1"
+  },
+  "gpus": [
+    "Tesla T4",
+    "Tesla T4"
+  ],
+  "source_prompt_path": "/kaggle/input/datasets/aaliyanshaikh/rlvr-wording-position-factorial-v1/choice_factorial_v1.jsonl",
+  "source_prompt_sha256": "040de139b26f4d78230dc47ec9ee4f9be933b13bbeb3e44eb1a3d6630bb7ed29",
+  "filtered_prompt_path": "/kaggle/working/historical_stage_reproduction_v1/filtered_prompts.jsonl",
+  "filtered_prompt_sha256": "1b08bc3eaa62adcf4981c936798a7b4fb5d6ec7acca6a292b37cac86be35eb1f",
+  "filtered_prompt_rows": 72,
+  "prompt_filter": {
+    "layout_mode": "historical_pack_layouts",
+    "wording_ids": [
+      "original",
+      "p1",
+      "p2"
+    ]
+  },
+  "config_path": "/kaggle/input/datasets/aaliyanshaikh/rlvr-wording-position-factorial-v1/historical_stage_reproduction_v1.json"
+}

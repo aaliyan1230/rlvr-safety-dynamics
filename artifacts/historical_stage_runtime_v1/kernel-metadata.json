@@ -1,0 +1,23 @@
+{
+  "id": "aaliyanshaikh/rlvr-historical-stage-reproduction-v1",
+  "id_no": 126626099,
+  "title": "rlvr-historical-stage-reproduction-v1",
+  "code_file": "rlvr-historical-stage-reproduction-v1.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "keywords": [
+    "gpu"
+  ],
+  "dataset_sources": [
+    "aaliyanshaikh/rlvr-wording-position-factorial-v1"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [],
+  "model_sources": [],
+  "docker_image": "gcr.io/kaggle-private-byod/python@sha256:57e612b484cf3df5026ee4dcc3cb176974b22b2bc0937fb1e16132a8be4cb13c",
+  "machine_shape": "NvidiaTeslaT4"
+}

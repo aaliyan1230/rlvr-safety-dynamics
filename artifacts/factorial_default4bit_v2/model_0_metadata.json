@@ -1,0 +1,12 @@
+{
+  "model": "allenai/Olmo-3-7B-Instruct-SFT",
+  "model_revision_requested": "main",
+  "model_revision_resolved": "e1452fc572d51966ff4aaeb25118b891eb93e549",
+  "rows": 576,
+  "seed": 0,
+  "max_new_tokens": 96,
+  "quantization_mode": "legacy_default",
+  "trust_remote_code": true,
+  "gpu_slot": 0,
+  "completed_utc": "2026-07-10T16:19:23.838745+00:00"
+}

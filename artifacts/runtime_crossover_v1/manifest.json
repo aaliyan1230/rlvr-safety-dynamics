@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "experiment_id": "historical_runtime_crossover_v1",
+  "role": "Reciprocal exact-image analysis of identical historical prompt layouts under the stage and P1/P2 Kaggle runtimes.",
+  "completion": {
+    "paired_cells": 216,
+    "source_clusters": 24,
+    "score_agreement": 0.8055555555555556,
+    "overall_runtime_delta": 0.08796296296296297,
+    "overall_runtime_delta_ci_low": 0.009259259259259252,
+    "overall_runtime_delta_ci_high": 0.1712962962962963,
+    "p2_runtime_delta": 0.19444444444444445,
+    "p2_runtime_delta_ci_low": 0.055555555555555546,
+    "p2_runtime_delta_ci_high": 0.3611111111111111,
+    "p1_crossover_interaction": -0.01388888888888888,
+    "p2_crossover_interaction": 0.1527777777777778
+  },
+  "files": {
+    "metrics.json": "a1bbd0d1a43a83fc03377e3e509bb73a71f9cd911653555b30e1a3fa00923474",
+    "paraphrase_runtime_manifest.json": "618fd8904288c874b5f00082911dbe6eb8e51e9764af126a83630257a8fc0c0e",
+    "stage_runtime_manifest.json": "36933b6c45a3e2f6dc61ed5fb8c43c985c7399e75f44f165b15564b1c80537be"
+  }
+}

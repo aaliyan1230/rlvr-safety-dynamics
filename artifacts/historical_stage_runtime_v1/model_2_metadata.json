@@ -1,0 +1,31 @@
+{
+  "model": "allenai/Olmo-3-7B-Instruct",
+  "model_repo": "allenai/Olmo-3-7B-Instruct",
+  "model_revision_requested": "6e5971d9eba42665f5bd5a0fcf047f299ce1dccc",
+  "model_revision_resolved": "6e5971d9eba42665f5bd5a0fcf047f299ce1dccc",
+  "rows": 72,
+  "seed": 0,
+  "max_new_tokens": 96,
+  "quantization_mode": "legacy_default",
+  "trust_remote_code": true,
+  "inference_context": "no_grad",
+  "model_is_quantized": true,
+  "quantization_config_resolved": {
+    "quant_method": "bitsandbytes",
+    "_load_in_8bit": false,
+    "_load_in_4bit": true,
+    "llm_int8_threshold": 6.0,
+    "llm_int8_skip_modules": null,
+    "llm_int8_enable_fp32_cpu_offload": false,
+    "llm_int8_has_fp16_weight": false,
+    "bnb_4bit_quant_type": "fp4",
+    "bnb_4bit_use_double_quant": false,
+    "bnb_4bit_compute_dtype": "float32",
+    "bnb_4bit_quant_storage": "uint8",
+    "load_in_4bit": true,
+    "load_in_8bit": false
+  },
+  "peak_gpu_memory_bytes": 5746681856,
+  "gpu_slot": 0,
+  "completed_utc": "2026-07-10T20:05:20.673349+00:00"
+}

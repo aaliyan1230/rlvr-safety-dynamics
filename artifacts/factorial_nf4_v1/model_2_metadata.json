@@ -1,0 +1,10 @@
+{
+  "model": "allenai/Olmo-3-7B-Instruct",
+  "model_revision_requested": "main",
+  "model_revision_resolved": "6e5971d9eba42665f5bd5a0fcf047f299ce1dccc",
+  "rows": 576,
+  "seed": 0,
+  "max_new_tokens": 96,
+  "gpu_slot": 0,
+  "completed_utc": "2026-07-10T11:50:51.891870+00:00"
+}

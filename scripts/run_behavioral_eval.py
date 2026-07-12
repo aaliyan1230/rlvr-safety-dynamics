@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import sys
 from pathlib import Path
 
 
-def load_prompts(path: Path):
-    with path.open("r", encoding="utf-8") as f:
-        for line in f:
-            if line.strip():
-                yield json.loads(line)
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from rlvr_safety.io import read_jsonl  # noqa: E402
 
 
 def strip_thinking_trace(text: str) -> str:
@@ -56,6 +55,7 @@ def encode_prompt(tokenizer, prompt: str, system_prompt: str | None, disable_thi
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True)
+    parser.add_argument("--revision", default="main")
     parser.add_argument("--prompts", type=Path, default=Path("data/prompts_seed.jsonl"))
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--max-new-tokens", type=int, default=384)
@@ -63,6 +63,13 @@ def main():
     parser.add_argument("--strip-thinking", action="store_true")
     parser.add_argument("--disable-thinking", action="store_true")
     parser.add_argument("--system-prompt")
+    parser.add_argument("--trust-remote-code", action="store_true")
+    parser.add_argument(
+        "--dtype",
+        choices=("float16", "bfloat16", "float32"),
+        default="float16",
+        help="Non-quantized dtype. float16 is the safe default for Kaggle T4.",
+    )
     args = parser.parse_args()
 
     try:
@@ -73,23 +80,33 @@ def main():
             "Missing dependencies. Install torch and transformers on the GPU machine."
         ) from exc
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(
+        args.model,
+        revision=args.revision,
+        trust_remote_code=args.trust_remote_code,
+    )
 
     model_kwargs = {
         "device_map": "auto",
-        "trust_remote_code": True,
+        "revision": args.revision,
+        "trust_remote_code": args.trust_remote_code,
     }
     if args.load_in_4bit:
-        model_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True)
+        model_kwargs["quantization_config"] = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_use_double_quant=True,
+        )
     else:
-        model_kwargs["torch_dtype"] = torch.bfloat16
+        model_kwargs["torch_dtype"] = getattr(torch, args.dtype)
 
     model = AutoModelForCausalLM.from_pretrained(args.model, **model_kwargs)
     model.eval()
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     with args.out.open("w", encoding="utf-8") as out_f:
-        for row in load_prompts(args.prompts):
+        for row in read_jsonl(args.prompts):
             encoded = encode_prompt(
                 tokenizer,
                 row["prompt"],
@@ -114,6 +131,9 @@ def main():
             out = {
                 **row,
                 "model": args.model,
+                "model_revision_requested": args.revision,
+                "model_revision_resolved": getattr(model.config, "_commit_hash", None)
+                or "unknown",
                 "response": response,
                 "raw_response": raw_response,
                 "response_chars": len(response),

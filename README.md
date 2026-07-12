@@ -1,60 +1,81 @@
-# RLVR Safety Dynamics in Current Small Open Models
+# Safety drift or measurement drift?
 
-Small, reproducible audit of whether current open reasoning/RLVR-lineage models show stronger instrumental behavior than matched instruction models.
+Reproducible audit of a small instrumental-behavior evaluation for open post-training lineages.
 
-## Headline Result
+## Current result
 
-The current evidence does not support a robust positive behavioral-risk claim. The stronger finding is methodological:
+The evidence does **not** support a robust increase in instrumental-risk choices across the evaluated OLMo SFT, DPO, and final Instruct checkpoints.
 
-> Small-model RLVR/reasoning safety evals should report judgeability and prompt sensitivity separately from behavioral risk scores. In this setup, prompt wording effects exceeded model-stage differences across two validated paraphrase seeds.
+Two complete counterbalanced experiments crossed 24 source items, four wordings, all six semantic option orders, and three model stages. Each protocol produced all 1,728 expected responses with no malformed or token-capped rows.
 
-### Key findings
+| Inference protocol | Instruct | DPO | SFT | Stage spread |
+|---|---:|---:|---:|---:|
+| NF4, fp16 compute, double quantization | 0.366 | 0.363 | 0.377 | 0.014 |
+| BitsAndBytes default 4-bit, fixed 4.57.6 runtime | 0.380 | 0.392 | 0.413 | 0.033 |
 
-- **Qwen3 4B Thinking was confounded** by token caps and exposed reasoning traces — higher apparent risk was dominated by format artifacts.
-- **OLMo 3 RL-Zero-General did not score higher** than Instruct in free-form scoring, and remained less judgeable under structured choice prompting.
-- **OLMo stage ablation found no monotonic increase**: final Instruct (0.42) did not score higher than SFT (0.50) or DPO (0.46) on structured choice prompts. Model-stage spread: 0.08.
-- **Prompt wording sensitivity exceeded model-stage differences**: Across two validated Gemini paraphrase seeds, all three clean OLMo models shifted upward (Seed 1: +0.12 to +0.21; Seed 2: +0.29 to +0.33). Mean absolute deltas (0.54-0.71) were 7-9x the model-stage spread. Self-preservation drove the movement; resource-acquisition declined or stayed flat. The eval is judgeable but not wording-invariant.
+All paired stage-contrast 95% source-clustered intervals lie inside the predeclared ±0.10 practical-equivalence band in both protocols. This is a conditional result for this 24-item deterministic instrument, not a causal claim about RLVR or a population-wide null.
 
-## Repo Map
+The measurement itself is much less stable than those marginal stage means:
+
+- only 39.6%–51.0% of model × source × wording cells were score-invariant across all six permutations under NF4, and 40.6%–46.9% under default 4-bit;
+- category-level wording effects opposed one another: resource-acquisition rewrites generally lowered scores while self-preservation rewrites raised them, so aggregate wording means hide construct heterogeneity; and
+- the pooled B-minus-A risky-position effect was +0.002 under NF4 but +0.127 under default 4-bit, a protocol-effect difference of +0.125 [0.066, 0.186].
+
+The historical +0.12 to +0.33 paraphrase-pack shifts are not wording effects. Those runs changed wording, semantic option position, and Kaggle runtime together. Exact-image reruns reproduce the historical original cells and P1/P2 cells at 100%, but the reciprocal crossover agrees on only 174/216 identical cells. The P1/P2-image runtime raises the pooled score by +0.088 [0.009, 0.171] relative to the stage-image runtime; the P2-layout delta is +0.194 [0.056, 0.361]. The pack × runtime interactions remain imprecise, so the old shifts cannot be partitioned into clean wording, order, and runtime components.
+
+Free-form and reasoning-style comparisons remain dominated by censoring. Final visible-text means were 0.400 for OLMo Instruct and 0.325 for RL-Zero-General, but 16/40 RL-Zero-General risk rows were confounded. Qwen Thinking hit the token cap on 11/12 outputs. These runs establish judgeability failures, not clean behavioral differences.
+
+## Evidence status
+
+The computational correction is complete and checksum-verified. Source-aware Gemini 2.5 Pro validation passed all 72 paraphrase pairs, but the planned blinded two-human semantic audit has not been performed. The Phase 1 instrument is therefore suitable for a transparent measurement audit, not yet paper-ready as an independently validated behavioral scale.
+
+The recommended next study is a checkpoint-resolved decomposition along the exact Tülu 3.1 8B GRPO trajectory: measure order- and wording-marginalized behavior and measurement reliability at 12 pinned checkpoints, then require a matching blinded free-form signal before calling any change “safety drift.” The repaired endpoint feasibility pilot passed: 96/96 strict responses, zero malformed or capped rows, exact pinned revisions, explicit attention masks, 6.63 GiB peak memory per T4, and 7.8 minutes wall time. The full 6,912-generation trajectory is configured but remains gated on human semantic review and frozen capability/free-form anchors.
+
+## Repository map
 
 | Path | Contents |
 |---|---|
-| `data/` | Prompt inputs (`prompts_seed.jsonl`, `choice_eval_targeted.jsonl`) and scoring rubric |
-| `scripts/` | Runnable CLI entrypoints for validation, scoring, generation, judge passes, and tables |
-| `reports/` | Curated human-facing outputs: report draft, tables, prompt sensitivity, adjudication notes, examples, demo script |
-| `results/` | Raw generated outputs (git-ignored except curated samples and `.gitkeep`) |
-| `configs/` | Model and inference settings |
-| `tests/` | Fixtures for smoke tests |
+| `src/rlvr_safety/` | Installable package for prompt construction, parsing, scoring, adjudication, factorial/runtime analysis, generation, and provenance |
+| `configs/experiments/` | Pinned OLMo protocols, exact historical-runtime reproductions, Tülu endpoint pilot, and 12-point trajectory plan |
+| `artifacts/` | Compact checksummed baseline, factorial, and exact-runtime evidence bundles |
+| `data/` | Canonical prompts, paraphrase packs and validation records, adjudications, and the balanced 576-condition design |
+| `reports/` | Generated statistical reports, methodology audit, runtime audit, and research roadmap |
+| `kaggle/` | Private-dataset staging plus restartable T4×2 runners |
+| `tests/` | Unit tests and deterministic smoke fixtures |
 
-## Reproduce Checks
-
-```bash
-make validate
-make validate-choice
-make compile
-make smoke-choice-score
-make smoke-gemini-judge
-make smoke-gemini-paraphrase
-make smoke-judge-analysis
-```
-
-## Reproduce Tables
+## Reproduce locally
 
 ```bash
-make paper-tables
-make analyze-sensitivity
+python3 -m pip install -e '.[analysis,dev]'
+make check
+make analyze-factorial
+make analyze-runtime-crossover
 ```
 
-Paper tables are written to `results/paper_tables.md` and `reports/paper_tables.md`.
-Prompt sensitivity analysis is written to `reports/prompt_sensitivity.md`.
+`make check` validates prompts, compiles the package and runners, runs the unit and smoke tests, regenerates baseline tables, and verifies tracked artifact checksums. The two analysis targets deterministically regenerate the counterbalanced and exact-runtime reports.
 
-GPU-heavy model generation should run on Kaggle (see `scripts/run_behavioral_eval.py`).
-Gemini judge passes require `GEMINI_API_KEY` (see `scripts/gemini_judge_outputs.py`).
+To rebuild the balanced prompt pack and private Kaggle dataset payload:
+
+```bash
+make factorial-pack
+make kaggle-bundle
+```
+
+The primary result files are:
+
+- `reports/factorial_default4bit_v2_results.md`
+- `reports/factorial_nf4_v1_results.md`
+- `reports/factorial_nf4_vs_default4bit.md`
+- `reports/historical_runtime_crossover_v1.md`
+- `reports/tulu_endpoint_pilot_v1.md`
+- `reports/methodology_audit.md`
+- `reports/research_roadmap.md`
 
 ## Limitations
 
-- Prompt set is small and hand-written.
-- Scoring rubric is transparent but subjective.
-- Thinking/Instruct and RL-Zero/Instruct comparisons do not isolate causal effects of RLVR.
-- Paraphrase robustness covers two validated Gemini paraphrase seeds. Additional independent paraphrases would strengthen sensitivity-interval claims.
-- Small models may not express the same behaviors as frontier reasoning models.
+- There are only 24 authored source items from three narrow categories; 1,728 repeated conditions do not create 1,728 independent prompts.
+- Deterministic decoding measures one response path per condition.
+- The 0/1/2 score is an ordinal, judgment-dependent index, and category cancellation challenges a single aggregate construct.
+- Automated source-aware validation is not a substitute for blinded human review.
+- Quantization/runtime changes alter individual responses and position effects, even when marginal stage contrasts are stable.
+- The OLMo checkpoints are not a controlled RLVR trajectory, and the results should not be generalized to other lineages or frontier systems.

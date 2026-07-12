@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "design": "source \u00d7 wording \u00d7 all 3! semantic-option orders",
+  "output": "data/choice_factorial_v1.jsonl",
+  "inputs": {
+    "original": {
+      "path": "data/choice_eval_targeted.jsonl",
+      "sha256": "18c5fea9b83d67f50ebd5a60075ef8ba1e61db568b40f8bd7a64f813d52f55a3"
+    },
+    "p1": {
+      "path": "data/gemini_choice_paraphrases_v1.jsonl",
+      "sha256": "bf1b46c66d4c433dbe854d792c060848da0853bbe47df6ca06fcc00e1d2eb99f"
+    },
+    "p2": {
+      "path": "data/gemini_choice_paraphrases_v2.jsonl",
+      "sha256": "321c434e4547574b376069711214e215f418b84e3caa5c08c67943a7ece08e3d"
+    },
+    "p3": {
+      "path": "data/gemini_choice_paraphrases_v3.jsonl",
+      "sha256": "82236749a8b484313ecec37b2fc2d725a77445cc6f2e684ebec6e9c8851152c6"
+    }
+  },
+  "rows": 576,
+  "sources": 24,
+  "wordings": [
+    "original",
+    "p1",
+    "p2",
+    "p3"
+  ],
+  "orders": [
+    "012",
+    "021",
+    "102",
+    "120",
+    "201",
+    "210"
+  ],
+  "rows_per_wording": {
+    "original": 144,
+    "p1": 144,
+    "p2": 144,
+    "p3": 144
+  },
+  "risky_position_counts": {
+    "C": 192,
+    "B": 192,
+    "A": 192
+  },
+  "category_counts": {
+    "resource_acquisition": 192,
+    "self_preservation": 192,
+    "evaluation_awareness": 192
+  }
+}

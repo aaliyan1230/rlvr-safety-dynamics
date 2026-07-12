@@ -108,26 +108,52 @@ def agreement_table(path: Path, manual_path: Path, key_path: Path | None) -> lis
     manual = {}
     for row in read_csv(manual_path):
         if row.get("instrumental_score_0_2", "") != "":
-            manual[(row["id"], row["model"])] = int(row["instrumental_score_0_2"])
+            manual[(row["id"], row["model"])] = {
+                "score": int(row["instrumental_score_0_2"]),
+                "category": row.get("category", ""),
+            }
 
     pairs = []
     for row in read_jsonl(path):
         model = aliases.get(row["model"], row["model"])
         key = (row["id"], model)
         if key in manual:
-            pairs.append((manual[key], int(row["instrumental_score_0_2"])))
+            pairs.append(
+                (
+                    manual[key]["score"],
+                    int(row["instrumental_score_0_2"]),
+                    manual[key]["category"],
+                )
+            )
 
     lines = ["", f"## Agreement: {path.stem}", ""]
     if not pairs:
         lines.append("No comparable rows.")
         return lines
-    exact = sum(a == b for a, b in pairs)
-    binary = sum((a > 0) == (b > 0) for a, b in pairs)
-    lines.append(f"* Comparable rows: {len(pairs)}")
-    lines.append(f"* Exact agreement: {exact}/{len(pairs)} ({exact / len(pairs):.2%})")
-    lines.append(f"* Binary nonzero-risk agreement: {binary}/{len(pairs)} ({binary / len(pairs):.2%})")
+    exact = sum(a == b for a, b, _ in pairs)
+    binary = sum((a > 0) == (b > 0) for a, b, _ in pairs)
+    risk_pairs = [(a, b) for a, b, category in pairs if category != "benign_control"]
+    risk_exact = sum(a == b for a, b in risk_pairs)
+    risk_binary = sum((a > 0) == (b > 0) for a, b in risk_pairs)
+    lines.append(f"* Comparable rows (all): {len(pairs)}")
+    lines.append(f"* Exact agreement (all): {exact}/{len(pairs)} ({exact / len(pairs):.2%})")
+    lines.append(
+        f"* Binary nonzero-risk agreement (all): {binary}/{len(pairs)} "
+        f"({binary / len(pairs):.2%})"
+    )
+    if risk_pairs != [(a, b) for a, b, _ in pairs]:
+        lines.append(
+            f"* Exact agreement (risk prompts only): {risk_exact}/{len(risk_pairs)} "
+            f"({risk_exact / len(risk_pairs):.2%})"
+        )
+        lines.append(
+            f"* Binary agreement (risk prompts only): {risk_binary}/{len(risk_pairs)} "
+            f"({risk_binary / len(risk_pairs):.2%})"
+        )
     lines.extend(["", "| Manual | Gemini | Count |", "|---:|---:|---:|"])
-    for (manual_score, gemini_score), count in sorted(Counter(pairs).items()):
+    for (manual_score, gemini_score), count in sorted(
+        Counter((a, b) for a, b, _ in pairs).items()
+    ):
         lines.append(f"| {manual_score} | {gemini_score} | {count} |")
     return lines
 
@@ -164,7 +190,14 @@ def paraphrase_comparison_table(orig_scores: Path, orig_key: Path, para_scores: 
     for p in paired:
         by_model[p["model"]].append(p)
 
-    lines = ["", "## Table 4: Paraphrase Robustness (Original vs Paraphrase)", ""]
+    lines = [
+        "",
+        "## Table 4: Legacy Confounded Protocol Shift (Original vs P1)",
+        "",
+        "**Diagnostic only.** Wording and semantic option position changed together, so these "
+        "deltas do not identify a wording effect.",
+        "",
+    ]
     lines.append("| Model | Original mean | Paraphrase mean | Delta | Mean abs delta | Items changed |")
     lines.append("|---|---:|---:|---:|---:|---:|")
     for model in sorted(by_model):
@@ -213,7 +246,14 @@ def paraphrase_combined_table(orig_scores: Path, orig_key: Path, para1_scores: P
 
     all_models = sorted(set(p["model"] for p in seed1_paired.values()))
 
-    lines = ["", "## Table 5: Combined Paraphrase Sensitivity (Two Validated Seeds)", ""]
+    lines = [
+        "",
+        "## Table 5: Legacy Confounded Protocol Shift (P1 and P2)",
+        "",
+        "**Diagnostic only.** Both candidate packs fixed safe=A, ambiguous=B, and risky=C "
+        "while the original varied score positions. The values combine wording and position effects.",
+        "",
+    ]
     lines.append("| Model | Orig | Seed 1 mean | Seed 2 mean | Seed 1 delta | Seed 2 delta | Seed 1 flip | Seed 2 flip | Seed 1 MAD | Seed 2 MAD |")
     lines.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
 
@@ -265,21 +305,24 @@ def paraphrase_combined_table(orig_scores: Path, orig_key: Path, para1_scores: P
             )
 
     lines.append("")
-    lines.append("*Seed 1 evaluated 2026-07-06; Seed 2 evaluated 2026-07-08. Both seeds passed Gemini validation (24/24 label preservation).*")
+    lines.append(
+        "*P1 was evaluated 2026-07-06 and P2 on 2026-07-08. Their historical checks "
+        "confirmed internal label ordering but did not compare candidates with source items.*"
+    )
     return lines
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", type=Path, default=Path("results/paper_tables.md"))
-    parser.add_argument("--freeform-manual", type=Path, default=Path("results/kaggle_olmo_rlzero_full_v1/manual_scores_olmo3_rlzero_full.scored.csv"))
-    parser.add_argument("--freeform-key", type=Path, default=Path("results/kaggle_olmo_rlzero_full_v1/manual_scores_olmo3_rlzero_full.model_key.csv"))
-    parser.add_argument("--choice-scores", type=Path, default=Path("results/kaggle_choice_stage_ablation_v2/choice_scores.csv"))
-    parser.add_argument("--choice-key", type=Path, default=Path("results/kaggle_choice_stage_ablation_v2/choice_score_model_key.csv"))
-    parser.add_argument("--gemini-freeform", type=Path, default=Path("results/gemini_olmo_rlzero_full_v1.jsonl"))
-    parser.add_argument("--gemini-choice", type=Path, default=Path("results/gemini_choice_stage_ablation_v2.jsonl"))
-    parser.add_argument("--paraphrase-scores", type=Path, default=Path("results/kaggle_paraphrase_choice_v1/paraphrase_choice_v1/choice_scores.csv"))
-    parser.add_argument("--paraphrase-scores-seed2", type=Path, default=Path("results/kaggle_paraphrase_choice_v2/choice_scores.csv"))
+    parser.add_argument("--freeform-manual", type=Path, default=Path("artifacts/baseline/freeform_manual_scores.csv"))
+    parser.add_argument("--freeform-key", type=Path, default=Path("artifacts/baseline/freeform_model_key.csv"))
+    parser.add_argument("--choice-scores", type=Path, default=Path("artifacts/baseline/choice_stage_scores.csv"))
+    parser.add_argument("--choice-key", type=Path, default=Path("artifacts/baseline/choice_stage_model_key.csv"))
+    parser.add_argument("--gemini-freeform", type=Path, default=Path("artifacts/baseline/gemini_freeform_judgments.jsonl"))
+    parser.add_argument("--gemini-choice", type=Path, default=Path("artifacts/baseline/gemini_choice_judgments.jsonl"))
+    parser.add_argument("--paraphrase-scores", type=Path, default=Path("artifacts/baseline/paraphrase_p1_scores_confounded.csv"))
+    parser.add_argument("--paraphrase-scores-seed2", type=Path, default=Path("artifacts/baseline/paraphrase_p2_scores_confounded.csv"))
     args = parser.parse_args()
 
     lines = ["# Paper Tables", ""]

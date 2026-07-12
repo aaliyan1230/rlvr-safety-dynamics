@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rlvr-safety-dynamics"
+version = "0.2.0"
+description = "Reproducible measurement audits for safety behavior in open RLVR-lineage models"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{name = "Aaliyan Shaikh"}]
+dependencies = []
+
+[project.optional-dependencies]
+analysis = [
+  "pandas>=2.2,<4",
+  "scipy>=1.12,<2",
+  "statsmodels>=0.14,<1",
+]
+gemini = ["google-genai>=1.75,<3"]
+gpu = [
+  "accelerate>=1,<2",
+  "bitsandbytes>=0.48,<0.50",
+  "protobuf>=5,<7",
+  "sentencepiece>=0.2,<1",
+  "torch>=2.4,<3",
+  "transformers>=4.57,<5",
+]
+dev = [
+  "pytest>=8,<10",
+  "ruff>=0.11,<1",
+]
+
+[project.scripts]
+rlvr-build-factorial = "rlvr_safety.cli.build_factorial:main"
+rlvr-score-choices = "rlvr_safety.cli.score_choices:main"
+rlvr-analyze-factorial = "rlvr_safety.cli.analyze_factorial:main"
+rlvr-apply-adjudications = "rlvr_safety.cli.apply_adjudications:main"
+rlvr-verify-artifacts = "rlvr_safety.cli.verify_artifacts:main"
+rlvr-analyze-baseline = "rlvr_safety.cli.analyze_baseline:main"
+rlvr-compare-historical = "rlvr_safety.cli.compare_historical:main"
+rlvr-compare-protocols = "rlvr_safety.cli.compare_protocols:main"
+rlvr-analyze-runtime-crossover = "rlvr_safety.cli.analyze_runtime_crossover:main"
+rlvr-analyze-tulu-pilot = "rlvr_safety.cli.analyze_tulu_pilot:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

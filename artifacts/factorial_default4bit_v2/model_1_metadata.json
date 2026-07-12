@@ -1,0 +1,12 @@
+{
+  "model": "allenai/Olmo-3-7B-Instruct-DPO",
+  "model_revision_requested": "main",
+  "model_revision_resolved": "b33130b7de49f0c2553b5c2b3bc8409ff3e627d1",
+  "rows": 576,
+  "seed": 0,
+  "max_new_tokens": 96,
+  "quantization_mode": "legacy_default",
+  "trust_remote_code": true,
+  "gpu_slot": 1,
+  "completed_utc": "2026-07-10T16:21:12.842407+00:00"
+}

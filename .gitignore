@@ -9,3 +9,23 @@ results/**
 !results/*.sample.*
 local
 docs/
+
+# Generated Kaggle dataset bundle; rebuild with `make kaggle-bundle`.
+kaggle/datasets/factorial-v1/bundle_manifest.json
+kaggle/datasets/factorial-v1/choice_factorial_v1.jsonl
+kaggle/datasets/factorial-v1/choice_factorial_v1.manifest.json
+kaggle/datasets/factorial-v1/provenance/
+kaggle/datasets/factorial-v1/src/
+kaggle/datasets/factorial-v1/wording_position_v1.json
+kaggle/datasets/factorial-v1/wording_position_v2_legacy_quant.json
+kaggle/datasets/factorial-v1/historical_stage_reproduction_v1.json
+kaggle/datasets/factorial-v1/historical_paraphrase_reproduction_v1.json
+kaggle/datasets/factorial-v1/tulu_grpo_endpoint_pilot_v1.json
+kaggle/datasets/factorial-v1/tulu_grpo_trajectory_v1.json
+
+# Superseded local seed-3 launch bundle retained only for forensic history.
+kaggle/seed3/
+kaggle/datasets/paraphrase-v3/
+
+# Redundant source-blind seed-3 label check; source-aware review is tracked.
+data/gemini_choice_paraphrase_validations_v3.jsonl

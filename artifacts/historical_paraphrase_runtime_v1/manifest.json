@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "experiment_id": "historical_paraphrase_reproduction_v1",
+  "role": "Exact P1/P2-image runtime panel for the reciprocal historical-layout crossover. P1 and P2 cells reproduce the historical candidate-pack runs; original cells are runtime controls.",
+  "remote_kernel": "aaliyanshaikh/rlvr-historical-paraphrase-reproduction-v1",
+  "completion": {
+    "rows": 216,
+    "expected_rows": 216,
+    "malformed": 0,
+    "token_capped": 0,
+    "historical_candidate_score_agreement": 1.0,
+    "historical_candidate_choice_agreement": 1.0,
+    "source_prompt_sha256": "040de139b26f4d78230dc47ec9ee4f9be933b13bbeb3e44eb1a3d6630bb7ed29",
+    "filtered_prompt_sha256": "1b08bc3eaa62adcf4981c936798a7b4fb5d6ec7acca6a292b37cac86be35eb1f",
+    "config_sha256": "c54794eb8bc3f5eb39175c7f5c759d39a90db86746badfbf2d0facddc67abd71"
+  },
+  "files": {
+    "choice_scores.csv": "f39f220620353ad576191f912aec94f8b10f1e94ae1b2369b7d26847057a1aa2",
+    "config.json": "c54794eb8bc3f5eb39175c7f5c759d39a90db86746badfbf2d0facddc67abd71",
+    "kernel-metadata.json": "8a0561e9517556170656890ed57fa0b44722084cd6df763b02f6501a378a22d5",
+    "model_0_metadata.json": "c7ed9fc323660da875fb1907e93dc89f66a0b7381db8f6cb13486999b540d597",
+    "model_1_metadata.json": "0a9c36904db49ea88daa32925ccc0eee0cb547c8e4c9fa9caae07404eaa3c877",
+    "model_2_metadata.json": "c2ba891c4431c7e1a267906306f11b01fa35f8ac5cb0d25e4b0489c501bb75ee",
+    "reproduction_metrics.json": "a7419674f3ee150d0ff0d27393e7152e6fa4a97be267dcada2dc43a254e88a94",
+    "run_metadata.json": "671358b184b945350dd59192953c1c84decc1e78548c038ed73e1901864b91ba",
+    "run_reproduction.py": "137365ea957049632a1f93a19b7f5271a549bd0c19eeb400592bebedd3e9973d",
+    "run_summary.json": "416b7ecf7c62f9aeb3938e76458309a8bdf2e2805ee1d85a7a36771e9efa701b"
+  }
+}

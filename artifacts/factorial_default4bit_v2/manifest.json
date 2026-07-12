@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "experiment_id": "wording_position_v2_legacy_quant",
+  "role": "Completed standardized default-4-bit factorial. It holds one 4.57.6 runtime fixed across all cells and is not an exact reproduction of the mixed historical runtimes.",
+  "remote_kernel": "aaliyanshaikh/rlvr-wording-position-factorial-v2-legacy-quant",
+  "completion": {
+    "rows": 1728,
+    "expected_rows": 1728,
+    "malformed": 0,
+    "token_capped": 0,
+    "prompt_sha256": "040de139b26f4d78230dc47ec9ee4f9be933b13bbeb3e44eb1a3d6630bb7ed29",
+    "config_sha256": "cc326e035ecffe8f1a683e0ef8adaddfa1448bcad1723d9cce03182ec61166fd"
+  },
+  "files": {
+    "choice_scores.csv": "0e33b40cf50a3df94b4b164ebb5c33e2eec6857c6c55b56922194f8bd3778f4b",
+    "config.json": "cc326e035ecffe8f1a683e0ef8adaddfa1448bcad1723d9cce03182ec61166fd",
+    "factorial_metrics.json": "c78a4a5c386c2545c06efccd7d8703656e24a74aeb6ca705ba9835332276da6b",
+    "kernel-metadata.json": "97a9d7d5b8b3fa8e8a7bc0ea33e107f1a3463d6d9ee22a71a81ce4ad190a510a",
+    "model_0_metadata.json": "71bcd26a394b89bdda7201b74b1cb374a5de0f8d39fd45aa2ba15c6ce5f8f74f",
+    "model_1_metadata.json": "bf80d62dde26f9709e12fe8a6dc7a37a1acf79cdd3210cbbd4d70f114f92e064",
+    "model_2_metadata.json": "5f77fb1deb48fee6b52032ac382dcb3b914bdeb18753a1a934876979e4d37936",
+    "protocol_comparison_nf4.json": "70dadbbffbb78518e46284d0fbe2fd49de362c6475470139c3724e85193790e4",
+    "reproduction_metrics.json": "5e00a474fb902cc02e206c41608bc6c54da73db7b4cd35056d215f1c76ab233e",
+    "run_factorial.py": "ed21c610d5123b090e91e31b4351b3062c42b49798d22cc35d6b994fd369fe7f",
+    "run_metadata.json": "30b86079355a2e47490469cda4ed1d59f074e899839d669aef525a6d120a918e",
+    "run_summary.json": "c2396ebdce6ae9e73f84b04a2a10fbfe82e549fd452e56b8c4ef8fb0116debc0"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "experiment_id": "historical_stage_reproduction_v1",
+  "role": "Exact stage-image runtime panel for the reciprocal historical-layout crossover. Original cells reproduce the historical baseline; P1/P2 cells are runtime controls.",
+  "remote_kernel": "aaliyanshaikh/rlvr-historical-stage-reproduction-v1",
+  "completion": {
+    "rows": 216,
+    "expected_rows": 216,
+    "malformed": 0,
+    "token_capped": 0,
+    "historical_original_score_agreement": 1.0,
+    "historical_original_choice_agreement": 1.0,
+    "source_prompt_sha256": "040de139b26f4d78230dc47ec9ee4f9be933b13bbeb3e44eb1a3d6630bb7ed29",
+    "filtered_prompt_sha256": "1b08bc3eaa62adcf4981c936798a7b4fb5d6ec7acca6a292b37cac86be35eb1f",
+    "config_sha256": "c062b02cd8b2f9adf0ad2ab1d4a300474d25d587661b806632c125bb610e706c"
+  },
+  "files": {
+    "attempts.json": "523293bcf923160fd918e782533fa220eddaea08438c87cbe8bd8cd1b0bf3571",
+    "choice_scores.csv": "9a879e350ba981f9d4932b89ad905499d8325b90300881df47bda84852c24832",
+    "config.json": "c062b02cd8b2f9adf0ad2ab1d4a300474d25d587661b806632c125bb610e706c",
+    "kernel-metadata.json": "f83994c0df44c7d0cf487cc9228680998b8d65c70a08f3ba52ea8df7878eb535",
+    "model_0_metadata.json": "ce09ab40ec00c1901419d413b251580f427548b31ce2ec8df6d8ff55ee8797ce",
+    "model_1_metadata.json": "9b1d6b9ebc51342e4cc5a080a4aa3bef8d74262d0fe4207c09140368431864f9",
+    "model_2_metadata.json": "9673ba1c1bf27fae6001ffbc8964a3852d667ad3f19b7dabf901feaa8b0d5c85",
+    "reproduction_metrics.json": "089aa4857fe0354951cf18c6d6ebf021171179861db4699523a474330afe2ba3",
+    "run_metadata.json": "56e68a10c91e3ebd9ad7cab7726a565374dde53385f6e93bc1e3daf6f4985d75",
+    "run_reproduction.py": "f9974588919ffb2d249367ce2b3601dd308f3fdb0b9e8a9969d76f5b9f1b9f87",
+    "run_summary.json": "d9749a513918f213ce7bba77ece1559a2553ff0cd0d257760f52bbee3d11cfb7"
+  }
+}

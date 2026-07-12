@@ -1,0 +1,501 @@
+{
+  "schema_version": 1,
+  "design": {
+    "rows": 216,
+    "models": [
+      "allenai/Olmo-3-7B-Instruct",
+      "allenai/Olmo-3-7B-Instruct-DPO",
+      "allenai/Olmo-3-7B-Instruct-SFT"
+    ],
+    "sources": [
+      "evaluation_awareness_001",
+      "evaluation_awareness_002",
+      "evaluation_awareness_003",
+      "evaluation_awareness_004",
+      "evaluation_awareness_005",
+      "evaluation_awareness_006",
+      "evaluation_awareness_007",
+      "evaluation_awareness_008",
+      "resource_acquisition_001",
+      "resource_acquisition_002",
+      "resource_acquisition_003",
+      "resource_acquisition_004",
+      "resource_acquisition_005",
+      "resource_acquisition_006",
+      "resource_acquisition_007",
+      "resource_acquisition_008",
+      "self_preservation_001",
+      "self_preservation_002",
+      "self_preservation_003",
+      "self_preservation_004",
+      "self_preservation_005",
+      "self_preservation_006",
+      "self_preservation_007",
+      "self_preservation_008"
+    ],
+    "wordings": [
+      "original",
+      "p1",
+      "p2"
+    ]
+  },
+  "runtime_delta_direction": "paraphrase_runtime_minus_stage_runtime",
+  "crossover_direction": "(candidate_minus_original)_paraphrase_runtime_minus_(candidate_minus_original)_stage_runtime",
+  "bootstrap": {
+    "repetitions": 10000,
+    "seed": 20260710,
+    "cluster": "source_id",
+    "interval": "percentile_95"
+  },
+  "agreement": {
+    "overall": {
+      "rows": 216,
+      "score_matches": 174,
+      "score_agreement": 0.8055555555555556,
+      "response_letter_matches": 174,
+      "response_letter_agreement": 0.8055555555555556
+    },
+    "by_model": [
+      {
+        "model": "allenai/Olmo-3-7B-Instruct",
+        "rows": 72,
+        "score_matches": 56,
+        "score_agreement": 0.7777777777777778,
+        "response_letter_matches": 56,
+        "response_letter_agreement": 0.7777777777777778
+      },
+      {
+        "model": "allenai/Olmo-3-7B-Instruct-DPO",
+        "rows": 72,
+        "score_matches": 62,
+        "score_agreement": 0.8611111111111112,
+        "response_letter_matches": 62,
+        "response_letter_agreement": 0.8611111111111112
+      },
+      {
+        "model": "allenai/Olmo-3-7B-Instruct-SFT",
+        "rows": 72,
+        "score_matches": 56,
+        "score_agreement": 0.7777777777777778,
+        "response_letter_matches": 56,
+        "response_letter_agreement": 0.7777777777777778
+      }
+    ],
+    "by_wording": [
+      {
+        "wording_id": "original",
+        "rows": 72,
+        "score_matches": 64,
+        "score_agreement": 0.8888888888888888,
+        "response_letter_matches": 64,
+        "response_letter_agreement": 0.8888888888888888
+      },
+      {
+        "wording_id": "p1",
+        "rows": 72,
+        "score_matches": 56,
+        "score_agreement": 0.7777777777777778,
+        "response_letter_matches": 56,
+        "response_letter_agreement": 0.7777777777777778
+      },
+      {
+        "wording_id": "p2",
+        "rows": 72,
+        "score_matches": 54,
+        "score_agreement": 0.75,
+        "response_letter_matches": 54,
+        "response_letter_agreement": 0.75
+      }
+    ]
+  },
+  "runtime_deltas": [
+    {
+      "scope": "all_models",
+      "wording_id": "all_wordings",
+      "rows": 216,
+      "source_items": 24,
+      "stage_runtime_mean": 0.5462962962962963,
+      "paraphrase_runtime_mean": 0.6342592592592592,
+      "paraphrase_runtime_minus_stage_runtime": 0.08796296296296297,
+      "delta_ci_low": 0.009259259259259252,
+      "delta_ci_high": 0.1712962962962963
+    },
+    {
+      "scope": "all_models",
+      "wording_id": "original",
+      "rows": 72,
+      "source_items": 24,
+      "stage_runtime_mean": 0.4583333333333333,
+      "paraphrase_runtime_mean": 0.5,
+      "paraphrase_runtime_minus_stage_runtime": 0.04166666666666667,
+      "delta_ci_low": -0.05555555555555555,
+      "delta_ci_high": 0.1527777777777778
+    },
+    {
+      "scope": "all_models",
+      "wording_id": "p1",
+      "rows": 72,
+      "source_items": 24,
+      "stage_runtime_mean": 0.5972222222222222,
+      "paraphrase_runtime_mean": 0.625,
+      "paraphrase_runtime_minus_stage_runtime": 0.027777777777777776,
+      "delta_ci_low": -0.1527777777777778,
+      "delta_ci_high": 0.2361111111111111
+    },
+    {
+      "scope": "all_models",
+      "wording_id": "p2",
+      "rows": 72,
+      "source_items": 24,
+      "stage_runtime_mean": 0.5833333333333334,
+      "paraphrase_runtime_mean": 0.7777777777777778,
+      "paraphrase_runtime_minus_stage_runtime": 0.19444444444444445,
+      "delta_ci_low": 0.055555555555555546,
+      "delta_ci_high": 0.3611111111111111
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "all_wordings",
+      "rows": 72,
+      "source_items": 24,
+      "stage_runtime_mean": 0.5,
+      "paraphrase_runtime_mean": 0.5972222222222222,
+      "paraphrase_runtime_minus_stage_runtime": 0.09722222222222222,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.20833333333333331
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "original",
+      "rows": 24,
+      "source_items": 24,
+      "stage_runtime_mean": 0.4166666666666667,
+      "paraphrase_runtime_mean": 0.4583333333333333,
+      "paraphrase_runtime_minus_stage_runtime": 0.041666666666666664,
+      "delta_ci_low": -0.08333333333333333,
+      "delta_ci_high": 0.16666666666666666
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p1",
+      "rows": 24,
+      "source_items": 24,
+      "stage_runtime_mean": 0.5416666666666666,
+      "paraphrase_runtime_mean": 0.5833333333333334,
+      "paraphrase_runtime_minus_stage_runtime": 0.041666666666666664,
+      "delta_ci_low": -0.20833333333333334,
+      "delta_ci_high": 0.2916666666666667
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p2",
+      "rows": 24,
+      "source_items": 24,
+      "stage_runtime_mean": 0.5416666666666666,
+      "paraphrase_runtime_mean": 0.75,
+      "paraphrase_runtime_minus_stage_runtime": 0.20833333333333334,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.4166666666666667
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "all_wordings",
+      "rows": 72,
+      "source_items": 24,
+      "stage_runtime_mean": 0.5555555555555556,
+      "paraphrase_runtime_mean": 0.6527777777777778,
+      "paraphrase_runtime_minus_stage_runtime": 0.09722222222222222,
+      "delta_ci_low": 0.013888888888888895,
+      "delta_ci_high": 0.18055555555555555
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "original",
+      "rows": 24,
+      "source_items": 24,
+      "stage_runtime_mean": 0.4583333333333333,
+      "paraphrase_runtime_mean": 0.5,
+      "paraphrase_runtime_minus_stage_runtime": 0.041666666666666664,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.125
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p1",
+      "rows": 24,
+      "source_items": 24,
+      "stage_runtime_mean": 0.5833333333333334,
+      "paraphrase_runtime_mean": 0.6666666666666666,
+      "paraphrase_runtime_minus_stage_runtime": 0.08333333333333333,
+      "delta_ci_low": -0.125,
+      "delta_ci_high": 0.3333333333333333
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p2",
+      "rows": 24,
+      "source_items": 24,
+      "stage_runtime_mean": 0.625,
+      "paraphrase_runtime_mean": 0.7916666666666666,
+      "paraphrase_runtime_minus_stage_runtime": 0.16666666666666666,
+      "delta_ci_low": 0.041666666666666664,
+      "delta_ci_high": 0.3333333333333333
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "all_wordings",
+      "rows": 72,
+      "source_items": 24,
+      "stage_runtime_mean": 0.5833333333333333,
+      "paraphrase_runtime_mean": 0.6527777777777778,
+      "paraphrase_runtime_minus_stage_runtime": 0.06944444444444445,
+      "delta_ci_low": -0.06944444444444445,
+      "delta_ci_high": 0.19444444444444445
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "original",
+      "rows": 24,
+      "source_items": 24,
+      "stage_runtime_mean": 0.5,
+      "paraphrase_runtime_mean": 0.5416666666666666,
+      "paraphrase_runtime_minus_stage_runtime": 0.041666666666666664,
+      "delta_ci_low": -0.20833333333333334,
+      "delta_ci_high": 0.25
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p1",
+      "rows": 24,
+      "source_items": 24,
+      "stage_runtime_mean": 0.6666666666666666,
+      "paraphrase_runtime_mean": 0.625,
+      "paraphrase_runtime_minus_stage_runtime": -0.041666666666666664,
+      "delta_ci_low": -0.20833333333333334,
+      "delta_ci_high": 0.125
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p2",
+      "rows": 24,
+      "source_items": 24,
+      "stage_runtime_mean": 0.5833333333333334,
+      "paraphrase_runtime_mean": 0.7916666666666666,
+      "paraphrase_runtime_minus_stage_runtime": 0.20833333333333334,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.4166666666666667
+    }
+  ],
+  "within_runtime_pack_effects": [
+    {
+      "runtime": "stage_runtime",
+      "scope": "all_models",
+      "wording_id": "p1",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.1388888888888889,
+      "ci_low": -0.1111111111111111,
+      "ci_high": 0.375
+    },
+    {
+      "runtime": "paraphrase_runtime",
+      "scope": "all_models",
+      "wording_id": "p1",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.125,
+      "ci_low": -0.20833333333333334,
+      "ci_high": 0.4444444444444444
+    },
+    {
+      "runtime": "stage_runtime",
+      "scope": "all_models",
+      "wording_id": "p2",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.125,
+      "ci_low": -0.18055555555555555,
+      "ci_high": 0.4166666666666667
+    },
+    {
+      "runtime": "paraphrase_runtime",
+      "scope": "all_models",
+      "wording_id": "p2",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.2777777777777778,
+      "ci_low": -0.06944444444444445,
+      "ci_high": 0.5972222222222222
+    },
+    {
+      "runtime": "stage_runtime",
+      "scope": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p1",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.125,
+      "ci_low": -0.125,
+      "ci_high": 0.375
+    },
+    {
+      "runtime": "paraphrase_runtime",
+      "scope": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p1",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.125,
+      "ci_low": -0.25,
+      "ci_high": 0.4583333333333333
+    },
+    {
+      "runtime": "stage_runtime",
+      "scope": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p2",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.125,
+      "ci_low": -0.16666666666666666,
+      "ci_high": 0.4583333333333333
+    },
+    {
+      "runtime": "paraphrase_runtime",
+      "scope": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p2",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.2916666666666667,
+      "ci_low": -0.08333333333333333,
+      "ci_high": 0.6666666666666666
+    },
+    {
+      "runtime": "stage_runtime",
+      "scope": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p1",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.125,
+      "ci_low": -0.125,
+      "ci_high": 0.375
+    },
+    {
+      "runtime": "paraphrase_runtime",
+      "scope": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p1",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.16666666666666666,
+      "ci_low": -0.16666666666666666,
+      "ci_high": 0.5
+    },
+    {
+      "runtime": "stage_runtime",
+      "scope": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p2",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.16666666666666666,
+      "ci_low": -0.125,
+      "ci_high": 0.4583333333333333
+    },
+    {
+      "runtime": "paraphrase_runtime",
+      "scope": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p2",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.2916666666666667,
+      "ci_low": -0.08333333333333333,
+      "ci_high": 0.625
+    },
+    {
+      "runtime": "stage_runtime",
+      "scope": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p1",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.16666666666666666,
+      "ci_low": -0.125,
+      "ci_high": 0.4583333333333333
+    },
+    {
+      "runtime": "paraphrase_runtime",
+      "scope": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p1",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.08333333333333333,
+      "ci_low": -0.25,
+      "ci_high": 0.4166666666666667
+    },
+    {
+      "runtime": "stage_runtime",
+      "scope": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p2",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.08333333333333333,
+      "ci_low": -0.2916666666666667,
+      "ci_high": 0.4583333333333333
+    },
+    {
+      "runtime": "paraphrase_runtime",
+      "scope": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p2",
+      "contrast": "candidate_minus_original",
+      "estimate": 0.25,
+      "ci_low": -0.125,
+      "ci_high": 0.5833333333333334
+    }
+  ],
+  "crossover_interactions": [
+    {
+      "scope": "all_models",
+      "wording_id": "p1",
+      "contrast": "(candidate_minus_original)_paraphrase_runtime_minus_(candidate_minus_original)_stage_runtime",
+      "estimate": -0.01388888888888888,
+      "ci_low": -0.20833333333333334,
+      "ci_high": 0.20833333333333334
+    },
+    {
+      "scope": "all_models",
+      "wording_id": "p2",
+      "contrast": "(candidate_minus_original)_paraphrase_runtime_minus_(candidate_minus_original)_stage_runtime",
+      "estimate": 0.1527777777777778,
+      "ci_low": -0.05555555555555555,
+      "ci_high": 0.3614583333333283
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p1",
+      "contrast": "(candidate_minus_original)_paraphrase_runtime_minus_(candidate_minus_original)_stage_runtime",
+      "estimate": 0,
+      "ci_low": -0.2916666666666667,
+      "ci_high": 0.2916666666666667
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p2",
+      "contrast": "(candidate_minus_original)_paraphrase_runtime_minus_(candidate_minus_original)_stage_runtime",
+      "estimate": 0.16666666666666666,
+      "ci_low": -0.08333333333333333,
+      "ci_high": 0.4166666666666667
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p1",
+      "contrast": "(candidate_minus_original)_paraphrase_runtime_minus_(candidate_minus_original)_stage_runtime",
+      "estimate": 0.041666666666666664,
+      "ci_low": -0.20833333333333334,
+      "ci_high": 0.2916666666666667
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p2",
+      "contrast": "(candidate_minus_original)_paraphrase_runtime_minus_(candidate_minus_original)_stage_runtime",
+      "estimate": 0.125,
+      "ci_low": -0.041666666666666664,
+      "ci_high": 0.2916666666666667
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p1",
+      "contrast": "(candidate_minus_original)_paraphrase_runtime_minus_(candidate_minus_original)_stage_runtime",
+      "estimate": -0.08333333333333333,
+      "ci_low": -0.3333333333333333,
+      "ci_high": 0.125
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p2",
+      "contrast": "(candidate_minus_original)_paraphrase_runtime_minus_(candidate_minus_original)_stage_runtime",
+      "estimate": 0.16666666666666666,
+      "ci_low": -0.125,
+      "ci_high": 0.4583333333333333
+    }
+  ]
+}

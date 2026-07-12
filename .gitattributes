@@ -1,0 +1,3 @@
+# Preserve checksummed raw CSV evidence byte-for-byte. Embedded responses contain
+# intentional Markdown line breaks and historical CRLF records.
+artifacts/**/*.csv -diff

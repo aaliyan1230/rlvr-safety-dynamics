@@ -1,4 +1,6 @@
-# Prompt Sensitivity Analysis: Original vs Paraphrase
+# Legacy Protocol-Shift Diagnostic: Original vs P2
+
+**Not an isolated wording analysis.** The historical P2 pack fixed safe=A, ambiguous=B, and risky=C while the original pack varied semantic option positions. Every value below combines wording/scenario and option-position effects.
 
 Paired rows: 72
 
@@ -32,9 +34,9 @@ Paired rows: 72
 | allenai/Olmo-3-7B-Instruct-DPO | 1 | 12 | 0 | 4 | 7 | 0 | 0 | 0 | 0 |
 | allenai/Olmo-3-7B-Instruct-SFT | 1 | 12 | 0 | 3 | 7 | 0 | 1 | 0 | 0 |
 
-## Spread: Model-Stage vs Prompt-Source Variability
+## Descriptive Spread (Confounded)
 
-Variance decomposition: how much of the score variance is explained by model identity vs prompt wording.
+These marginal variances are not a variance decomposition and do not attribute variation to model identity, wording, or position.
 
 | Model | Original variance | Paraphrase variance |
 |---|---:|---:|

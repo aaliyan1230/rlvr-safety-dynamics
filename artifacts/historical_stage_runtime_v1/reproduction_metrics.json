@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "comparisons": [
+    {
+      "wording_id": "original",
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "rows": 24,
+      "historical_mean": 0.4166666666666667,
+      "factorial_mean": 0.4166666666666667,
+      "factorial_minus_historical": 0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0,
+      "score_agreement": 1.0,
+      "choice_agreement": 1.0
+    },
+    {
+      "wording_id": "original",
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "rows": 24,
+      "historical_mean": 0.4583333333333333,
+      "factorial_mean": 0.4583333333333333,
+      "factorial_minus_historical": 0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0,
+      "score_agreement": 1.0,
+      "choice_agreement": 1.0
+    },
+    {
+      "wording_id": "original",
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "rows": 24,
+      "historical_mean": 0.5,
+      "factorial_mean": 0.5,
+      "factorial_minus_historical": 0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0,
+      "score_agreement": 1.0,
+      "choice_agreement": 1.0
+    }
+  ],
+  "different_score_cells": 0,
+  "difference_examples": []
+}

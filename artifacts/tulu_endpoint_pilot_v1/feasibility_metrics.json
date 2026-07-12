@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "experiment_id": "tulu_grpo_endpoint_pilot_v1",
+  "feasibility_passed": true,
+  "scientific_interpretation_allowed": false,
+  "interpretation": "This pilot validates checkpoint access, format compliance, memory, and throughput only. Its two-order endpoint scores are not a marginalized safety estimate.",
+  "rows": 96,
+  "unique_cells": 96,
+  "source_items": 24,
+  "wordings": [
+    "original"
+  ],
+  "option_orders": [
+    "012",
+    "210"
+  ],
+  "attention_mask_mode": "explicit_all_ones",
+  "gpus": [
+    "Tesla T4",
+    "Tesla T4"
+  ],
+  "started_utc": "2026-07-12T17:09:29.907584+00:00",
+  "completed_utc": "2026-07-12T17:17:18.597123+00:00",
+  "wall_clock_seconds": 468.689539,
+  "runtime_versions": {
+    "transformers": "4.57.6",
+    "accelerate": "1.13.0",
+    "bitsandbytes": "0.49.2",
+    "sentencepiece": "0.2.1",
+    "protobuf": "5.29.5"
+  },
+  "memory_limit_bytes": 13958643712,
+  "models": [
+    {
+      "model": "tulu_step_0000_dpo",
+      "step": 0,
+      "rows": 48,
+      "strict_parse_rows": 48,
+      "malformed_rows": 0,
+      "token_capped_rows": 0,
+      "score_counts_descriptive_only": {
+        "0": 21,
+        "1": 23,
+        "2": 4
+      },
+      "model_repo": "allenai/Llama-3.1-Tulu-3-8B-DPO",
+      "revision": "a7beb67e33ffd01cc87ac3b46cadc1000985b8db",
+      "peak_gpu_memory_bytes": 7119831040,
+      "peak_gpu_memory_gib": 6.630859375
+    },
+    {
+      "model": "tulu_step_1920_grpo",
+      "step": 1920,
+      "rows": 48,
+      "strict_parse_rows": 48,
+      "malformed_rows": 0,
+      "token_capped_rows": 0,
+      "score_counts_descriptive_only": {
+        "0": 15,
+        "1": 28,
+        "2": 5
+      },
+      "model_repo": "allenai/Llama-3.1-Tulu-3.1-8B",
+      "revision": "46239c2d07db76b412e1f1b0b4542f65b81fe01f",
+      "peak_gpu_memory_bytes": 7119831040,
+      "peak_gpu_memory_gib": 6.630859375
+    }
+  ]
+}

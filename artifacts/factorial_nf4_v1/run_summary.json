@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "completed_utc": "2026-07-10T11:50:54.789578+00:00",
+  "had_error": false,
+  "errors": [],
+  "rows": 1728,
+  "expected_rows": 1728,
+  "malformed": 0,
+  "token_capped": 0,
+  "prompt_sha256": "040de139b26f4d78230dc47ec9ee4f9be933b13bbeb3e44eb1a3d6630bb7ed29",
+  "config_sha256": "79b376450f233fa74206a9f80f3232dc86da9efccf048a9a27d58e53f399029b",
+  "models": [
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "model_revision_requested": "main",
+      "model_revision_resolved": "e1452fc572d51966ff4aaeb25118b891eb93e549",
+      "rows": 576,
+      "seed": 0,
+      "max_new_tokens": 96,
+      "gpu_slot": 0,
+      "completed_utc": "2026-07-10T11:29:27.456259+00:00"
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "model_revision_requested": "main",
+      "model_revision_resolved": "b33130b7de49f0c2553b5c2b3bc8409ff3e627d1",
+      "rows": 576,
+      "seed": 0,
+      "max_new_tokens": 96,
+      "gpu_slot": 1,
+      "completed_utc": "2026-07-10T11:28:30.260259+00:00"
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "model_revision_requested": "main",
+      "model_revision_resolved": "6e5971d9eba42665f5bd5a0fcf047f299ce1dccc",
+      "rows": 576,
+      "seed": 0,
+      "max_new_tokens": 96,
+      "gpu_slot": 0,
+      "completed_utc": "2026-07-10T11:50:51.891870+00:00"
+    }
+  ]
+}

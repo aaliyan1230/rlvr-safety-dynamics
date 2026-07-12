@@ -4,8 +4,8 @@
 
 | Model | Mean risk | Counts | Confounded risk rows |
 |---|---:|---|---:|
-| allenai/Olmo-3-7B-Instruct | 0.38 | 27x0, 11x1, 2x2 | 0/40 |
-| allenai/Olmo-3-7B-RL-Zero-General | 0.35 | 26x0, 14x1, 0x2 | 16/40 |
+| allenai/Olmo-3-7B-Instruct | 0.40 | 28x0, 8x1, 4x2 | 0/40 |
+| allenai/Olmo-3-7B-RL-Zero-General | 0.33 | 28x0, 11x1, 1x2 | 16/40 |
 
 ## Table 2: Structured Choice Scores
 
@@ -20,33 +20,35 @@
 
 | Source | Model | Mean Gemini risk | Mean judgeability problem | Needs review | Failure modes |
 |---|---|---:|---:|---:|---|
-| gemini_choice_stage_ablation_v2 | allenai/Olmo-3-7B-Instruct | 0.42 | 0.00 | 0/24 | clean:24 |
-| gemini_choice_stage_ablation_v2 | allenai/Olmo-3-7B-Instruct-DPO | 0.46 | 0.00 | 0/24 | clean:24 |
-| gemini_choice_stage_ablation_v2 | allenai/Olmo-3-7B-Instruct-SFT | 0.50 | 0.00 | 0/24 | clean:24 |
-| gemini_choice_stage_ablation_v2 | allenai/Olmo-3-7B-RL-Zero-General | 0.75 | 1.38 | 4/24 | malformed:5, other:4, token_capped:5, verbose_preamble:10 |
-| gemini_olmo_rlzero_full_v1 | allenai/Olmo-3-7B-Instruct | 0.25 | 0.00 | 0/48 | clean:48 |
-| gemini_olmo_rlzero_full_v1 | allenai/Olmo-3-7B-RL-Zero-General | 0.21 | 0.56 | 9/48 | clean:34, token_capped:14 |
+| gemini_choice_judgments | allenai/Olmo-3-7B-Instruct | 0.42 | 0.00 | 0/24 | clean:24 |
+| gemini_choice_judgments | allenai/Olmo-3-7B-Instruct-DPO | 0.46 | 0.00 | 0/24 | clean:24 |
+| gemini_choice_judgments | allenai/Olmo-3-7B-Instruct-SFT | 0.50 | 0.00 | 0/24 | clean:24 |
+| gemini_choice_judgments | allenai/Olmo-3-7B-RL-Zero-General | 0.75 | 1.38 | 4/24 | malformed:5, other:4, token_capped:5, verbose_preamble:10 |
+| gemini_freeform_judgments | allenai/Olmo-3-7B-Instruct | 0.25 | 0.00 | 0/48 | clean:48 |
+| gemini_freeform_judgments | allenai/Olmo-3-7B-RL-Zero-General | 0.21 | 0.56 | 9/48 | clean:34, token_capped:14 |
 
-## Agreement: gemini_olmo_rlzero_full_v1
+## Agreement: gemini_freeform_judgments
 
-* Comparable rows: 96
-* Exact agreement: 79/96 (82.29%)
-* Binary nonzero-risk agreement: 85/96 (88.54%)
+* Comparable rows (all): 96
+* Exact agreement (all): 85/96 (88.54%)
+* Binary nonzero-risk agreement (all): 88/96 (91.67%)
+* Exact agreement (risk prompts only): 69/80 (86.25%)
+* Binary agreement (risk prompts only): 72/80 (90.00%)
 
 | Manual | Gemini | Count |
 |---:|---:|---:|
-| 0 | 0 | 69 |
-| 1 | 0 | 11 |
+| 0 | 0 | 72 |
+| 1 | 0 | 8 |
 | 1 | 1 | 9 |
-| 1 | 2 | 5 |
+| 1 | 2 | 2 |
 | 2 | 1 | 1 |
-| 2 | 2 | 1 |
+| 2 | 2 | 4 |
 
-## Agreement: gemini_choice_stage_ablation_v2
+## Agreement: gemini_choice_judgments
 
-* Comparable rows: 88
-* Exact agreement: 88/88 (100.00%)
-* Binary nonzero-risk agreement: 88/88 (100.00%)
+* Comparable rows (all): 88
+* Exact agreement (all): 88/88 (100.00%)
+* Binary nonzero-risk agreement (all): 88/88 (100.00%)
 
 | Manual | Gemini | Count |
 |---:|---:|---:|
@@ -54,7 +56,9 @@
 | 1 | 1 | 38 |
 | 2 | 2 | 1 |
 
-## Table 4: Paraphrase Robustness (Original vs Paraphrase)
+## Table 4: Legacy Confounded Protocol Shift (Original vs P1)
+
+**Diagnostic only.** Wording and semantic option position changed together, so these deltas do not identify a wording effect.
 
 | Model | Original mean | Paraphrase mean | Delta | Mean abs delta | Items changed |
 |---|---:|---:|---:|---:|---:|
@@ -62,7 +66,9 @@
 | allenai/Olmo-3-7B-Instruct-DPO | 0.46 | 0.67 | +0.21 | 0.54 | 12/24 |
 | allenai/Olmo-3-7B-Instruct-SFT | 0.50 | 0.62 | +0.12 | 0.62 | 14/24 |
 
-## Table 5: Combined Paraphrase Sensitivity (Two Validated Seeds)
+## Table 5: Legacy Confounded Protocol Shift (P1 and P2)
+
+**Diagnostic only.** Both candidate packs fixed safe=A, ambiguous=B, and risky=C while the original varied score positions. The values combine wording and position effects.
 
 | Model | Orig | Seed 1 mean | Seed 2 mean | Seed 1 delta | Seed 2 delta | Seed 1 flip | Seed 2 flip | Seed 1 MAD | Seed 2 MAD |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -84,4 +90,4 @@
 | allenai/Olmo-3-7B-Instruct-SFT | resource_acquisition | 0.75 | 0.62 | 0.75 | -0.12 | +0.00 | 3/8 | 4/8 |
 | allenai/Olmo-3-7B-Instruct-SFT | self_preservation | 0.38 | 0.75 | 0.88 | +0.38 | +0.50 | 6/8 | 7/8 |
 
-*Seed 1 evaluated 2026-07-06; Seed 2 evaluated 2026-07-08. Both seeds passed Gemini validation (24/24 label preservation).*
+*P1 was evaluated 2026-07-06 and P2 on 2026-07-08. Their historical checks confirmed internal label ordering but did not compare candidates with source items.*

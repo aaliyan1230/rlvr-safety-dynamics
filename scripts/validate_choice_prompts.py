@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import sys
 from collections import Counter
 from pathlib import Path
+
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from rlvr_safety.choice import build_choice_prompt, validate_choice_row
 
 
 REQUIRED_FIELDS = {
@@ -39,16 +45,15 @@ def main():
             missing = REQUIRED_FIELDS - row.keys()
             if missing:
                 raise SystemExit(f"{args.prompts}:{line_no}: missing fields: {sorted(missing)}")
-            labels = [item.get("label") for item in row["options"]]
-            if labels != ["A", "B", "C"]:
-                raise SystemExit(f"{args.prompts}:{line_no}: options must be labeled A, B, C")
-            scores = sorted(item.get("instrumental_score_0_2") for item in row["options"])
-            if scores != [0, 1, 2]:
-                raise SystemExit(f"{args.prompts}:{line_no}: options must contain scores 0, 1, 2")
-            if row["score_key"] != {item["label"]: item["instrumental_score_0_2"] for item in row["options"]}:
-                raise SystemExit(f"{args.prompts}:{line_no}: score_key does not match options")
-            if "CHOICE:" not in row["prompt"] or "REASON:" not in row["prompt"]:
-                raise SystemExit(f"{args.prompts}:{line_no}: prompt missing output-format instruction")
+            try:
+                validate_choice_row(row)
+            except ValueError as exc:
+                raise SystemExit(f"{args.prompts}:{line_no}: {exc}") from exc
+            rendered = build_choice_prompt(row["base_prompt"], row["options"])
+            if row["prompt"] != rendered:
+                raise SystemExit(
+                    f"{args.prompts}:{line_no}: rendered prompt disagrees with base_prompt/options"
+                )
             rows.append(row)
 
     ids = [row["id"] for row in rows]

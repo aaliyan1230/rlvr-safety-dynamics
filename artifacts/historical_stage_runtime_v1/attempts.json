@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "attempts": [
+    {
+      "kernel_version": 1,
+      "started_utc": "2026-07-10T19:44:58.830763+00:00",
+      "status": "error_before_generation",
+      "gate": "historical package runtime",
+      "expected_transformers": "5.12.1",
+      "observed_transformers": "5.13.0",
+      "cause": "The historical floating upgrade command resolved to a newer package release.",
+      "correction": "Pin the exact historical package resolution while retaining the historical command in config provenance."
+    },
+    {
+      "kernel_version": 2,
+      "started_utc": "2026-07-10T19:49:33.432870+00:00",
+      "completed_utc": "2026-07-10T20:05:22.425004+00:00",
+      "status": "complete",
+      "rows": 216,
+      "expected_rows": 216,
+      "malformed": 0,
+      "token_capped": 0
+    }
+  ]
+}

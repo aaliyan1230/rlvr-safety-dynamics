@@ -1,0 +1,1010 @@
+{
+  "schema_version": 1,
+  "design": {
+    "rows": 1728,
+    "models": [
+      "allenai/Olmo-3-7B-Instruct",
+      "allenai/Olmo-3-7B-Instruct-DPO",
+      "allenai/Olmo-3-7B-Instruct-SFT"
+    ],
+    "sources": [
+      "evaluation_awareness_001",
+      "evaluation_awareness_002",
+      "evaluation_awareness_003",
+      "evaluation_awareness_004",
+      "evaluation_awareness_005",
+      "evaluation_awareness_006",
+      "evaluation_awareness_007",
+      "evaluation_awareness_008",
+      "resource_acquisition_001",
+      "resource_acquisition_002",
+      "resource_acquisition_003",
+      "resource_acquisition_004",
+      "resource_acquisition_005",
+      "resource_acquisition_006",
+      "resource_acquisition_007",
+      "resource_acquisition_008",
+      "self_preservation_001",
+      "self_preservation_002",
+      "self_preservation_003",
+      "self_preservation_004",
+      "self_preservation_005",
+      "self_preservation_006",
+      "self_preservation_007",
+      "self_preservation_008"
+    ],
+    "wordings": [
+      "original",
+      "p1",
+      "p2",
+      "p3"
+    ],
+    "orders": [
+      "012",
+      "021",
+      "102",
+      "120",
+      "201",
+      "210"
+    ]
+  },
+  "bootstrap": {
+    "repetitions": 5000,
+    "seed": 20260710
+  },
+  "model_metrics": [
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "estimate": 0.3802083333333333,
+      "ci_low": 0.2760416666666667,
+      "ci_high": 0.4878472222222222,
+      "p_nonzero": 0.3454861111111111,
+      "p_score_2": 0.034722222222222224,
+      "rows": 576
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "estimate": 0.3923611111111111,
+      "ci_low": 0.2916666666666667,
+      "ci_high": 0.5000434027777771,
+      "p_nonzero": 0.3697916666666667,
+      "p_score_2": 0.022569444444444444,
+      "rows": 576
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "estimate": 0.4131944444444444,
+      "ci_low": 0.3107638888888889,
+      "ci_high": 0.5277777777777778,
+      "p_nonzero": 0.3697916666666667,
+      "p_score_2": 0.043402777777777776,
+      "rows": 576
+    }
+  ],
+  "wording_metrics": [
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "original",
+      "estimate": 0.4027777777777778,
+      "ci_low": 0.2706597222222223,
+      "ci_high": 0.5416666666666666,
+      "delta_vs_original": 0.0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p1",
+      "estimate": 0.3472222222222222,
+      "ci_low": 0.19444444444444445,
+      "ci_high": 0.5069444444444444,
+      "delta_vs_original": -0.05555555555555554,
+      "delta_ci_low": -0.21527777777777776,
+      "delta_ci_high": 0.11805555555555557
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p2",
+      "estimate": 0.4513888888888889,
+      "ci_low": 0.2708333333333333,
+      "ci_high": 0.6597222222222222,
+      "delta_vs_original": 0.048611111111111126,
+      "delta_ci_low": -0.1736111111111111,
+      "delta_ci_high": 0.28472222222222227
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p3",
+      "estimate": 0.3194444444444444,
+      "ci_low": 0.1736111111111111,
+      "ci_high": 0.4791666666666667,
+      "delta_vs_original": -0.08333333333333331,
+      "delta_ci_low": -0.29166666666666663,
+      "delta_ci_high": 0.13194444444444445
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "original",
+      "estimate": 0.4444444444444444,
+      "ci_low": 0.3194444444444444,
+      "ci_high": 0.5763888888888888,
+      "delta_vs_original": 0.0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p1",
+      "estimate": 0.3541666666666667,
+      "ci_low": 0.2013888888888889,
+      "ci_high": 0.5138888888888888,
+      "delta_vs_original": -0.09027777777777776,
+      "delta_ci_low": -0.24305555555555555,
+      "delta_ci_high": 0.07638888888888891
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p2",
+      "estimate": 0.4444444444444444,
+      "ci_low": 0.2847222222222222,
+      "ci_high": 0.6180555555555556,
+      "delta_vs_original": 1.0408340855860843e-17,
+      "delta_ci_low": -0.1946180555555555,
+      "delta_ci_high": 0.2152777777777778
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p3",
+      "estimate": 0.3263888888888889,
+      "ci_low": 0.19444444444444445,
+      "ci_high": 0.4722222222222222,
+      "delta_vs_original": -0.11805555555555555,
+      "delta_ci_low": -0.3055555555555555,
+      "delta_ci_high": 0.08333333333333334
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "original",
+      "estimate": 0.4722222222222222,
+      "ci_low": 0.3194444444444444,
+      "ci_high": 0.6319444444444444,
+      "delta_vs_original": 0.0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p1",
+      "estimate": 0.375,
+      "ci_low": 0.22916666666666666,
+      "ci_high": 0.5277777777777778,
+      "delta_vs_original": -0.09722222222222221,
+      "delta_ci_low": -0.29166666666666663,
+      "delta_ci_high": 0.10416666666666667
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p2",
+      "estimate": 0.4027777777777778,
+      "ci_low": 0.24305555555555555,
+      "ci_high": 0.5694444444444444,
+      "delta_vs_original": -0.06944444444444442,
+      "delta_ci_low": -0.29166666666666663,
+      "delta_ci_high": 0.1527777777777778
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p3",
+      "estimate": 0.4027777777777778,
+      "ci_low": 0.2361111111111111,
+      "ci_high": 0.5763888888888888,
+      "delta_vs_original": -0.06944444444444443,
+      "delta_ci_low": -0.2847222222222222,
+      "delta_ci_high": 0.15972222222222224
+    }
+  ],
+  "naive_vs_marginalized": [
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p1",
+      "naive_delta": 0.08333333333333333,
+      "naive_ci_low": -0.20833333333333334,
+      "naive_ci_high": 0.375,
+      "marginalized_delta": -0.05555555555555554,
+      "marginalized_ci_low": -0.21527777777777776,
+      "marginalized_ci_high": 0.125,
+      "layout_confounding_shift": 0.13888888888888887,
+      "shift_ci_low": -0.0902777777777778,
+      "shift_ci_high": 0.35416666666666663
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p2",
+      "naive_delta": 0.25,
+      "naive_ci_low": -0.08333333333333333,
+      "naive_ci_high": 0.5833333333333334,
+      "marginalized_delta": 0.048611111111111126,
+      "marginalized_ci_low": -0.1597222222222222,
+      "marginalized_ci_high": 0.28472222222222227,
+      "layout_confounding_shift": 0.20138888888888887,
+      "shift_ci_low": -0.06250000000000001,
+      "shift_ci_high": 0.4513888888888889
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p3",
+      "naive_delta": 0,
+      "naive_ci_low": -0.2916666666666667,
+      "naive_ci_high": 0.2916666666666667,
+      "marginalized_delta": -0.08333333333333331,
+      "marginalized_ci_low": -0.2847222222222222,
+      "marginalized_ci_high": 0.1388888888888889,
+      "layout_confounding_shift": 0.08333333333333331,
+      "shift_ci_low": -0.11805555555555558,
+      "shift_ci_high": 0.2777777777777778
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p1",
+      "naive_delta": 0.08333333333333333,
+      "naive_ci_low": -0.20833333333333334,
+      "naive_ci_high": 0.375,
+      "marginalized_delta": -0.09027777777777776,
+      "marginalized_ci_low": -0.2361111111111111,
+      "marginalized_ci_high": 0.08333333333333334,
+      "layout_confounding_shift": 0.1736111111111111,
+      "shift_ci_low": -0.027777777777777794,
+      "shift_ci_high": 0.3680555555555555
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p2",
+      "naive_delta": 0.125,
+      "naive_ci_low": -0.16666666666666666,
+      "naive_ci_high": 0.4166666666666667,
+      "marginalized_delta": 1.0408340855860843e-17,
+      "marginalized_ci_low": -0.2013888888888889,
+      "marginalized_ci_high": 0.2222222222222222,
+      "layout_confounding_shift": 0.125,
+      "shift_ci_low": -0.10416666666666667,
+      "shift_ci_high": 0.3541666666666667
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p3",
+      "naive_delta": 0.041666666666666664,
+      "naive_ci_low": -0.25,
+      "naive_ci_high": 0.3333333333333333,
+      "marginalized_delta": -0.11805555555555555,
+      "marginalized_ci_low": -0.3055555555555555,
+      "marginalized_ci_high": 0.08333333333333334,
+      "layout_confounding_shift": 0.1597222222222222,
+      "shift_ci_low": -0.05572916666666663,
+      "shift_ci_high": 0.375
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p1",
+      "naive_delta": 0.08333333333333333,
+      "naive_ci_low": -0.16666666666666666,
+      "naive_ci_high": 0.3333333333333333,
+      "marginalized_delta": -0.09722222222222221,
+      "marginalized_ci_low": -0.29861111111111105,
+      "marginalized_ci_high": 0.1111111111111111,
+      "layout_confounding_shift": 0.18055555555555555,
+      "shift_ci_low": -0.08333333333333334,
+      "shift_ci_high": 0.4305555555555555
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p2",
+      "naive_delta": 0.125,
+      "naive_ci_low": -0.16666666666666666,
+      "naive_ci_high": 0.4166666666666667,
+      "marginalized_delta": -0.06944444444444442,
+      "marginalized_ci_low": -0.29166666666666663,
+      "marginalized_ci_high": 0.14583333333333334,
+      "layout_confounding_shift": 0.19444444444444442,
+      "shift_ci_low": -0.04166666666666669,
+      "shift_ci_high": 0.4236111111111111
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p3",
+      "naive_delta": 0.08333333333333333,
+      "naive_ci_low": -0.20833333333333334,
+      "naive_ci_high": 0.375,
+      "marginalized_delta": -0.06944444444444443,
+      "marginalized_ci_low": -0.2986111111111111,
+      "marginalized_ci_high": 0.17361111111111113,
+      "layout_confounding_shift": 0.15277777777777776,
+      "shift_ci_low": -0.02777777777777779,
+      "shift_ci_high": 0.3333333333333333
+    }
+  ],
+  "category_wording_metrics": [
+    {
+      "category": "evaluation_awareness",
+      "wording_id": "original",
+      "mean": 0.5347222222222222,
+      "delta_vs_original": 0.0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0,
+      "mean_abs_source_delta": 0.0
+    },
+    {
+      "category": "evaluation_awareness",
+      "wording_id": "p1",
+      "mean": 0.3333333333333333,
+      "delta_vs_original": -0.2013888888888889,
+      "delta_ci_low": -0.41666666666666663,
+      "delta_ci_high": 0.020833333333333322,
+      "mean_abs_source_delta": 0.3263888888888889
+    },
+    {
+      "category": "evaluation_awareness",
+      "wording_id": "p2",
+      "mean": 0.4861111111111111,
+      "delta_vs_original": -0.0486111111111111,
+      "delta_ci_low": -0.3125,
+      "delta_ci_high": 0.2013888888888889,
+      "mean_abs_source_delta": 0.3125
+    },
+    {
+      "category": "evaluation_awareness",
+      "wording_id": "p3",
+      "mean": 0.3194444444444444,
+      "delta_vs_original": -0.2152777777777778,
+      "delta_ci_low": -0.4513888888888889,
+      "delta_ci_high": 0.0486111111111111,
+      "mean_abs_source_delta": 0.39583333333333337
+    },
+    {
+      "category": "resource_acquisition",
+      "wording_id": "original",
+      "mean": 0.6180555555555556,
+      "delta_vs_original": 0.0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0,
+      "mean_abs_source_delta": 0.0
+    },
+    {
+      "category": "resource_acquisition",
+      "wording_id": "p1",
+      "mean": 0.3333333333333333,
+      "delta_vs_original": -0.2847222222222222,
+      "delta_ci_low": -0.4444444444444444,
+      "delta_ci_high": -0.13194444444444442,
+      "mean_abs_source_delta": 0.2986111111111111
+    },
+    {
+      "category": "resource_acquisition",
+      "wording_id": "p2",
+      "mean": 0.20833333333333331,
+      "delta_vs_original": -0.4097222222222222,
+      "delta_ci_low": -0.6319444444444444,
+      "delta_ci_high": -0.1875,
+      "mean_abs_source_delta": 0.4236111111111111
+    },
+    {
+      "category": "resource_acquisition",
+      "wording_id": "p3",
+      "mean": 0.21527777777777776,
+      "delta_vs_original": -0.4027777777777778,
+      "delta_ci_low": -0.548611111111111,
+      "delta_ci_high": -0.24305555555555555,
+      "mean_abs_source_delta": 0.4027777777777778
+    },
+    {
+      "category": "self_preservation",
+      "wording_id": "original",
+      "mean": 0.16666666666666666,
+      "delta_vs_original": 0.0,
+      "delta_ci_low": 0.0,
+      "delta_ci_high": 0.0,
+      "mean_abs_source_delta": 0.0
+    },
+    {
+      "category": "self_preservation",
+      "wording_id": "p1",
+      "mean": 0.4097222222222222,
+      "delta_vs_original": 0.24305555555555555,
+      "delta_ci_low": -0.062499999999999986,
+      "delta_ci_high": 0.5763888888888888,
+      "mean_abs_source_delta": 0.3958333333333333
+    },
+    {
+      "category": "self_preservation",
+      "wording_id": "p2",
+      "mean": 0.6041666666666666,
+      "delta_vs_original": 0.4375,
+      "delta_ci_low": 0.11805555555555555,
+      "delta_ci_high": 0.763888888888889,
+      "mean_abs_source_delta": 0.5208333333333334
+    },
+    {
+      "category": "self_preservation",
+      "wording_id": "p3",
+      "mean": 0.5138888888888888,
+      "delta_vs_original": 0.3472222222222222,
+      "delta_ci_low": -0.013888888888888909,
+      "delta_ci_high": 0.7083333333333333,
+      "mean_abs_source_delta": 0.5138888888888888
+    }
+  ],
+  "position_metrics": [
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "risky_position": "A",
+      "estimate": 0.3229166666666667,
+      "ci_low": 0.21354166666666666,
+      "ci_high": 0.4479166666666667
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "risky_position": "B",
+      "estimate": 0.4322916666666667,
+      "ci_low": 0.3177083333333333,
+      "ci_high": 0.5520833333333334
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "risky_position": "C",
+      "estimate": 0.3854166666666667,
+      "ci_low": 0.28125,
+      "ci_high": 0.4947916666666667
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "risky_position": "A",
+      "estimate": 0.34375,
+      "ci_low": 0.23958333333333334,
+      "ci_high": 0.4635416666666667
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "risky_position": "B",
+      "estimate": 0.4427083333333333,
+      "ci_low": 0.3229166666666667,
+      "ci_high": 0.5729166666666666
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "risky_position": "C",
+      "estimate": 0.390625,
+      "ci_low": 0.3020833333333333,
+      "ci_high": 0.484375
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "risky_position": "A",
+      "estimate": 0.3333333333333333,
+      "ci_low": 0.22395833333333334,
+      "ci_high": 0.453125
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "risky_position": "B",
+      "estimate": 0.5052083333333334,
+      "ci_low": 0.3645833333333333,
+      "ci_high": 0.6511718749999981
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "risky_position": "C",
+      "estimate": 0.4010416666666667,
+      "ci_low": 0.3020833333333333,
+      "ci_high": 0.5052083333333334
+    }
+  ],
+  "position_contrasts": [
+    {
+      "scope": "all_models",
+      "first_position": "A",
+      "second_position": "B",
+      "estimate": 0.1267361111111111,
+      "ci_low": 0.06597222222222222,
+      "ci_high": 0.1875,
+      "simultaneous_ci_low": 0.047262394533926735,
+      "simultaneous_ci_high": 0.2062098276882955
+    },
+    {
+      "scope": "all_models",
+      "first_position": "A",
+      "second_position": "C",
+      "estimate": 0.059027777777777776,
+      "ci_low": -0.012152777777777775,
+      "ci_high": 0.13194444444444445,
+      "simultaneous_ci_low": -0.03559447849451984,
+      "simultaneous_ci_high": 0.15365003405007538
+    },
+    {
+      "scope": "all_models",
+      "first_position": "B",
+      "second_position": "C",
+      "estimate": -0.06770833333333333,
+      "ci_low": -0.14583333333333331,
+      "ci_high": 0.0069444444444444415,
+      "simultaneous_ci_low": -0.1696125208177075,
+      "simultaneous_ci_high": 0.034195854151040844
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct",
+      "first_position": "A",
+      "second_position": "B",
+      "estimate": 0.109375,
+      "ci_low": 0.052083333333333336,
+      "ci_high": 0.16666666666666666,
+      "simultaneous_ci_low": 0.03243626205070774,
+      "simultaneous_ci_high": 0.18631373794929226
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct",
+      "first_position": "A",
+      "second_position": "C",
+      "estimate": 0.0625,
+      "ci_low": -0.03125,
+      "ci_high": 0.15625,
+      "simultaneous_ci_low": -0.05881490985107042,
+      "simultaneous_ci_high": 0.1838149098510704
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct",
+      "first_position": "B",
+      "second_position": "C",
+      "estimate": -0.046875,
+      "ci_low": -0.11979166666666667,
+      "ci_high": 0.026041666666666668,
+      "simultaneous_ci_low": -0.14585229157685653,
+      "simultaneous_ci_high": 0.05210229157685653
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-DPO",
+      "first_position": "A",
+      "second_position": "B",
+      "estimate": 0.09895833333333333,
+      "ci_low": 0.041666666666666664,
+      "ci_high": 0.15104166666666666,
+      "simultaneous_ci_low": 0.025712906094241983,
+      "simultaneous_ci_high": 0.17220376057242467
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-DPO",
+      "first_position": "A",
+      "second_position": "C",
+      "estimate": 0.046875,
+      "ci_low": -0.03125,
+      "ci_high": 0.11979166666666667,
+      "simultaneous_ci_low": -0.05217517215880532,
+      "simultaneous_ci_high": 0.14592517215880532
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-DPO",
+      "first_position": "B",
+      "second_position": "C",
+      "estimate": -0.052083333333333336,
+      "ci_low": -0.140625,
+      "ci_high": 0.03125,
+      "simultaneous_ci_low": -0.16886685926646558,
+      "simultaneous_ci_high": 0.06470019259979892
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-SFT",
+      "first_position": "A",
+      "second_position": "B",
+      "estimate": 0.171875,
+      "ci_low": 0.08333333333333333,
+      "ci_high": 0.265625,
+      "simultaneous_ci_low": 0.052083333333333315,
+      "simultaneous_ci_high": 0.2916666666666667
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-SFT",
+      "first_position": "A",
+      "second_position": "C",
+      "estimate": 0.06770833333333333,
+      "ci_low": -0.010416666666666666,
+      "ci_high": 0.15104166666666666,
+      "simultaneous_ci_low": -0.037636194061458184,
+      "simultaneous_ci_high": 0.17305286072812484
+    },
+    {
+      "scope": "allenai/Olmo-3-7B-Instruct-SFT",
+      "first_position": "B",
+      "second_position": "C",
+      "estimate": -0.10416666666666667,
+      "ci_low": -0.21354166666666666,
+      "ci_high": 0.005208333333333333,
+      "simultaneous_ci_low": -0.25182339869745707,
+      "simultaneous_ci_high": 0.04349006536412374
+    }
+  ],
+  "model_contrasts": [
+    {
+      "first": "allenai/Olmo-3-7B-Instruct",
+      "second": "allenai/Olmo-3-7B-Instruct-DPO",
+      "estimate": 0.012152777777777781,
+      "ci_low": -0.020833333333333332,
+      "ci_high": 0.04166666666666668,
+      "equivalence_margin": 0.1,
+      "equivalent_at_95pct_interval": true
+    },
+    {
+      "first": "allenai/Olmo-3-7B-Instruct",
+      "second": "allenai/Olmo-3-7B-Instruct-SFT",
+      "estimate": 0.03298611111111111,
+      "ci_low": -0.02083333333333333,
+      "ci_high": 0.08506944444444445,
+      "equivalence_margin": 0.1,
+      "equivalent_at_95pct_interval": true
+    },
+    {
+      "first": "allenai/Olmo-3-7B-Instruct-DPO",
+      "second": "allenai/Olmo-3-7B-Instruct-SFT",
+      "estimate": 0.02083333333333333,
+      "ci_low": -0.019097222222222238,
+      "ci_high": 0.05902777777777778,
+      "equivalence_margin": 0.1,
+      "equivalent_at_95pct_interval": true
+    }
+  ],
+  "power_diagnostics": [
+    {
+      "first": "allenai/Olmo-3-7B-Instruct",
+      "second": "allenai/Olmo-3-7B-Instruct-DPO",
+      "source_count": 24,
+      "minimum_effect": 0.1,
+      "observed_mean_difference": 0.012152777777777781,
+      "null_critical_low": -0.03298611111111111,
+      "null_critical_high": 0.029513888888888895,
+      "positive_power": 1,
+      "negative_power": 1,
+      "minimum_directional_power": 1
+    },
+    {
+      "first": "allenai/Olmo-3-7B-Instruct",
+      "second": "allenai/Olmo-3-7B-Instruct-SFT",
+      "source_count": 24,
+      "minimum_effect": 0.1,
+      "observed_mean_difference": 0.03298611111111111,
+      "null_critical_low": -0.05034722222222222,
+      "null_critical_high": 0.05381944444444445,
+      "positive_power": 0.9616,
+      "negative_power": 0.967,
+      "minimum_directional_power": 0.9616
+    },
+    {
+      "first": "allenai/Olmo-3-7B-Instruct-DPO",
+      "second": "allenai/Olmo-3-7B-Instruct-SFT",
+      "source_count": 24,
+      "minimum_effect": 0.1,
+      "observed_mean_difference": 0.02083333333333333,
+      "null_critical_low": -0.041666666666666664,
+      "null_critical_high": 0.039930555555555546,
+      "positive_power": 0.9976,
+      "negative_power": 0.9982,
+      "minimum_directional_power": 0.9976
+    }
+  ],
+  "model_stage_spread": 0.032986111111111105,
+  "reliability": [
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "permutation_invariance": 0.46875,
+      "mean_wording_range": 0.6666666666666666,
+      "mean_order_range": 0.6041666666666666,
+      "wording_range_ci": [
+        0.5138888888888888,
+        0.8472222222222222
+      ],
+      "order_range_ci": [
+        0.4895833333333333,
+        0.7291666666666666
+      ]
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "permutation_invariance": 0.40625,
+      "mean_wording_range": 0.6041666666666666,
+      "mean_order_range": 0.6458333333333334,
+      "wording_range_ci": [
+        0.4722222222222222,
+        0.7430555555555556
+      ],
+      "order_range_ci": [
+        0.53125,
+        0.75
+      ]
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "permutation_invariance": 0.40625,
+      "mean_wording_range": 0.6736111111111112,
+      "mean_order_range": 0.7083333333333334,
+      "wording_range_ci": [
+        0.5416666666666666,
+        0.8055555555555556
+      ],
+      "order_range_ci": [
+        0.59375,
+        0.8229166666666666
+      ]
+    }
+  ],
+  "reliability_contrasts": [
+    {
+      "first": "allenai/Olmo-3-7B-Instruct",
+      "second": "allenai/Olmo-3-7B-Instruct-DPO",
+      "metric": "permutation_invariance",
+      "estimate": -0.0625,
+      "ci_low": -0.13541666666666666,
+      "ci_high": 0.0,
+      "simultaneous_ci_low": -0.15308550188044143,
+      "simultaneous_ci_high": 0.028085501880441427
+    },
+    {
+      "first": "allenai/Olmo-3-7B-Instruct",
+      "second": "allenai/Olmo-3-7B-Instruct-DPO",
+      "metric": "wording_range",
+      "estimate": -0.0625,
+      "ci_low": -0.1597222222222222,
+      "ci_high": 0.020833333333333332,
+      "simultaneous_ci_low": -0.1869176458703769,
+      "simultaneous_ci_high": 0.0619176458703769
+    },
+    {
+      "first": "allenai/Olmo-3-7B-Instruct",
+      "second": "allenai/Olmo-3-7B-Instruct-DPO",
+      "metric": "order_range",
+      "estimate": 0.041666666666666664,
+      "ci_low": -0.052083333333333336,
+      "ci_high": 0.13541666666666666,
+      "simultaneous_ci_low": -0.0816602334982752,
+      "simultaneous_ci_high": 0.1649935668316085
+    },
+    {
+      "first": "allenai/Olmo-3-7B-Instruct",
+      "second": "allenai/Olmo-3-7B-Instruct-SFT",
+      "metric": "permutation_invariance",
+      "estimate": -0.0625,
+      "ci_low": -0.16666666666666666,
+      "ci_high": 0.03125,
+      "simultaneous_ci_low": -0.195591041018685,
+      "simultaneous_ci_high": 0.07059104101868499
+    },
+    {
+      "first": "allenai/Olmo-3-7B-Instruct",
+      "second": "allenai/Olmo-3-7B-Instruct-SFT",
+      "metric": "wording_range",
+      "estimate": 0.006944444444444445,
+      "ci_low": -0.12499999999999999,
+      "ci_high": 0.14583333333333331,
+      "simultaneous_ci_low": -0.1736111111111111,
+      "simultaneous_ci_high": 0.1875
+    },
+    {
+      "first": "allenai/Olmo-3-7B-Instruct",
+      "second": "allenai/Olmo-3-7B-Instruct-SFT",
+      "metric": "order_range",
+      "estimate": 0.10416666666666667,
+      "ci_low": -0.010416666666666666,
+      "ci_high": 0.20833333333333334,
+      "simultaneous_ci_low": -0.05078049922485188,
+      "simultaneous_ci_high": 0.2591138325581852
+    },
+    {
+      "first": "allenai/Olmo-3-7B-Instruct-DPO",
+      "second": "allenai/Olmo-3-7B-Instruct-SFT",
+      "metric": "permutation_invariance",
+      "estimate": 0.0,
+      "ci_low": -0.08333333333333333,
+      "ci_high": 0.07291666666666667,
+      "simultaneous_ci_low": -0.10530825656965605,
+      "simultaneous_ci_high": 0.10530825656965605
+    },
+    {
+      "first": "allenai/Olmo-3-7B-Instruct-DPO",
+      "second": "allenai/Olmo-3-7B-Instruct-SFT",
+      "metric": "wording_range",
+      "estimate": 0.06944444444444445,
+      "ci_low": -0.020833333333333325,
+      "ci_high": 0.1736111111111111,
+      "simultaneous_ci_low": -0.06476003535834132,
+      "simultaneous_ci_high": 0.20364892424723022
+    },
+    {
+      "first": "allenai/Olmo-3-7B-Instruct-DPO",
+      "second": "allenai/Olmo-3-7B-Instruct-SFT",
+      "metric": "order_range",
+      "estimate": 0.0625,
+      "ci_low": -0.010416666666666666,
+      "ci_high": 0.14583333333333334,
+      "simultaneous_ci_low": -0.04513920951007139,
+      "simultaneous_ci_high": 0.1701392095100714
+    }
+  ],
+  "measurement_resolution": {
+    "model_stage_spread": 0.032986111111111105,
+    "mean_wording_range": 0.6481481481481481,
+    "mean_order_range": 0.6527777777777778,
+    "wording_to_stage_ratio": 19.649122807017548,
+    "order_to_stage_ratio": 19.78947368421053
+  },
+  "rankings": [
+    {
+      "wording_id": "original",
+      "means": {
+        "allenai/Olmo-3-7B-Instruct": 0.4027777777777778,
+        "allenai/Olmo-3-7B-Instruct-DPO": 0.4444444444444444,
+        "allenai/Olmo-3-7B-Instruct-SFT": 0.4722222222222222
+      },
+      "descending_models": [
+        "allenai/Olmo-3-7B-Instruct-SFT",
+        "allenai/Olmo-3-7B-Instruct-DPO",
+        "allenai/Olmo-3-7B-Instruct"
+      ]
+    },
+    {
+      "wording_id": "p1",
+      "means": {
+        "allenai/Olmo-3-7B-Instruct": 0.3472222222222222,
+        "allenai/Olmo-3-7B-Instruct-DPO": 0.3541666666666667,
+        "allenai/Olmo-3-7B-Instruct-SFT": 0.375
+      },
+      "descending_models": [
+        "allenai/Olmo-3-7B-Instruct-SFT",
+        "allenai/Olmo-3-7B-Instruct-DPO",
+        "allenai/Olmo-3-7B-Instruct"
+      ]
+    },
+    {
+      "wording_id": "p2",
+      "means": {
+        "allenai/Olmo-3-7B-Instruct": 0.4513888888888889,
+        "allenai/Olmo-3-7B-Instruct-DPO": 0.4444444444444444,
+        "allenai/Olmo-3-7B-Instruct-SFT": 0.4027777777777778
+      },
+      "descending_models": [
+        "allenai/Olmo-3-7B-Instruct",
+        "allenai/Olmo-3-7B-Instruct-DPO",
+        "allenai/Olmo-3-7B-Instruct-SFT"
+      ]
+    },
+    {
+      "wording_id": "p3",
+      "means": {
+        "allenai/Olmo-3-7B-Instruct": 0.3194444444444444,
+        "allenai/Olmo-3-7B-Instruct-DPO": 0.3263888888888889,
+        "allenai/Olmo-3-7B-Instruct-SFT": 0.4027777777777778
+      },
+      "descending_models": [
+        "allenai/Olmo-3-7B-Instruct-SFT",
+        "allenai/Olmo-3-7B-Instruct-DPO",
+        "allenai/Olmo-3-7B-Instruct"
+      ]
+    }
+  ],
+  "letter_counts": [
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "original",
+      "A": 25,
+      "B": 59,
+      "C": 60
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p1",
+      "A": 37,
+      "B": 59,
+      "C": 48
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p2",
+      "A": 27,
+      "B": 56,
+      "C": 61
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct",
+      "wording_id": "p3",
+      "A": 38,
+      "B": 58,
+      "C": 48
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "original",
+      "A": 18,
+      "B": 62,
+      "C": 64
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p1",
+      "A": 34,
+      "B": 60,
+      "C": 50
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p2",
+      "A": 24,
+      "B": 58,
+      "C": 62
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-DPO",
+      "wording_id": "p3",
+      "A": 34,
+      "B": 60,
+      "C": 50
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "original",
+      "A": 21,
+      "B": 66,
+      "C": 57
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p1",
+      "A": 35,
+      "B": 67,
+      "C": 42
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p2",
+      "A": 28,
+      "B": 64,
+      "C": 52
+    },
+    {
+      "model": "allenai/Olmo-3-7B-Instruct-SFT",
+      "wording_id": "p3",
+      "A": 34,
+      "B": 70,
+      "C": 40
+    }
+  ],
+  "variance_components": [
+    {
+      "component": "model",
+      "sum_squares": 0.3206018518518517,
+      "share_total": 0.0006060055809394807
+    },
+    {
+      "component": "source_item",
+      "sum_squares": 113.77719907407408,
+      "share_total": 0.21506306724145946
+    },
+    {
+      "component": "wording",
+      "sum_squares": 2.946180555555556,
+      "share_total": 0.005568906881882487
+    },
+    {
+      "component": "option_order",
+      "sum_squares": 32.27372685185186,
+      "share_total": 0.061004197190277845
+    },
+    {
+      "component": "model \u00d7 wording",
+      "sum_squares": 0.9062499999999999,
+      "share_total": 0.001713004945399327
+    },
+    {
+      "component": "model \u00d7 option_order",
+      "sum_squares": 2.061342592592593,
+      "share_total": 0.0038963752334051113
+    },
+    {
+      "component": "other interactions / residual",
+      "sum_squares": 376.7557870370394,
+      "share_total": 0.7121484429266364
+    }
+  ]
+}

@@ -60,6 +60,7 @@ def main():
     parser.add_argument("--paraphrase-scores", type=Path, required=True)
     parser.add_argument("--paraphrase-model-key", type=Path, default=None)
     parser.add_argument("--out-md", type=Path, default=Path("reports/prompt_sensitivity.md"))
+    parser.add_argument("--comparison-label", default="P1")
     args = parser.parse_args()
 
     orig_key = load_model_key(args.original_model_key) if args.original_model_key else {}
@@ -71,12 +72,19 @@ def main():
     # Build lookup: (source_id, model) -> score for original
     orig_lookup = {}
     for row in orig_rows:
-        orig_lookup[(row["source_id"], row["model"])] = row
+        key = (row["source_id"], row["model"])
+        if key in orig_lookup:
+            raise SystemExit(f"duplicate original score cell: {key}")
+        orig_lookup[key] = row
 
     # Join paraphrase rows to original by (source_id, model)
     paired = []
+    seen_paraphrase = set()
     for p in para_rows:
         key = (p["source_id"], p["model"])
+        if key in seen_paraphrase:
+            raise SystemExit(f"duplicate paraphrase score cell: {key}")
+        seen_paraphrase.add(key)
         o = orig_lookup.get(key)
         if o is not None:
             paired.append({
@@ -91,10 +99,15 @@ def main():
             })
 
     if not paired:
-        print("ERROR: No paired rows. Check that model names and source_ids align.")
-        return 1
+        raise SystemExit("No paired rows. Check that model names and source_ids align.")
 
-    lines = ["# Prompt Sensitivity Analysis: Original vs Paraphrase", ""]
+    lines = [f"# Legacy Protocol-Shift Diagnostic: Original vs {args.comparison_label}", ""]
+    lines.append(
+        f"**Not an isolated wording analysis.** The historical {args.comparison_label} pack fixed safe=A, "
+        "ambiguous=B, and risky=C while the original pack varied semantic option positions. "
+        "Every value below combines wording/scenario and option-position effects."
+    )
+    lines.append("")
     lines.append(f"Paired rows: {len(paired)}")
     lines.append("")
 
@@ -114,7 +127,7 @@ def main():
         mean_abs_delta = mean(r["abs_delta"] for r in rows)
         flipped = sum(1 for r in rows if r["flipped"])
         lines.append(
-            f"| {model} | {orig_mean:.2f} | {para_mean:.2f} | +{para_mean - orig_mean:.2f} | "
+            f"| {model} | {orig_mean:.2f} | {para_mean:.2f} | {para_mean - orig_mean:+.2f} | "
             f"{mean_abs_delta:.2f} | {flipped}/{len(rows)} |"
         )
     lines.append("")
@@ -152,9 +165,12 @@ def main():
     lines.append("")
 
     # --- Spread comparison: model-stage vs prompt/source ---
-    lines.append("## Spread: Model-Stage vs Prompt-Source Variability")
+    lines.append("## Descriptive Spread (Confounded)")
     lines.append("")
-    lines.append("Variance decomposition: how much of the score variance is explained by model identity vs prompt wording.")
+    lines.append(
+        "These marginal variances are not a variance decomposition and do not attribute "
+        "variation to model identity, wording, or position."
+    )
     lines.append("")
 
     # Variance by model (across prompts, both original and paraphrase)
@@ -211,4 +227,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main() or 0)

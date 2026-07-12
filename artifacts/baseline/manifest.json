@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "description": "Compact, tracked inputs needed to regenerate the baseline paper tables from a clean checkout.",
+  "adjudication": {
+    "applied": true,
+    "source": "data/freeform_adjudications_v1.jsonl",
+    "changed_rows": 6
+  },
+  "warnings": [
+    "The p1 and p2 paraphrase score files are retained only as legacy diagnostics.",
+    "Their original-vs-paraphrase comparisons confound wording with semantic option position and must not be interpreted as isolated wording effects."
+  ],
+  "files": {
+    "choice_stage_model_key.csv": "3d04d57308b420748271b94502b9249afe3a52761f9cda5a4c6731f2374fcb4a",
+    "choice_stage_scores.csv": "200b1049cee84a93fe8d369a17befa7065483562b9d0483dce2976a0dec1873e",
+    "freeform_manual_scores.csv": "e1c0b765811a791b76c6b617a5124ef76c9cf7fac854bd6ecf518a48316c3fb4",
+    "freeform_model_key.csv": "36cfeaa96e65935a315ca741a947719a7e026b331ed779f796c66924e45cac50",
+    "gemini_choice_judgments.jsonl": "aa2403d6adcea9427a4013ecdb86443c20d83683cb1b5d5b5ea8ee532c5f9c92",
+    "gemini_freeform_judgments.jsonl": "94cb301d9b46df3d806068a3fdd737fc7478f18ae3cb44c678dd554e94d238f6",
+    "paraphrase_p1_scores_confounded.csv": "58d7a8452e941cff68ee780d2d797e94437bf2f211cc3516fa6e1411456cc4f6",
+    "paraphrase_p2_scores_confounded.csv": "03187dbabe28051dc5ad47e548a4729886c2806e64faa4cf32bdc289a4fd5980"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "aaliyanshaikh/rlvr-tulu-grpo-endpoint-pilot-v1",
+  "title": "rlvr-tulu-grpo-endpoint-pilot-v1",
+  "code_file": "run_endpoint_pilot.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [
+    "aaliyanshaikh/rlvr-wording-position-factorial-v1"
+  ],
+  "competition_sources": [],
+  "model_sources": []
+}

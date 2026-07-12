@@ -1,0 +1,15 @@
+{
+  "id": "aaliyanshaikh/rlvr-wording-position-factorial-v2-legacy-quant",
+  "title": "rlvr-wording-position-factorial-v2-legacy-quant",
+  "code_file": "run_factorial.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [
+    "aaliyanshaikh/rlvr-wording-position-factorial-v1"
+  ],
+  "competition_sources": [],
+  "model_sources": []
+}

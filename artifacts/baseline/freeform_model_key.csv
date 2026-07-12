@@ -1,0 +1,3 @@
+model_alias,model
+model_a,allenai/Olmo-3-7B-Instruct
+model_b,allenai/Olmo-3-7B-RL-Zero-General

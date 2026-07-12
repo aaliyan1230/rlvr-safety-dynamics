@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "experiment_id": "tulu_grpo_endpoint_pilot_v1",
+  "role": "Accepted repaired feasibility artifact for pinned Tülu DPO and GRPO endpoints. This bundle validates access, strict formatting, memory, and throughput only; its two-order scores have no scientific interpretation.",
+  "remote_kernel": "aaliyanshaikh/rlvr-tulu-grpo-endpoint-pilot-v1",
+  "completion": {
+    "rows": 96,
+    "expected_rows": 96,
+    "strict_parse_rows": 96,
+    "malformed": 0,
+    "token_capped": 0,
+    "wall_clock_seconds": 468.689539,
+    "peak_gpu_memory_bytes_per_model": 7119831040,
+    "attention_mask_mode": "explicit_all_ones",
+    "resolved_revisions_match_requested": true,
+    "scientific_interpretation_allowed": false,
+    "source_prompt_sha256": "040de139b26f4d78230dc47ec9ee4f9be933b13bbeb3e44eb1a3d6630bb7ed29",
+    "filtered_prompt_sha256": "45ab9d80013b42426685e95c086c13430f0445b190f25f85f7171df24082d9a3",
+    "config_sha256": "a67ad0ff9036399fc1f3ba28f70f9e03203354b324a1060625bfbf997dcc197c"
+  },
+  "files": {
+    "attempt_1_run_summary.json": "137bbe95f4079c085fde8bf3af4f3a963a11af819c2656f6062ef8ba869397ff",
+    "attempts.json": "73f965971c9445fc88d6ebc6193aff2fa5a0ee6da491a0aaab97b819dc9ad484",
+    "choice_scores.csv": "94b07fe300f448e4fc5368e14ccdcb4908ddd3b1a1d03db9b2c590c1bea2148e",
+    "config.json": "a67ad0ff9036399fc1f3ba28f70f9e03203354b324a1060625bfbf997dcc197c",
+    "dataset_bundle_manifest.json": "51459baa8a51140f772bf137141af181e6c4bccde5d88e9a85d900e58bd8f433",
+    "feasibility_metrics.json": "1c4a947296ed00992860b8bb61f8f61364657bb5dd693de7cd6a9cb2c69c7750",
+    "hf_generation.py": "4f1509bc075d192f2bbec2f6ca0d4b79ddfd0c0ded2eb64b4973bb7b360cc37d",
+    "kernel-metadata.json": "9f04b1b11ba1d834a4ed92807b3eae3367dc57ac59ca26f7f421123dab66e8fa",
+    "model_0_metadata.json": "7037515dabb584c2912d1ed56e4b637c2716ba182cd8b8cfc2fda9b73222c9a3",
+    "model_1_metadata.json": "23de1542fe993196097fc133490be9e187dc42d0c5654578225f5a78a1efd40a",
+    "run_endpoint_pilot.py": "e0d7d39731a85a85532d81c6fc7d275f0be1bbd18cbc116b9a03ce3fde511363",
+    "run_metadata.json": "0ec207db7c82981701442feb943d880b637fb504bc24350ec563b78673450826",
+    "run_summary.json": "69a3561b6d957747926586ff7af623af649d08037f62d6478a79e539adaf4e48"
+  }
+}
