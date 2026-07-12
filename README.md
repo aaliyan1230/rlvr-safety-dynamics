@@ -27,9 +27,9 @@ Free-form and reasoning-style comparisons remain dominated by censoring. Final v
 
 ## Evidence status
 
-The computational correction is complete and checksum-verified. Source-aware Gemini 2.5 Pro validation passed all 72 paraphrase pairs, but the planned blinded two-human semantic audit has not been performed. The Phase 1 instrument is therefore suitable for a transparent measurement audit, not yet paper-ready as an independently validated behavioral scale.
+The computational correction is complete and checksum-verified. Source-aware Gemini 2.5 Pro validation passed all 72 paraphrase pairs. A second disclosed, prompt-only AI audit accepted 72/72 under an explicit project-owner assumption: 63 passed without a noted concern and nine passed with construct-fidelity caveats. This closes the project's internal semantic-review gate under that assumption, but it is not independent human validation and must not be reported as such.
 
-The recommended next study is a checkpoint-resolved decomposition along the exact Tülu 3.1 8B GRPO trajectory: measure order- and wording-marginalized behavior and measurement reliability at 12 pinned checkpoints, then require a matching blinded free-form signal before calling any change “safety drift.” The repaired endpoint feasibility pilot passed: 96/96 strict responses, zero malformed or capped rows, exact pinned revisions, explicit attention masks, 6.63 GiB peak memory per T4, and 7.8 minutes wall time. The full 6,912-generation trajectory is configured but remains gated on human semantic review and frozen capability/free-form anchors.
+The recommended next study is a checkpoint-resolved decomposition along the exact Tülu 3.1 8B GRPO trajectory: measure order- and wording-marginalized behavior and measurement reliability at 12 pinned checkpoints, then require a matching blinded free-form signal before calling any change “safety drift.” The repaired endpoint feasibility pilot passed: 96/96 strict responses, zero malformed or capped rows, exact pinned revisions, explicit attention masks, 6.63 GiB peak memory per T4, and 7.8 minutes wall time. With the AI-review assumption accepted, the full 6,912-generation trajectory remains gated on frozen capability/free-form anchors rather than further Phase 1 review.
 
 ## Repository map
 
@@ -68,6 +68,7 @@ The primary result files are:
 - `reports/factorial_nf4_vs_default4bit.md`
 - `reports/historical_runtime_crossover_v1.md`
 - `reports/tulu_endpoint_pilot_v1.md`
+- `reports/ai_semantic_audit_v1.md`
 - `reports/methodology_audit.md`
 - `reports/research_roadmap.md`
 
@@ -76,6 +77,6 @@ The primary result files are:
 - There are only 24 authored source items from three narrow categories; 1,728 repeated conditions do not create 1,728 independent prompts.
 - Deterministic decoding measures one response path per condition.
 - The 0/1/2 score is an ordinal, judgment-dependent index, and category cancellation challenges a single aggregate construct.
-- Automated source-aware validation is not a substitute for blinded human review.
+- The accepted semantic audit is AI-only and non-independent; nine pairs carry explicit construct-fidelity caveats.
 - Quantization/runtime changes alter individual responses and position effects, even when marginal stage contrasts are stable.
 - The OLMo checkpoints are not a controlled RLVR trajectory, and the results should not be generalized to other lineages or frontier systems.

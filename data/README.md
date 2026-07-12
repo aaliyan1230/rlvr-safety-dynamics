@@ -14,6 +14,9 @@
 - `choice_factorial_v1.manifest.json`: input hashes and balance counts.
 - `freeform_adjudications_v1.jsonl`: the six final-label changes applied to
   the baseline manual scoring sheet.
+- `ai_semantic_audit_v1.jsonl`: 72 prompt-only semantic judgments from one
+  disclosed AI reviewer, accepted by explicit project-owner assumption in
+  place of the planned human audit. This is not independent human validation.
 
 ## Legacy validation artifacts
 

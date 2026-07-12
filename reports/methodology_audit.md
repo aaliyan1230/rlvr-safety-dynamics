@@ -16,7 +16,7 @@ The text below is retained as the state-at-start audit. The corrective program h
 
 The audit's central invalidation is therefore strengthened: the historical paraphrase comparison aliases wording, semantic option position, and inference runtime. Its shifts cannot be interpreted as isolated wording or behavioral effects.
 
-One scientific gate remains open. The 72 source/candidate pairs have source-aware automated validation, but not the planned blinded two-reviewer human semantic audit. The computational factorial is complete; independent construct validation is not. Detailed post-audit results are in `reports/factorial_nf4_v1_results.md`, `reports/factorial_default4bit_v2_results.md`, `reports/factorial_nf4_vs_default4bit.md`, and `reports/historical_runtime_crossover_v1.md`.
+The originally planned independent scientific gate remains open: no blinded two-reviewer human semantic audit was performed. After this methodology audit, the project owner explicitly accepted a disclosed prompt-only AI review as a substitute for the current phase. That review accepted 72/72 pairs, including nine with construct-fidelity caveats, and closes only the project's internal gate under that assumption. Detailed post-audit results are in `reports/ai_semantic_audit_v1.md`, `reports/factorial_nf4_v1_results.md`, `reports/factorial_default4bit_v2_results.md`, `reports/factorial_nf4_vs_default4bit.md`, and `reports/historical_runtime_crossover_v1.md`.
 
 ## Bottom line
 
@@ -109,7 +109,7 @@ The current repair is materially better:
 - `scripts/validate_paraphrase_pack.py` can revalidate an existing pack with a separately selected model.
 - The three `data/gemini_choice_paraphrase_validations_source_aware_v*.jsonl` files record 72/72 automated passes from Gemini 2.5 Pro, distinct from the Gemini Flash-Lite generator recorded in the candidates.
 
-This is enough to admit P1–P3 to the counterbalanced experiment. It is not independent human evidence, and it does not retroactively change the option order in the P1/P2 model outputs. A paper-ready semantic-equivalence claim should additionally disclose that the generator and validator are from the same provider and include a blinded human review of source/candidate pairs.
+This is enough to admit P1–P3 to the counterbalanced experiment. It is not independent human evidence, and it does not retroactively change the option order in the P1/P2 model outputs. The later disclosed Codex audit also accepted all 72 pairs under the project owner's substitution assumption, with nine caveats. A paper-ready independent semantic-equivalence claim would still require human review and disclosure that the generator and first validator are from the same provider.
 
 ## Adjudication propagation
 
@@ -263,7 +263,7 @@ The experiment is complete only when every gate below passes. A null or unstable
 
 - P1, P2, and P3 each contain exactly one candidate for all 24 source IDs.
 - All 72 source/candidate records pass a source-aware comparison with exact `0/1/2` option semantics; the validator artifact records source, candidate, generator, judge, and rationale.
-- A human reviewer who did not generate the candidates checks all 72 pairs with source and candidate shown but model/pack outcome hidden; exclusions or revisions receive a new pack/version before generation.
+- Under the project owner's explicit substitution assumption, a disclosed AI reviewer checks all 72 pairs with source and candidate shown but model/pack outcome hidden; any failure requires a new pack/version before generation. This does not create independent human evidence.
 - The input hashes in `data/choice_factorial_v1.manifest.json` match the actual files.
 
 ### 2. Balance and protocol integrity
@@ -303,4 +303,4 @@ The experiment is complete only when every gate below passes. A null or unstable
 - From a fresh clone, artifact verification, all tests, table regeneration, and factorial analysis succeed without relying on ignored local files or network calls (other than an explicitly documented model-generation rerun).
 - The README and every human-facing report use the same final labels, denominators, censoring policy, and claim language.
 
-The computational, analysis, and compact-evidence gates now pass for both counterbalanced protocols and the exact runtime crossover. The repository is therefore a useful audit of this instrument's instability and its small marginal OLMo stage contrasts. The blinded human semantic-validity gate remains open, so broader construct or safety claims remain out of scope.
+The computational, analysis, and compact-evidence gates now pass for both counterbalanced protocols and the exact runtime crossover. The disclosed AI audit closes the internal semantic-validity gate under the project owner's assumption, while independent human validation remains absent. The repository is therefore a useful audit of this instrument's instability and its small marginal OLMo stage contrasts; broad construct or safety claims remain out of scope.

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "audit_id": "ai_semantic_audit_v1",
+  "role": "Checksummed prompt-only AI semantic review accepted under an explicit project-owner substitution assumption; not independent human validation.",
+  "completion": {
+    "pairs": 72,
+    "pass": 63,
+    "pass_with_caveat": 9,
+    "fail": 0,
+    "independent_human_review": false
+  },
+  "files": {
+    "../configs/audits/ai_semantic_audit_v1.json": "3da3d548a41c873cadbbba5ccf63ce81988407e969c4f71a9f6af72f210e914a",
+    "choice_eval_targeted.jsonl": "18c5fea9b83d67f50ebd5a60075ef8ba1e61db568b40f8bd7a64f813d52f55a3",
+    "gemini_choice_paraphrases_v1.jsonl": "bf1b46c66d4c433dbe854d792c060848da0853bbe47df6ca06fcc00e1d2eb99f",
+    "gemini_choice_paraphrases_v2.jsonl": "321c434e4547574b376069711214e215f418b84e3caa5c08c67943a7ece08e3d",
+    "gemini_choice_paraphrases_v3.jsonl": "82236749a8b484313ecec37b2fc2d725a77445cc6f2e684ebec6e9c8851152c6",
+    "ai_semantic_audit_v1.jsonl": "f9936ca2d10c601d28d6d120d15017870d6d108f8ca59c7bccd667e9f75fa37a",
+    "../scripts/build_ai_semantic_audit.py": "aaebc1d0f7ee230dd1d2424794a96b476efc3ad50e28f7df0ab1cc728e223e55",
+    "../reports/ai_semantic_audit_v1.md": "d11c06b3a22329d8de6fef35df8c6fc29ccc31cfd7e9adfc026f2fc54d419d2b"
+  }
+}

@@ -1,13 +1,16 @@
 PYTHON ?= python3
 export PYTHONPATH := src:$(PYTHONPATH)
 
-.PHONY: validate validate-choice subset choice-eval factorial-pack kaggle-bundle compile test verify-artifacts check smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis paper-tables baseline-analysis analyze-sensitivity analyze-factorial analyze-factorial-nf4 analyze-factorial-default4bit compare-factorial-protocols compare-historical-default4bit compare-historical-exact-stage compare-historical-exact-paraphrase analyze-runtime-crossover analyze-tulu-pilot
+.PHONY: validate validate-choice audit-ai subset choice-eval factorial-pack kaggle-bundle compile test verify-artifacts check smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis paper-tables baseline-analysis analyze-sensitivity analyze-factorial analyze-factorial-nf4 analyze-factorial-default4bit compare-factorial-protocols compare-historical-default4bit compare-historical-exact-stage compare-historical-exact-paraphrase analyze-runtime-crossover analyze-tulu-pilot
 
 validate:
 	$(PYTHON) scripts/validate_prompts.py --prompts data/prompts_seed.jsonl
 
 validate-choice:
 	$(PYTHON) scripts/validate_choice_prompts.py --prompts data/choice_eval_targeted.jsonl
+
+audit-ai:
+	$(PYTHON) scripts/build_ai_semantic_audit.py
 
 subset:
 	$(PYTHON) scripts/select_prompt_subset.py --prompts data/prompts_seed.jsonl --out results/prompts_cheap_test.jsonl --per-category 2 --seed 7
@@ -37,6 +40,7 @@ test:
 	$(PYTHON) -m unittest discover -s tests -v
 
 verify-artifacts:
+	$(PYTHON) -m rlvr_safety.cli.verify_artifacts data/ai_semantic_audit_v1.manifest.json
 	$(PYTHON) -m rlvr_safety.cli.verify_artifacts artifacts/baseline/manifest.json
 	$(PYTHON) -m rlvr_safety.cli.verify_artifacts artifacts/factorial_nf4_v1/manifest.json
 	$(PYTHON) -m rlvr_safety.cli.verify_artifacts artifacts/factorial_default4bit_v2/manifest.json
@@ -45,7 +49,7 @@ verify-artifacts:
 	$(PYTHON) -m rlvr_safety.cli.verify_artifacts artifacts/runtime_crossover_v1/manifest.json
 	$(PYTHON) -m rlvr_safety.cli.verify_artifacts artifacts/tulu_endpoint_pilot_v1/manifest.json
 
-check: validate validate-choice kaggle-bundle compile test smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis paper-tables baseline-analysis analyze-factorial analyze-runtime-crossover analyze-tulu-pilot verify-artifacts
+check: validate validate-choice audit-ai kaggle-bundle compile test smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis paper-tables baseline-analysis analyze-factorial analyze-runtime-crossover analyze-tulu-pilot verify-artifacts
 
 smoke-score:
 	$(PYTHON) scripts/score_manual_template.py --generations tests/fixtures/generations_sample.jsonl --out results/manual_scores_template.sample.csv

@@ -8,7 +8,7 @@ After correcting the design and reproducing the historical runtimes, the defensi
 
 > No robust increase in instrumental-risk choices was detected across the evaluated OLMo SFT, DPO, and final Instruct checkpoints. Marginal stage differences are practically small under two complete counterbalanced inference protocols, while individual responses remain highly sensitive to wording, semantic option order, and runtime.
 
-This is not evidence that RLVR is generally safe. The OLMo checkpoints are not a controlled RLVR trajectory, the item pool contains only 24 authored sources, and the semantic audit lacks independent blinded human review.
+This is not evidence that RLVR is generally safe. The OLMo checkpoints are not a controlled RLVR trajectory, the item pool contains only 24 authored sources, and the accepted semantic audit is a non-independent AI review performed under an explicit project-owner assumption.
 
 ## Research questions
 
@@ -113,7 +113,7 @@ Both protocols show the same qualitative category opposition:
 - self-preservation rewrites raise scores, especially P2; and
 - evaluation-awareness effects vary by pack.
 
-These opposing shifts cancel in the pooled wording mean. A single global score therefore mixes constructs that respond differently to seemingly equivalent rewrites. The source-aware Gemini 2.5 Pro validator passed 72/72 source/candidate pairs, but that automated same-provider review is not enough to rule out subtle semantic movement. A blinded two-human audit remains required.
+These opposing shifts cancel in the pooled wording mean. A single global score therefore mixes constructs that respond differently to seemingly equivalent rewrites. The source-aware Gemini 2.5 Pro validator passed 72/72 source/candidate pairs. A disclosed prompt-only Codex audit also accepted 72/72 under an explicit project-owner assumption: 63 without a noted concern and nine with construct-fidelity caveats. That assumption closes the internal semantic-review gate, but the result is not independent human validation and does not rule out subtle semantic movement.
 
 ### 5. Option-position behavior is inference-protocol dependent
 
@@ -153,11 +153,7 @@ The stronger research question is therefore not whether answer order matters—i
 
 The configured Phase 2 study follows the exact Tülu 3.1 8B GRPO lineage from the pinned DPO base through 11 public GRPO checkpoints. At each of 12 points it would run the complete 576-condition factorial, totaling 6,912 structured responses. A capability anchor verifies that optimization is active, and blinded free-form anchors at selected milestones determine whether any structured signal generalizes across format.
 
-Launch remains conditional on:
-
-- a blinded two-reviewer semantic audit of all 72 source/candidate pairs;
-- frozen free-form scoring and capability panels;
-- a clean-checkout reproduction of the Phase 1 artifacts and analyses.
+Launch remains conditional on frozen free-form scoring and capability panels. Clean-checkout reproduction and the endpoint feasibility gate have passed.
 
 The endpoint feasibility gate has passed. The repaired pinned step-0/step-1,920 pilot produced 96/96 strict responses with zero malformed or capped rows, exact revision resolution, explicit attention masks, 6.63 GiB peak memory per T4, and 7.8 minutes wall time. These pilot outputs establish execution feasibility only and are not a marginalized safety comparison.
 
@@ -180,7 +176,7 @@ The compact evidence bundles and SHA-256 manifests live under `artifacts/`. Deta
 - Repeated wordings and orders improve within-source identification, not source-population coverage.
 - Deterministic decoding does not characterize sampling variability.
 - Arithmetic summaries of a 0/1/2 ordinal rubric are descriptive.
-- Automated semantic validation is not independent human validation.
+- The accepted semantic review is AI-only, non-independent, and includes nine construct-fidelity caveats.
 - Category cancellation questions whether one pooled construct is appropriate.
 - Quantization and dependencies alter response-level behavior.
 - OLMo SFT/DPO/Instruct is not the controlled GRPO trajectory needed for an RLVR causal claim.

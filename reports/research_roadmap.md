@@ -1,6 +1,6 @@
 # Research roadmap: Safety drift or measurement drift?
 
-Status: 2026-07-12. Both Phase 1 factorials, the exact 432-generation historical-runtime crossover, and the repaired 96-generation Tülu endpoint feasibility pilot are complete on Kaggle T4×2. Every computational panel passed its strict completeness and censoring gates. Independent blinded human semantic validation remains outstanding.
+Status: 2026-07-12. Both Phase 1 factorials, the exact 432-generation historical-runtime crossover, and the repaired 96-generation Tülu endpoint feasibility pilot are complete on Kaggle T4×2. Every computational panel passed its strict completeness and censoring gates. The project owner explicitly accepted a disclosed AI semantic audit in place of human review; it accepted 72/72 pairs, including nine with construct-fidelity caveats. Independent human validation was not performed.
 
 ## Decision in one sentence
 
@@ -118,7 +118,7 @@ Do not interpret model or wording contrasts until all of the following hold:
 - two reviewers, blinded to model output, verify that each wording preserves the scenario and the 0/1/2 option semantics; any invalid source-wording pair is removed by a rule fixed before outcome inspection; and
 - a source-clustered simulation using the observed Phase 1 covariance shows at least 80% power for a 0.10-point paired checkpoint change. Both diagnostics pass conditionally, with 99.2% and 96.2% minimum power; retain the limitation to this authored item pool. More permutations do not establish population generalizability.
 
-Both computational runs pass completeness, parser/censoring, conditional power, and the strict rule that the full paired-stage 95% intervals lie inside ±0.10. Phase 1 as an independently validated scientific instrument is not complete because the planned two-reviewer semantic audit is absent and the authored pool remains narrow. Automated source-aware validation passed 72/72 pairs but is not a substitute for blinded human review.
+Both computational runs pass completeness, parser/censoring, conditional power, and the strict rule that the full paired-stage 95% intervals lie inside ±0.10. Automated source-aware validation passed 72/72 pairs. Under the project owner's explicit substitution assumption, a disclosed prompt-only Codex audit accepted all 72 pairs: 63 without a noted concern and nine with construct-fidelity caveats. This closes the internal Phase 1 semantic gate under that assumption, while leaving the instrument non-independently validated and limited to a narrow authored pool.
 
 ## Phase 2: exact Tülu 3.1 8B GRPO trajectory
 
@@ -232,7 +232,7 @@ The pilot projects about three wall-clock hours and six T4 GPU-hours for the 6,9
 
 ## Decision and stop gates
 
-1. **Phase 1 integrity gate:** both computational runs pass exact-cell, provenance, parser/censoring, and conditional precision checks. Do not close independent construct validation until the blinded two-reviewer semantic audit also passes.
+1. **Phase 1 integrity gate: passed under the disclosed AI-review assumption.** Both computational runs pass exact-cell, provenance, parser/censoring, and conditional precision checks; the prompt-only AI audit accepted 72/72 pairs with nine caveats. Independent human construct validation remains unperformed and cannot be claimed.
 2. **Protocol-reproduction gate:** passed as an audit, not as a single matched protocol. The two exact historical images reproduce their own cells at 100% and disagree materially on identical layouts. Keep historical, standardized-default, and NF4 claims separate.
 3. **Precision gate:** both empirical paired-source diagnostics pass conditionally for a 0.10 change (minimum power 99.2% and 96.2%). Retain the limitation to this 24-item pool; add independent sources if broader-prompt generalization is a target.
 4. **Phase 2 pilot gate: passed.** The repaired pinned step-0/step-1,920 run completed 96/96 strict responses in 7.8 minutes, used 6.63 GiB peak memory per T4, resolved both exact revisions, and used explicit attention masks. The pilot is feasibility evidence only; do not interpret its two-order endpoint scores scientifically.
