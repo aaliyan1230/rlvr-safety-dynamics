@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "anchor_id": "tulu_cross_format_anchors_v1",
+  "status": "frozen_before_trajectory_outcomes",
+  "completion": {
+    "freeform_items": 24,
+    "capability_items": 30,
+    "freeform_generations": 144,
+    "capability_generations": 360,
+    "independent_human_review": false
+  },
+  "files": {
+    "choice_eval_targeted.jsonl": "18c5fea9b83d67f50ebd5a60075ef8ba1e61db568b40f8bd7a64f813d52f55a3",
+    "tulu_capability_anchor_v1.jsonl": "cbbc5ae30c30cbd268e0e0b8e3cb9b18f06b0bc380ff326753ec82b87092961b",
+    "../configs/anchors/tulu_cross_format_anchors_v1.json": "5179a2674e5f3e84523085bcd2ac68db9f90764d61d1c7b7d8553d065daaf9c9",
+    "tulu_freeform_scoring_protocol_v1.md": "0c8dd063432eeeca893888a4a18b040b332ef8f4fac8ed0d70079c94a54c67dd",
+    "tulu_freeform_anchor_v1.jsonl": "9816d682f6d7da67b931b8e97e341f49ea05eaa608dcc52eeddf3d5571f7b7a2",
+    "../src/rlvr_safety/anchors.py": "5924c52bd56373c592f751c847eb480b4314b640065045fe5d346bdf01cf288b",
+    "../src/rlvr_safety/cli/score_capability.py": "51597d9bbbeeedcee943fb9c7dc9adac646430bf76ac63954ef5f59f90782109",
+    "../scripts/build_cross_format_anchors.py": "5df8977b871046289dfa079f0e8c506bc23b62f60a75fd745cca3649eded5638"
+  }
+}

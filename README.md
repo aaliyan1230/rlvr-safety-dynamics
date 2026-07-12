@@ -29,7 +29,7 @@ Free-form and reasoning-style comparisons remain dominated by censoring. Final v
 
 The computational correction is complete and checksum-verified. Source-aware Gemini 2.5 Pro validation passed all 72 paraphrase pairs. A second disclosed, prompt-only AI audit accepted 72/72 under an explicit project-owner assumption: 63 passed without a noted concern and nine passed with construct-fidelity caveats. This closes the project's internal semantic-review gate under that assumption, but it is not independent human validation and must not be reported as such.
 
-The recommended next study is a checkpoint-resolved decomposition along the exact Tülu 3.1 8B GRPO trajectory: measure order- and wording-marginalized behavior and measurement reliability at 12 pinned checkpoints, then require a matching blinded free-form signal before calling any change “safety drift.” The repaired endpoint feasibility pilot passed: 96/96 strict responses, zero malformed or capped rows, exact pinned revisions, explicit attention masks, 6.63 GiB peak memory per T4, and 7.8 minutes wall time. With the AI-review assumption accepted, the full 6,912-generation trajectory remains gated on frozen capability/free-form anchors rather than further Phase 1 review.
+The recommended next study is a checkpoint-resolved decomposition along the exact Tülu 3.1 8B GRPO trajectory: measure order- and wording-marginalized behavior and measurement reliability at 12 pinned checkpoints, then require a matching blinded free-form signal before calling any change “safety drift.” The repaired endpoint feasibility pilot passed: 96/96 strict responses, zero malformed or capped rows, exact pinned revisions, explicit attention masks, 6.63 GiB peak memory per T4, and 7.8 minutes wall time. The cross-format package is now frozen before trajectory outcomes: 24 free-form safety anchors at six milestones and 30 objectively scored GSM/MATH/instruction-following capability items at all 12 checkpoints. Under the disclosed AI-review assumption, the 6,912-generation structured trajectory is ready for execution.
 
 ## Repository map
 
@@ -38,7 +38,7 @@ The recommended next study is a checkpoint-resolved decomposition along the exac
 | `src/rlvr_safety/` | Installable package for prompt construction, parsing, scoring, adjudication, factorial/runtime analysis, generation, and provenance |
 | `configs/experiments/` | Pinned OLMo protocols, exact historical-runtime reproductions, Tülu endpoint pilot, and 12-point trajectory plan |
 | `artifacts/` | Compact checksummed baseline, factorial, and exact-runtime evidence bundles |
-| `data/` | Canonical prompts, paraphrase packs and validation records, adjudications, and the balanced 576-condition design |
+| `data/` | Canonical prompts, validation records, the balanced 576-condition design, and frozen free-form/capability anchors |
 | `reports/` | Generated statistical reports, methodology audit, runtime audit, and research roadmap |
 | `kaggle/` | Private-dataset staging plus restartable T4×2 runners |
 | `tests/` | Unit tests and deterministic smoke fixtures |
@@ -50,6 +50,7 @@ python3 -m pip install -e '.[analysis,dev]'
 make check
 make analyze-factorial
 make analyze-runtime-crossover
+make anchors
 ```
 
 `make check` validates prompts, compiles the package and runners, runs the unit and smoke tests, regenerates baseline tables, and verifies tracked artifact checksums. The two analysis targets deterministically regenerate the counterbalanced and exact-runtime reports.
@@ -69,6 +70,7 @@ The primary result files are:
 - `reports/historical_runtime_crossover_v1.md`
 - `reports/tulu_endpoint_pilot_v1.md`
 - `reports/ai_semantic_audit_v1.md`
+- `data/tulu_cross_format_anchors_v1.manifest.json`
 - `reports/methodology_audit.md`
 - `reports/research_roadmap.md`
 

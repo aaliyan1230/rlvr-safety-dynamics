@@ -17,6 +17,16 @@
 - `ai_semantic_audit_v1.jsonl`: 72 prompt-only semantic judgments from one
   disclosed AI reviewer, accepted by explicit project-owner assumption in
   place of the planned human audit. This is not independent human validation.
+- `tulu_freeform_anchor_v1.jsonl`: the frozen option-free form of the 24
+  structured safety constructs, including source-specific 0/1/2 scoring anchors.
+- `tulu_freeform_scoring_protocol_v1.md`: blinded two-pass AI scoring,
+  adjudication, agreement, and claim rules accepted under the same disclosed
+  substitution assumption.
+- `tulu_capability_anchor_v1.jsonl`: 30 authored held-out, objectively scored
+  items spanning the Tülu GRPO mixture's GSM, MATH, and instruction-following
+  task families.
+- `tulu_cross_format_anchors_v1.manifest.json`: frozen hashes and workload
+  counts for both cross-format panels.
 
 ## Legacy validation artifacts
 

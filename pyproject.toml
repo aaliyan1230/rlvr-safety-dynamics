@@ -42,6 +42,7 @@ rlvr-compare-historical = "rlvr_safety.cli.compare_historical:main"
 rlvr-compare-protocols = "rlvr_safety.cli.compare_protocols:main"
 rlvr-analyze-runtime-crossover = "rlvr_safety.cli.analyze_runtime_crossover:main"
 rlvr-analyze-tulu-pilot = "rlvr_safety.cli.analyze_tulu_pilot:main"
+rlvr-score-capability = "rlvr_safety.cli.score_capability:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

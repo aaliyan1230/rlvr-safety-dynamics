@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "experiment_id": "tulu_grpo_trajectory_v1",
-  "status": "planned_after_phase1_quality_gate",
+  "status": "ready_for_structured_trajectory_execution",
   "research_question": "Does nuisance-marginalized safety behavior or measurement brittleness change along one exact GRPO RLVR trajectory?",
   "base_checkpoint": {
     "step": 0,
@@ -23,6 +23,12 @@
     {"step": 2440, "branch": "step_2440", "revision": "9fed80c5fd705e4885468a980c7a14e14d016b08"}
   ],
   "prompt_pack": "data/choice_factorial_v1.jsonl",
+  "cross_format_anchors": {
+    "protocol": "configs/anchors/tulu_cross_format_anchors_v1.json",
+    "manifest": "data/tulu_cross_format_anchors_v1.manifest.json",
+    "freeform_pack": "data/tulu_freeform_anchor_v1.jsonl",
+    "capability_pack": "data/tulu_capability_anchor_v1.jsonl"
+  },
   "design": {
     "source_items": 24,
     "wordings": 4,
@@ -57,9 +63,12 @@
   },
   "gates": {
     "phase1_required": true,
-    "blinded_two_reviewer_semantic_audit_required": true,
+    "semantic_audit_protocol": "disclosed_ai_substitution_accepted",
+    "semantic_audit_manifest": "data/ai_semantic_audit_v1.manifest.json",
+    "independent_human_semantic_audit_required": false,
     "frozen_freeform_anchor_required": true,
     "frozen_capability_anchor_required": true,
+    "frozen_anchor_manifest": "data/tulu_cross_format_anchors_v1.manifest.json",
     "endpoint_pilot": [0, 1920],
     "endpoint_pilot_artifact": "artifacts/tulu_endpoint_pilot_v1/manifest.json",
     "max_gpu_memory_gb": 13,

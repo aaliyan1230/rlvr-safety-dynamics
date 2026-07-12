@@ -151,8 +151,10 @@ Run the full validated Phase 1 factorial at each of the 12 points: 12 checkpoint
 
 Add two triangulation panels:
 
-- **Capability anchor:** a fixed, held-out, verifiably scored panel drawn from the GRPO task families, evaluated at all 12 points. This confirms that optimization is active and permits a capability-versus-safety comparison. Report the small panel's uncertainty; it is not a replacement for the published Tülu evaluations.
-- **Free-form safety anchor:** the same 24 constructs at steps 0, 320, 960, 1,600, 1,920, and 2,440, without answer options. Score blinded outputs under the existing rubric with two human reviewers; use an LLM judge only to triage disagreements and censoring. This is the required cross-format check for a safety-drift claim.
+- **Capability anchor (frozen):** 30 newly authored holdouts—10 each for GSM-style arithmetic, MATH-style problems, and deterministic instruction following—evaluated at all 12 points. These are the three families named in the exact `RLVR-GSM-MATH-IF-Mixed-Constraints` training mixture. All scoring is programmatic exact match; no judge model is used. This confirms that optimization is active and permits a capability-versus-safety comparison, but it is not a replacement for the published Tülu evaluations.
+- **Free-form safety anchor (frozen):** the same 24 constructs at steps 0, 320, 960, 1,600, 1,920, and 2,440, without answer options. Under the project owner's disclosed substitution assumption, two context-isolated AI passes score independently shuffled, checkpoint-blinded packets; a third fresh context adjudicates disagreements. Exact agreement must reach 0.75, quadratic-weighted kappa 0.70, and adjudication remain at or below 0.25. This is the required cross-format check for a safety-drift claim.
+
+The complete frozen protocol, censoring/exclusion rules, and hashes are in `configs/anchors/tulu_cross_format_anchors_v1.json` and `data/tulu_cross_format_anchors_v1.manifest.json`. No post-generation item exclusion is permitted, capability format failures score incorrect, and capped safety rows remain censored even when their visible prefix appears classifiable.
 
 If two adjacent prespecified checkpoints bracket a behavioral or measurement change of at least 0.10, run the public 40-step branches inside only that interval. Record this refinement rule before the primary panel completes. Do not add checkpoints merely because an isolated point looks interesting.
 
@@ -225,10 +227,10 @@ The repaired endpoint pilot is the direct Tülu calibration. Pinned steps 0 and 
 | Phase 1 default-4-bit replication | 1,728 at 96 tokens max | **Completed in about 72 wall-clock minutes**; 1,728/1,728 rows, zero malformed/capped |
 | Tülu endpoint feasibility pilot | 96 at 96 tokens max | **Completed in 7.8 wall-clock minutes** on T4×2; 96/96 strict, zero malformed/capped, 6.63 GiB peak per GPU |
 | Phase 2 primary trajectory | 6,912 at 96 tokens max | Six two-checkpoint waves; about 3 wall-clock hours of generation by linear pilot scaling, plus variable checkpoint-download and restart overhead |
-| Free-form anchor | 144 at 192 tokens max | Add to milestone jobs after the structured outputs pass integrity checks |
-| Capability anchor | Size to be frozen before trajectory outcomes | Cap the panel so the complete trajectory stays within the available weekly GPU quota |
+| Free-form anchor | 144 at 192 tokens max | **Frozen:** 24 constructs at six milestones; add after structured integrity checks |
+| Capability anchor | 360 at 256 tokens max | **Frozen:** 30 exact-match items at all 12 checkpoints; score separately by family and overall |
 
-The pilot projects about three wall-clock hours and six T4 GPU-hours for the 6,912-row structured panel by linear scaling. This excludes potentially substantial checkpoint-download and cache turnover, so it is a measured-throughput projection rather than a runtime guarantee. Each two-checkpoint wave must checkpoint after every source batch and retain at least a two-hour margin below Kaggle's session limit. If a wave projects past ten hours, reduce the shard size, not the checkpoint panel or factorial design. Freeze the capability panel before inspecting trajectory outcomes.
+The pilot projects about three wall-clock hours and six T4 GPU-hours for the 6,912-row structured panel by linear scaling. This excludes potentially substantial checkpoint-download and cache turnover, so it is a measured-throughput projection rather than a runtime guarantee. Each two-checkpoint wave must checkpoint after every source batch and retain at least a two-hour margin below Kaggle's session limit. If a wave projects past ten hours, reduce the shard size, not the checkpoint panel or factorial design. The capability panel and all cross-format rules are now frozen; changing them requires a new version and disclosure before any trajectory outcome is inspected.
 
 ## Decision and stop gates
 
@@ -236,13 +238,14 @@ The pilot projects about three wall-clock hours and six T4 GPU-hours for the 6,9
 2. **Protocol-reproduction gate:** passed as an audit, not as a single matched protocol. The two exact historical images reproduce their own cells at 100% and disagree materially on identical layouts. Keep historical, standardized-default, and NF4 claims separate.
 3. **Precision gate:** both empirical paired-source diagnostics pass conditionally for a 0.10 change (minimum power 99.2% and 96.2%). Retain the limitation to this 24-item pool; add independent sources if broader-prompt generalization is a target.
 4. **Phase 2 pilot gate: passed.** The repaired pinned step-0/step-1,920 run completed 96/96 strict responses in 7.8 minutes, used 6.63 GiB peak memory per T4, resolved both exact revisions, and used explicit attention masks. The pilot is feasibility evidence only; do not interpret its two-order endpoint scores scientifically.
-5. **Sparse-to-dense gate:** evaluate the twelve fixed trajectory points first. Add 40-step checkpoints only inside an interval whose adjacent endpoints differ by at least 0.10 on a behavioral or measurement metric.
-6. **Safety-claim gate:** use “safety drift” only if H6 and H9 pass and checkpoint-specific censoring does not account for the effect.
-7. **Measurement-claim gate:** if H8 passes while H6 is equivalent, stop behavioral escalation and report measurement drift. Do not run broader model families to search for a positive safety result.
-8. **Mixed-result gate:** if both H6/H9 and H8 pass, report both trajectories and perform the prespecified dense interval follow-up; do not residualize away measurement drift post hoc.
-9. **Null stop gate:** if behavioral and measurement trajectories are both equivalent and the precision gate passed, stop. A well-bounded null trajectory is the result.
-10. **Failure stop gate:** if more than 5% of rows at two or more checkpoints are malformed/capped after one format repair, the instrument is not comparable for this lineage. End the checkpoint study as a documented judgeability failure.
-11. **External-validation gate:** only after a replicating safety signal should the project spend compute on reward-hacking or emergent-misalignment evaluations. Use the tasks and code released with [Anthropic's reward-hacking study](https://www.anthropic.com/research/emergent-misalignment-reward-hacking) and the [UK AISI evaluation repository](https://github.com/UKGovernmentBEIS/reward-hacking-misalignment), and predeclare which text-only tasks are compatible with Tülu. A failure to reproduce there bounds the claim to this instrument.
+5. **Cross-format freeze gate: passed under the disclosed AI-review assumption.** The 24-item free-form panel, 30-item exact-match capability panel, blinded AI scoring/adjudication protocol, and all censoring/exclusion rules are frozen and checksummed before trajectory outcomes.
+6. **Sparse-to-dense gate:** evaluate the twelve fixed trajectory points first. Add 40-step checkpoints only inside an interval whose adjacent endpoints differ by at least 0.10 on a behavioral or measurement metric.
+7. **Safety-claim gate:** use “safety drift” only if H6 and H9 pass and checkpoint-specific censoring does not account for the effect.
+8. **Measurement-claim gate:** if H8 passes while H6 is equivalent, stop behavioral escalation and report measurement drift. Do not run broader model families to search for a positive safety result.
+9. **Mixed-result gate:** if both H6/H9 and H8 pass, report both trajectories and perform the prespecified dense interval follow-up; do not residualize away measurement drift post hoc.
+10. **Null stop gate:** if behavioral and measurement trajectories are both equivalent and the precision gate passed, stop. A well-bounded null trajectory is the result.
+11. **Failure stop gate:** if more than 5% of rows at two or more checkpoints are malformed/capped after one format repair, the instrument is not comparable for this lineage. End the checkpoint study as a documented judgeability failure.
+12. **External-validation gate:** only after a replicating safety signal should the project spend compute on reward-hacking or emergent-misalignment evaluations. Use the tasks and code released with [Anthropic's reward-hacking study](https://www.anthropic.com/research/emergent-misalignment-reward-hacking) and the [UK AISI evaluation repository](https://github.com/UKGovernmentBEIS/reward-hacking-misalignment), and predeclare which text-only tasks are compatible with Tülu. A failure to reproduce there bounds the claim to this instrument.
 
 ## Research contribution if executed
 

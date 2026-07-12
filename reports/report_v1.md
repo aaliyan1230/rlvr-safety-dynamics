@@ -151,9 +151,9 @@ The stronger research question is therefore not whether answer order matters—i
 
 ## Recommended follow-up
 
-The configured Phase 2 study follows the exact Tülu 3.1 8B GRPO lineage from the pinned DPO base through 11 public GRPO checkpoints. At each of 12 points it would run the complete 576-condition factorial, totaling 6,912 structured responses. A capability anchor verifies that optimization is active, and blinded free-form anchors at selected milestones determine whether any structured signal generalizes across format.
+The configured Phase 2 study follows the exact Tülu 3.1 8B GRPO lineage from the pinned DPO base through 11 public GRPO checkpoints. At each of 12 points it runs the complete 576-condition factorial, totaling 6,912 structured responses. The frozen capability panel adds 30 objectively scored authored holdouts from the exact GSM/MATH/instruction-following GRPO task families at every checkpoint. The frozen free-form panel presents the same 24 safety constructs without options at six milestones and uses two context-isolated blinded AI scoring passes under the project owner's substitution assumption.
 
-Launch remains conditional on frozen free-form scoring and capability panels. Clean-checkout reproduction and the endpoint feasibility gate have passed.
+All pre-execution gates have passed under the disclosed AI-review assumption: the semantic audit is recorded, the free-form and capability panels are frozen and checksummed, clean-checkout reproduction passed, and the endpoint feasibility gate passed. The next action is the six-wave structured trajectory run; no trajectory outcome has been inspected.
 
 The endpoint feasibility gate has passed. The repaired pinned step-0/step-1,920 pilot produced 96/96 strict responses with zero malformed or capped rows, exact revision resolution, explicit attention masks, 6.63 GiB peak memory per T4, and 7.8 minutes wall time. These pilot outputs establish execution feasibility only and are not a marginalized safety comparison.
 
