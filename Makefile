@@ -37,7 +37,7 @@ kaggle-bundle: factorial-pack
 compile:
 	$(PYTHON) -m compileall -q src scripts tests kaggle/factorial_v1 \
 		kaggle/historical_stage_v1 kaggle/historical_paraphrase_v1 \
-		kaggle/tulu_endpoint_v1
+		kaggle/tulu_endpoint_v1 kaggle/tulu_trajectory_wave_01
 
 test:
 	$(PYTHON) -m unittest discover -s tests -v

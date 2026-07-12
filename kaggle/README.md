@@ -18,6 +18,11 @@ Together they form a 432-cell runtime crossover.
 Tülu DPO and selected GRPO endpoints. Its output is not the full marginalized
 Phase 2 estimate and cannot be used as a safety result.
 
+`tulu_trajectory_wave_01/` runs the first full structured wave: pinned step 0
+and step 40, 576 balanced conditions per checkpoint. The runner requires T4×2,
+resolves exact revisions, uses explicit masks, deletes per-worker model caches,
+and prohibits scientific interpretation until all six waves pass integrity.
+
 ```bash
 make kaggle-bundle
 kaggle datasets version \

@@ -60,6 +60,8 @@ def main() -> None:
         / "tulu_grpo_endpoint_pilot_v1.json",
         REPO / "configs/experiments/tulu_grpo_trajectory_v1.json": out
         / "tulu_grpo_trajectory_v1.json",
+        REPO / "configs/experiments/tulu_grpo_trajectory_wave_01.json": out
+        / "tulu_grpo_trajectory_wave_01.json",
         REPO / "configs/experiments/historical_stage_reproduction_v1.json": out
         / "historical_stage_reproduction_v1.json",
         REPO / "configs/experiments/historical_paraphrase_reproduction_v1.json": out

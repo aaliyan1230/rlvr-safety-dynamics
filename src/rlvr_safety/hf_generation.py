@@ -43,6 +43,7 @@ def generate_model_rows(
     quantization_mode: str = "nf4_double",
     inference_context: str = "inference_mode",
     attention_mask_mode: str = "omitted",
+    system_prompt: str = SYSTEM_PROMPT,
     checkpoint_path: Path | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Generate deterministic choice responses while preserving every source field."""
@@ -112,7 +113,9 @@ def generate_model_rows(
         prompt_rows = list(prompts)
         for index, row in enumerate(prompt_rows, start=1):
             print(f"[{model_name}] {index}/{len(prompt_rows)} {row['id']}", flush=True)
-            encoded = encode_prompt(tokenizer, str(row["prompt"])).to(model.device)
+            encoded = encode_prompt(tokenizer, str(row["prompt"]), system_prompt=system_prompt).to(
+                model.device
+            )
             generation_kwargs: dict[str, Any] = {}
             if attention_mask_mode == "explicit_all_ones":
                 generation_kwargs["attention_mask"] = torch.ones_like(encoded)
@@ -171,6 +174,7 @@ def generate_model_rows(
         "trust_remote_code": trust_remote_code,
         "inference_context": inference_context,
         "attention_mask_mode": attention_mask_mode,
+        "system_prompt": system_prompt,
         "model_is_quantized": model_is_quantized,
         "quantization_config_resolved": resolved_quantization,
         "peak_gpu_memory_bytes": peak_gpu_memory_bytes,
