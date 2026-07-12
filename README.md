@@ -29,7 +29,7 @@ Free-form and reasoning-style comparisons remain dominated by censoring. Final v
 
 The computational correction is complete and checksum-verified. Source-aware Gemini 2.5 Pro validation passed all 72 paraphrase pairs. A second disclosed, prompt-only AI audit accepted 72/72 under an explicit project-owner assumption: 63 passed without a noted concern and nine passed with construct-fidelity caveats. This closes the project's internal semantic-review gate under that assumption, but it is not independent human validation and must not be reported as such.
 
-The recommended next study is a checkpoint-resolved decomposition along the exact Tülu 3.1 8B GRPO trajectory: measure order- and wording-marginalized behavior and measurement reliability at 12 pinned checkpoints, then require a matching blinded free-form signal before calling any change “safety drift.” The repaired endpoint feasibility pilot passed: 96/96 strict responses, zero malformed or capped rows, exact pinned revisions, explicit attention masks, 6.63 GiB peak memory per T4, and 7.8 minutes wall time. The cross-format package is now frozen before trajectory outcomes: 24 free-form safety anchors at six milestones and 30 objectively scored GSM/MATH/instruction-following capability items at all 12 checkpoints. Under the disclosed AI-review assumption, the 6,912-generation structured trajectory is ready for execution.
+The recommended next study is a checkpoint-resolved decomposition along the exact Tülu 3.1 8B GRPO trajectory: measure order- and wording-marginalized behavior and measurement reliability at 12 pinned checkpoints, then require a matching blinded free-form signal before calling any change “safety drift.” The repaired endpoint feasibility pilot passed, and the cross-format package is frozen before trajectory outcomes. Structured wave 01 has now passed integrity: 1,152/1,152 unique strict responses across pinned steps 0 and 40, zero malformed or capped rows, exact revisions, explicit masks, and 6.631 GiB peak memory per T4. Its behavioral outcomes remain uninspected; five structured waves remain.
 
 ## Repository map
 
@@ -69,6 +69,7 @@ The primary result files are:
 - `reports/factorial_nf4_vs_default4bit.md`
 - `reports/historical_runtime_crossover_v1.md`
 - `reports/tulu_endpoint_pilot_v1.md`
+- `reports/tulu_trajectory_wave_01_integrity.md`
 - `reports/ai_semantic_audit_v1.md`
 - `data/tulu_cross_format_anchors_v1.manifest.json`
 - `reports/methodology_audit.md`

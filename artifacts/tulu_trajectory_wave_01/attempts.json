@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "remote_kernel": "aaliyanshaikh/rlvr-tulu-grpo-trajectory-wave-01",
+  "attempts": [
+    {
+      "kernel_version": 1,
+      "disposition": "failed_before_generation",
+      "rows": 0,
+      "reason": "Separate Hugging Face Xet caches were placed under /kaggle/working for both concurrent workers, exhausting output disk during checkpoint reconstruction.",
+      "outcomes_inspected": false
+    },
+    {
+      "kernel_version": 2,
+      "completed_utc": "2026-07-12T21:22:29.183085+00:00",
+      "disposition": "accepted_integrity_artifact",
+      "rows": 1152,
+      "malformed": 0,
+      "token_capped": 0,
+      "outcomes_inspected": false,
+      "repair": "Used the pilot-proven shared default cache outside /kaggle/working, disabled Xet reconstruction, and deleted the cache only after both workers exited."
+    }
+  ]
+}

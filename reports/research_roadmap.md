@@ -1,6 +1,6 @@
 # Research roadmap: Safety drift or measurement drift?
 
-Status: 2026-07-12. Both Phase 1 factorials, the exact 432-generation historical-runtime crossover, and the repaired 96-generation Tülu endpoint feasibility pilot are complete on Kaggle T4×2. Every computational panel passed its strict completeness and censoring gates. The project owner explicitly accepted a disclosed AI semantic audit in place of human review; it accepted 72/72 pairs, including nine with construct-fidelity caveats. Independent human validation was not performed.
+Status: 2026-07-13. Phase 1 and the repaired Tülu endpoint pilot are complete. The frozen 12-point trajectory is in progress: structured wave 01 (steps 0 and 40) passed integrity with 1,152/1,152 unique strict responses, zero malformed/capped rows, and exact revisions. Its behavioral outcomes remain uninspected pending the complete structured panel. The project owner explicitly accepted disclosed AI semantic and free-form review in place of human review; independent human validation was not performed.
 
 ## Decision in one sentence
 
