@@ -26,6 +26,16 @@ PROVENANCE_FILES = [
     "data/gemini_choice_paraphrase_validations_source_aware_v3.jsonl",
 ]
 
+ANCHOR_FILES = [
+    "data/ai_semantic_audit_v1.jsonl",
+    "data/ai_semantic_audit_v1.manifest.json",
+    "data/tulu_capability_anchor_v1.jsonl",
+    "data/tulu_cross_format_anchors_v1.manifest.json",
+    "data/tulu_freeform_anchor_v1.jsonl",
+    "data/tulu_freeform_scoring_protocol_v1.md",
+    "configs/anchors/tulu_cross_format_anchors_v1.json",
+]
+
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -60,6 +70,9 @@ def main() -> None:
     for relative in PROVENANCE_FILES:
         source = REPO / relative
         copies[source] = provenance_dir / source.name
+    for relative in ANCHOR_FILES:
+        source = REPO / relative
+        copies[source] = out / source.name
     for source, destination in copies.items():
         if not source.exists():
             raise SystemExit(f"required bundle input is missing: {source}")
