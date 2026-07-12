@@ -67,6 +67,10 @@ def main() -> None:
         REPO / "configs/experiments/historical_paraphrase_reproduction_v1.json": out
         / "historical_paraphrase_reproduction_v1.json",
     }
+    for wave_config in sorted(
+        (REPO / "configs/experiments").glob("tulu_grpo_trajectory_wave_*.json")
+    ):
+        copies[wave_config] = out / wave_config.name
     provenance_dir = out / "provenance"
     provenance_dir.mkdir(parents=True, exist_ok=True)
     for relative in PROVENANCE_FILES:

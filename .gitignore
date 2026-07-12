@@ -23,6 +23,11 @@ kaggle/datasets/factorial-v1/historical_paraphrase_reproduction_v1.json
 kaggle/datasets/factorial-v1/tulu_grpo_endpoint_pilot_v1.json
 kaggle/datasets/factorial-v1/tulu_grpo_trajectory_v1.json
 kaggle/datasets/factorial-v1/tulu_grpo_trajectory_wave_01.json
+kaggle/datasets/factorial-v1/tulu_grpo_trajectory_wave_02.json
+kaggle/datasets/factorial-v1/tulu_grpo_trajectory_wave_03.json
+kaggle/datasets/factorial-v1/tulu_grpo_trajectory_wave_04.json
+kaggle/datasets/factorial-v1/tulu_grpo_trajectory_wave_05.json
+kaggle/datasets/factorial-v1/tulu_grpo_trajectory_wave_06.json
 kaggle/datasets/factorial-v1/ai_semantic_audit_v1.jsonl
 kaggle/datasets/factorial-v1/ai_semantic_audit_v1.manifest.json
 kaggle/datasets/factorial-v1/tulu_capability_anchor_v1.jsonl

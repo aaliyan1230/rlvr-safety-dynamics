@@ -274,7 +274,10 @@ def finalize(
         raise SystemExit(f"Trajectory wave failed strict integrity gate: {errors}")
 
 
-def main(wrapper_path: Path | None = None) -> None:
+def main(
+    wrapper_path: Path | None = None,
+    config_name: str = "tulu_grpo_trajectory_wave_01.json",
+) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--worker-model-index", type=int)
     parser.add_argument("--gpu-id", type=int, default=0)
@@ -290,7 +293,7 @@ def main(wrapper_path: Path | None = None) -> None:
     ensure_dependencies()
     source_root = configure_package_path()
     source_prompts_path = find_one("**/choice_factorial_v1.jsonl")
-    config_path = find_one("**/tulu_grpo_trajectory_wave_01.json")
+    config_path = find_one(f"**/{config_name}")
     config = json.loads(config_path.read_text(encoding="utf-8"))
     validate_wave_config(config)
     out_dir = WORKING / config["experiment_id"]
@@ -330,4 +333,4 @@ def main(wrapper_path: Path | None = None) -> None:
         len(names),
     )
     finalize(source_prompts_path, config_path, out_dir, errors)
-    print("Tülu trajectory wave 01 completed its integrity gate.", flush=True)
+    print(f"{config['experiment_id']} completed its integrity gate.", flush=True)

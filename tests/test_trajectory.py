@@ -42,6 +42,29 @@ class TrajectoryWaveTests(unittest.TestCase):
         self.assertNotIn('env["HF_HOME"]', source)
         self.assertIn('Path.home() / ".cache/huggingface"', source)
 
+    def test_all_six_wave_configs_cover_frozen_schedule(self) -> None:
+        expected = [(0, 40), (80, 160), (320, 640), (960, 1280), (1600, 1920), (2240, 2440)]
+        observed = []
+        for wave_index in range(1, 7):
+            config_path = (
+                REPO
+                / f"configs/experiments/tulu_grpo_trajectory_wave_{wave_index:02d}.json"
+            )
+            config = json.loads(config_path.read_text())
+            validate_wave_config(config)
+            observed.append(tuple(model["step"] for model in config["models"]))
+            metadata = json.loads(
+                (
+                    REPO
+                    / f"kaggle/tulu_trajectory_wave_{wave_index:02d}/kernel-metadata.json"
+                ).read_text()
+            )
+            self.assertEqual(
+                metadata["id"],
+                f"aaliyanshaikh/rlvr-tulu-grpo-trajectory-wave-{wave_index:02d}",
+            )
+        self.assertEqual(observed, expected)
+
 
 if __name__ == "__main__":
     unittest.main()
