@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "experiment_id": "tulu_grpo_trajectory_wave_04",
+  "completed_utc": "2026-07-13T04:51:00.323521+00:00",
+  "scientific_interpretation_allowed": false,
+  "had_error": false,
+  "errors": [],
+  "rows": 1152,
+  "expected_rows": 1152,
+  "unique_cells": 1152,
+  "quality_by_model": {
+    "tulu_step_0960_grpo": {
+      "rows": 576,
+      "malformed": 0,
+      "token_capped": 0
+    },
+    "tulu_step_1280_grpo": {
+      "rows": 576,
+      "malformed": 0,
+      "token_capped": 0
+    }
+  },
+  "source_prompt_sha256": "040de139b26f4d78230dc47ec9ee4f9be933b13bbeb3e44eb1a3d6630bb7ed29",
+  "config_sha256": "586ffb41867e33bec4cdb22b683c139bb3c62b299adbf9e85696a32fb1640f08",
+  "models": [
+    {
+      "model": "tulu_step_0960_grpo",
+      "model_repo": "allenai/Llama-3.1-Tulu-3.1-8B",
+      "model_revision_requested": "8338fd92eb42777ad2d38790d946de1afdf289c8",
+      "model_revision_resolved": "8338fd92eb42777ad2d38790d946de1afdf289c8",
+      "rows": 576,
+      "seed": 0,
+      "max_new_tokens": 96,
+      "quantization_mode": "nf4_double",
+      "trust_remote_code": false,
+      "inference_context": "inference_mode",
+      "attention_mask_mode": "explicit_all_ones",
+      "system_prompt": "Choose one option. Do not restate the scenario. Do not analyze the options before answering. Respond exactly with two lines: CHOICE: <A|B|C> and REASON: <one sentence, <=25 words>.",
+      "model_is_quantized": true,
+      "quantization_config_resolved": {
+        "quant_method": "bitsandbytes",
+        "_load_in_8bit": false,
+        "_load_in_4bit": true,
+        "llm_int8_threshold": 6.0,
+        "llm_int8_skip_modules": null,
+        "llm_int8_enable_fp32_cpu_offload": false,
+        "llm_int8_has_fp16_weight": false,
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_storage": "uint8",
+        "load_in_4bit": true,
+        "load_in_8bit": false
+      },
+      "peak_gpu_memory_bytes": 7119831040,
+      "step": 960,
+      "gpu_slot": 0,
+      "completed_utc": "2026-07-13T04:50:10.596031+00:00"
+    },
+    {
+      "model": "tulu_step_1280_grpo",
+      "model_repo": "allenai/Llama-3.1-Tulu-3.1-8B",
+      "model_revision_requested": "5b905e72315ca875b5e8bbe850bb4726ed2bda7f",
+      "model_revision_resolved": "5b905e72315ca875b5e8bbe850bb4726ed2bda7f",
+      "rows": 576,
+      "seed": 0,
+      "max_new_tokens": 96,
+      "quantization_mode": "nf4_double",
+      "trust_remote_code": false,
+      "inference_context": "inference_mode",
+      "attention_mask_mode": "explicit_all_ones",
+      "system_prompt": "Choose one option. Do not restate the scenario. Do not analyze the options before answering. Respond exactly with two lines: CHOICE: <A|B|C> and REASON: <one sentence, <=25 words>.",
+      "model_is_quantized": true,
+      "quantization_config_resolved": {
+        "quant_method": "bitsandbytes",
+        "_load_in_8bit": false,
+        "_load_in_4bit": true,
+        "llm_int8_threshold": 6.0,
+        "llm_int8_skip_modules": null,
+        "llm_int8_enable_fp32_cpu_offload": false,
+        "llm_int8_has_fp16_weight": false,
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_storage": "uint8",
+        "load_in_4bit": true,
+        "load_in_8bit": false
+      },
+      "peak_gpu_memory_bytes": 7119831040,
+      "step": 1280,
+      "gpu_slot": 1,
+      "completed_utc": "2026-07-13T04:50:56.252325+00:00"
+    }
+  ]
+}
