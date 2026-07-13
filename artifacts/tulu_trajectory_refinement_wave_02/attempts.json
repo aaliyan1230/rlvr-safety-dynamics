@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "remote_kernel": "aaliyanshaikh/rlvr-tulu-trajectory-refinement-wave-02",
+  "attempts": [
+    {
+      "kernel_version": 1,
+      "completed_utc": "2026-07-13T07:46:54.643919+00:00",
+      "disposition": "accepted_integrity_artifact",
+      "rows": 1152,
+      "malformed": 0,
+      "token_capped": 0,
+      "outcomes_inspected": false
+    }
+  ]
+}
