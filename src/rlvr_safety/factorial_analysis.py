@@ -115,15 +115,17 @@ def validate_scored_factorial(
                 "incomplete analysis requires at least one order in every model × source × wording cell"
             )
 
-    return {
+    design = {
         "rows": len(rows),
         "models": models,
         "sources": sources,
         "wordings": wordings,
         "orders": orders,
-        "expected_rows": len(expected),
-        "missing_cells": len(expected) - len(observed),
     }
+    if allow_incomplete:
+        design["expected_rows"] = len(expected)
+        design["missing_cells"] = len(expected) - len(observed)
+    return design
 
 
 def _percentile(sorted_values: Sequence[float], quantile: float) -> float:
