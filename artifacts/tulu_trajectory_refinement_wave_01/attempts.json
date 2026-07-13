@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "remote_kernel": "aaliyanshaikh/rlvr-tulu-trajectory-refinement-wave-01",
+  "attempts": [
+    {
+      "kernel_version": 1,
+      "disposition": "failed_before_generation",
+      "rows": 0,
+      "reason": "Kaggle attached the prior dataset snapshot before the newly uploaded refinement config propagated; no generation began.",
+      "outcomes_inspected": false
+    },
+    {
+      "kernel_version": 2,
+      "completed_utc": "2026-07-13T07:14:02.615643+00:00",
+      "disposition": "accepted_integrity_artifact",
+      "rows": 1152,
+      "malformed": 0,
+      "token_capped": 0,
+      "outcomes_inspected": false
+    }
+  ]
+}
