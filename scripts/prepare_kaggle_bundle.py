@@ -72,6 +72,10 @@ def main() -> None:
     ):
         copies[wave_config] = out / wave_config.name
     for wave_config in sorted(
+        (REPO / "configs/experiments").glob("tulu_grpo_trajectory_refinement*.json")
+    ):
+        copies[wave_config] = out / wave_config.name
+    for wave_config in sorted(
         (REPO / "configs/experiments").glob("tulu_cross_format_wave_*.json")
     ):
         copies[wave_config] = out / wave_config.name

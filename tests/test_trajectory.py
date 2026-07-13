@@ -65,6 +65,30 @@ class TrajectoryWaveTests(unittest.TestCase):
             )
         self.assertEqual(observed, expected)
 
+    def test_triggered_refinement_covers_only_interval_interiors(self) -> None:
+        expected = [1320, 1360, 1400, 1440, 1480, 1520, 1560, 1960, 2000, 2040, 2080, 2120, 2160, 2200]
+        observed = []
+        for wave_index in range(1, 8):
+            config = json.loads(
+                (
+                    REPO
+                    / f"configs/experiments/tulu_grpo_trajectory_refinement_wave_{wave_index:02d}.json"
+                ).read_text()
+            )
+            validate_wave_config(config)
+            observed.extend(int(model["step"]) for model in config["models"])
+            metadata = json.loads(
+                (
+                    REPO
+                    / f"kaggle/tulu_trajectory_refinement_wave_{wave_index:02d}/kernel-metadata.json"
+                ).read_text()
+            )
+            self.assertEqual(
+                metadata["id"],
+                f"aaliyanshaikh/rlvr-tulu-trajectory-refinement-wave-{wave_index:02d}",
+            )
+        self.assertEqual(observed, expected)
+
 
 if __name__ == "__main__":
     unittest.main()

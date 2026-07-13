@@ -29,6 +29,7 @@ kaggle/datasets/factorial-v1/tulu_grpo_trajectory_wave_04.json
 kaggle/datasets/factorial-v1/tulu_grpo_trajectory_wave_05.json
 kaggle/datasets/factorial-v1/tulu_grpo_trajectory_wave_06.json
 kaggle/datasets/factorial-v1/tulu_cross_format_wave_*.json
+kaggle/datasets/factorial-v1/tulu_grpo_trajectory_refinement*.json
 kaggle/datasets/factorial-v1/ai_semantic_audit_v1.jsonl
 kaggle/datasets/factorial-v1/ai_semantic_audit_v1.manifest.json
 kaggle/datasets/factorial-v1/tulu_capability_anchor_v1.jsonl
