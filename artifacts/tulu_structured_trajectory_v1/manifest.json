@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "experiment_id": "tulu_structured_trajectory_v1",
+  "role": "Complete 12-checkpoint structured trajectory analysis after all integrity gates passed.",
+  "completion": {
+    "rows": 6912,
+    "analyzed_rows": 6911,
+    "censored_rows": 1,
+    "token_capped": 0,
+    "checkpoint_count": 12,
+    "h6_supported": false,
+    "all_baseline_contrasts_inside_equivalence_band": true,
+    "refinement_intervals": [[1280, 1600], [1920, 2240]]
+  },
+  "source_choice_score_sha256": {
+    "wave_01": "ce8823eb7c1b0fefa1ad970265271c3dae5613fdb0317fae0aa970ba9b634c5f",
+    "wave_02": "702d678dfa5a26f313c5d396610b810913cf89004dbfc739832c81c904c981ac",
+    "wave_03": "2fd5e369b1aa1ec92f5fa65ec91b1fe3db185059c076b4b5c124fdac7e15e7c8",
+    "wave_04": "74e5345ef0af20a0f03c676832b7adc154d674b00ad4c7ae5380dfa2d95ea96c",
+    "wave_05": "624886e6470c956e956c970c0612e2eb325fe721d559c295cb75772fa8b03b2d",
+    "wave_06": "b8f32b09a19cd7eeb05ab9ea7b03f8744b5f3ce16ac92810dd4d9b5c4f9b1a38"
+  },
+  "files": {
+    "config.json": "6ec843dd765d3c3716301254f6979d4797451d31ac418402aa6bbbec7fb270f6",
+    "metrics.json": "146ee12484d60b814ac0a6f4103c9a95fd92c1094e581984932871f19b1b1f09",
+    "trajectory_analysis.py": "1f9a37a78e280ba792d05153aef54c6e805e80d835279d36b69d723247e2f4d5"
+  }
+}

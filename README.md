@@ -75,6 +75,7 @@ The primary result files are:
 - `reports/tulu_trajectory_wave_04_integrity.md`
 - `reports/tulu_trajectory_wave_05_integrity.md`
 - `reports/tulu_trajectory_wave_06_integrity.md`
+- `reports/tulu_structured_trajectory_v1.md`
 - `reports/ai_semantic_audit_v1.md`
 - `data/tulu_cross_format_anchors_v1.manifest.json`
 - `reports/methodology_audit.md`
