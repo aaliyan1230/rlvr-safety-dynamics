@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "groups": [
+    {
+      "checkpoint": "0",
+      "model": "tulu_step_0000_dpo",
+      "rows": 30,
+      "correct": 11,
+      "accuracy": 0.36666666666666664,
+      "parse_status": {
+        "malformed": 13,
+        "strict": 16,
+        "token_capped": 1
+      },
+      "family_accuracy": {
+        "gsm": 0.2,
+        "instruction_following": 0.5,
+        "math": 0.4
+      }
+    },
+    {
+      "checkpoint": "1280",
+      "model": "tulu_step_1280_grpo",
+      "rows": 30,
+      "correct": 16,
+      "accuracy": 0.5333333333333333,
+      "parse_status": {
+        "malformed": 4,
+        "strict": 26
+      },
+      "family_accuracy": {
+        "gsm": 0.4,
+        "instruction_following": 0.5,
+        "math": 0.7
+      }
+    },
+    {
+      "checkpoint": "160",
+      "model": "tulu_step_0160_grpo",
+      "rows": 30,
+      "correct": 18,
+      "accuracy": 0.6,
+      "parse_status": {
+        "strict": 27,
+        "malformed": 3
+      },
+      "family_accuracy": {
+        "gsm": 0.7,
+        "instruction_following": 0.6,
+        "math": 0.5
+      }
+    },
+    {
+      "checkpoint": "1600",
+      "model": "tulu_step_1600_grpo",
+      "rows": 30,
+      "correct": 17,
+      "accuracy": 0.5666666666666667,
+      "parse_status": {
+        "strict": 30
+      },
+      "family_accuracy": {
+        "gsm": 0.4,
+        "instruction_following": 0.8,
+        "math": 0.5
+      }
+    },
+    {
+      "checkpoint": "1920",
+      "model": "tulu_step_1920_grpo",
+      "rows": 30,
+      "correct": 15,
+      "accuracy": 0.5,
+      "parse_status": {
+        "strict": 30
+      },
+      "family_accuracy": {
+        "gsm": 0.4,
+        "instruction_following": 0.7,
+        "math": 0.4
+      }
+    },
+    {
+      "checkpoint": "2240",
+      "model": "tulu_step_2240_grpo",
+      "rows": 30,
+      "correct": 18,
+      "accuracy": 0.6,
+      "parse_status": {
+        "strict": 30
+      },
+      "family_accuracy": {
+        "gsm": 0.5,
+        "instruction_following": 0.8,
+        "math": 0.5
+      }
+    },
+    {
+      "checkpoint": "2440",
+      "model": "tulu_step_2440_grpo",
+      "rows": 30,
+      "correct": 19,
+      "accuracy": 0.6333333333333333,
+      "parse_status": {
+        "strict": 30
+      },
+      "family_accuracy": {
+        "gsm": 0.6,
+        "instruction_following": 0.8,
+        "math": 0.5
+      }
+    },
+    {
+      "checkpoint": "320",
+      "model": "tulu_step_0320_grpo",
+      "rows": 30,
+      "correct": 20,
+      "accuracy": 0.6666666666666666,
+      "parse_status": {
+        "strict": 28,
+        "malformed": 2
+      },
+      "family_accuracy": {
+        "gsm": 0.8,
+        "instruction_following": 0.6,
+        "math": 0.6
+      }
+    },
+    {
+      "checkpoint": "40",
+      "model": "tulu_step_0040_grpo",
+      "rows": 30,
+      "correct": 13,
+      "accuracy": 0.43333333333333335,
+      "parse_status": {
+        "malformed": 12,
+        "strict": 18
+      },
+      "family_accuracy": {
+        "gsm": 0.2,
+        "instruction_following": 0.6,
+        "math": 0.5
+      }
+    },
+    {
+      "checkpoint": "640",
+      "model": "tulu_step_0640_grpo",
+      "rows": 30,
+      "correct": 15,
+      "accuracy": 0.5,
+      "parse_status": {
+        "strict": 30
+      },
+      "family_accuracy": {
+        "gsm": 0.4,
+        "instruction_following": 0.6,
+        "math": 0.5
+      }
+    },
+    {
+      "checkpoint": "80",
+      "model": "tulu_step_0080_grpo",
+      "rows": 30,
+      "correct": 18,
+      "accuracy": 0.6,
+      "parse_status": {
+        "strict": 23,
+        "malformed": 7
+      },
+      "family_accuracy": {
+        "gsm": 0.7,
+        "instruction_following": 0.6,
+        "math": 0.5
+      }
+    },
+    {
+      "checkpoint": "960",
+      "model": "tulu_step_0960_grpo",
+      "rows": 30,
+      "correct": 11,
+      "accuracy": 0.36666666666666664,
+      "parse_status": {
+        "malformed": 10,
+        "strict": 20
+      },
+      "family_accuracy": {
+        "gsm": 0.2,
+        "instruction_following": 0.5,
+        "math": 0.4
+      }
+    }
+  ]
+}

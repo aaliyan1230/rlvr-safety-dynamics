@@ -16,7 +16,7 @@
     "tulu_freeform_scoring_protocol_v1.md": "0c8dd063432eeeca893888a4a18b040b332ef8f4fac8ed0d70079c94a54c67dd",
     "tulu_freeform_anchor_v1.jsonl": "9816d682f6d7da67b931b8e97e341f49ea05eaa608dcc52eeddf3d5571f7b7a2",
     "../src/rlvr_safety/anchors.py": "5924c52bd56373c592f751c847eb480b4314b640065045fe5d346bdf01cf288b",
-    "../src/rlvr_safety/cli/score_capability.py": "51597d9bbbeeedcee943fb9c7dc9adac646430bf76ac63954ef5f59f90782109",
+    "../src/rlvr_safety/cli/score_capability.py": "7eb710ba77ebca8a7e02cd2bbf4dd422bfef2a2bfaa1cf787a3fadec4a3cd821",
     "../scripts/build_cross_format_anchors.py": "5df8977b871046289dfa079f0e8c506bc23b62f60a75fd745cca3649eded5638"
   }
 }

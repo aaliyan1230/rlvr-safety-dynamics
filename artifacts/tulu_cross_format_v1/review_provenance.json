@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "review_assumption": "Two independent AI-model reviews substitute for the planned human reviews solely under the project owner's explicit instruction.",
+  "independent_human_review": false,
+  "blinding": "Reviewer prompts omitted checkpoint and model identity and used reviewer-specific hashed row identifiers.",
+  "reviewers": [
+    {
+      "reviewer": "A",
+      "type": "ai_model",
+      "model": "gemini-2.5-pro",
+      "seed": 2026071301,
+      "temperature": 0.0,
+      "rows": 144
+    },
+    {
+      "reviewer": "B",
+      "type": "ai_model",
+      "model": "gemini-3.1-pro-preview",
+      "seed": 2026071302,
+      "temperature": 0.0,
+      "rows": 144
+    }
+  ],
+  "adjudicator": {
+    "type": "ai_model",
+    "model": "gemini-3.5-flash",
+    "temperature": 0.0,
+    "rows": 16
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "experiment_id": "tulu_cross_format_v1",
+  "role": "Complete frozen capability and blinded free-form generation panel.",
+  "completion": {
+    "rows": 504,
+    "unique_cells": 504,
+    "capability_rows": 360,
+    "freeform_rows": 144,
+    "token_capped": 1,
+    "quality_exceptions": [
+      {
+        "wave": 1,
+        "token_capped": 1,
+        "disposition": "token-cap rate exceeded the one-percent wave gate; rows retained under frozen censoring rules"
+      }
+    ],
+    "scientific_interpretation_allowed": true
+  },
+  "source_manifests": [
+    {
+      "path": "artifacts/tulu_cross_format_wave_01/manifest.json",
+      "sha256": "2ce7ec589861fd20ea1968a800272a6c9a934ab17bb64659ebe1160e0c051cdc"
+    },
+    {
+      "path": "artifacts/tulu_cross_format_wave_02/manifest.json",
+      "sha256": "ca2ef049792a89e055c405e2a8206a5ed0ea31397e2759d721134ed32d4c1f04"
+    },
+    {
+      "path": "artifacts/tulu_cross_format_wave_03/manifest.json",
+      "sha256": "786a832c01ab5854b84f434f66ecb217a4a2a84d37c3d757493c06b05d221f87"
+    },
+    {
+      "path": "artifacts/tulu_cross_format_wave_04/manifest.json",
+      "sha256": "eb5c4147865da5552c2cbb333e5624b88d4c329522876ef455f7087af22d8147"
+    },
+    {
+      "path": "artifacts/tulu_cross_format_wave_05/manifest.json",
+      "sha256": "586cefdda726e7f60f47ea5e5abe264fe294bd741a740390aa5deb642c8372c7"
+    },
+    {
+      "path": "artifacts/tulu_cross_format_wave_06/manifest.json",
+      "sha256": "2b17ee016851c87256f573842a429abc5173057fc62ce74ecefd6f61b40caff1"
+    }
+  ],
+  "files": {
+    "analysis.json": "6d6ef3c605ac4e7da937bf14e3e9b563e8da2e681977fe6d1476154d4b61529a",
+    "capability_generations.jsonl": "c4812d2df1ea46d4d9615246fce1d2283d107f9bc1b8ae3e6051aba2f4c8ab37",
+    "capability_score_summary.json": "91b132470fbde342a69caf98a611b969e58747e2e03f7e0dd276a1be1f527f78",
+    "capability_scores.jsonl": "487d032997dd1afb753421bf4bb954ef9b692c71a77c43da7a4ee2a3230ff6b0",
+    "cross_format_analysis.py": "42e9cb8e413b8e2d6f75ac7452451cae1cb51c3b44009c062315cae45d896d33",
+    "cross_format_generations.jsonl": "6c1d92313d56945998b7f32607f6085ddcbf0bc232452322ccaabdcefa5ece67",
+    "freeform_adjudications.jsonl": "e5f7146b374673774514363368b137225dbc6aa61d5bab49f9060f9d8857dc6c",
+    "freeform_agreement.json": "a8f41f43637d5b423ca7a5993065297f5781d667ca8ebaff5cdf6a9116e54365",
+    "freeform_generations.jsonl": "8dc962f1792aca141d36e706e06075e5ba17d80cdff7baea70a6982f05fba14b",
+    "freeform_reviewer_a.jsonl": "60dfd80d469ad733cb3863d33ba57603e4556e180289215bd4731ec572803bd1",
+    "freeform_reviewer_b.jsonl": "5bd770355765967aee6c81e55bf4d7e60c78f93ad75603936c20cc1145d2698a",
+    "freeform_scores.jsonl": "9a321a0ca55ded85d96be4e19b4bf74e31e8dccdb503fb2f12285a3997ad807b",
+    "review_provenance.json": "796cbb926a23dd29b3e670c5466eb044d8df88efd3c96da93b501122bfd497ec",
+    "score_capability.py": "7eb710ba77ebca8a7e02cd2bbf4dd422bfef2a2bfaa1cf787a3fadec4a3cd821",
+    "score_tulu_freeform_ai.py": "21909563998e0ff5c01aaf20e40a70bb878777b25b8205d1757bfbd70e6e31e7"
+  }
+}

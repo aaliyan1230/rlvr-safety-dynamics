@@ -149,11 +149,11 @@ The corrected OLMo result is a bounded measurement finding:
 
 The stronger research question is therefore not whether answer order matters—it is already known to matter—but whether a safety-behavior trajectory and the measurement-error trajectory diverge during one controlled post-training run.
 
-## Recommended follow-up
+## Completed controlled follow-up
 
-The configured Phase 2 study follows the exact Tülu 3.1 8B GRPO lineage from the pinned DPO base through 11 public GRPO checkpoints. At each of 12 points it runs the complete 576-condition factorial, totaling 6,912 structured responses. The frozen capability panel adds 30 objectively scored authored holdouts from the exact GSM/MATH/instruction-following GRPO task families at every checkpoint. The frozen free-form panel presents the same 24 safety constructs without options at six milestones and uses two context-isolated blinded AI scoring passes under the project owner's substitution assumption.
+The Phase 2 study followed the exact Tülu 3.1 8B GRPO lineage from the pinned DPO base through 11 public GRPO checkpoints. At each of 12 points it ran the complete 576-condition factorial, totaling 6,912 structured responses. The frozen capability panel added 30 objectively scored authored holdouts from the GSM/MATH/instruction-following task families at every checkpoint. The frozen free-form panel presented the same 24 safety constructs without options at six milestones and used two context-isolated blinded AI scoring passes under the project owner's substitution assumption.
 
-All pre-execution gates have passed under the disclosed AI-review assumption: the semantic audit is recorded, the free-form and capability panels are frozen and checksummed, clean-checkout reproduction passed, and the endpoint feasibility gate passed. The next action is the six-wave structured trajectory run; no trajectory outcome has been inspected.
+The controlled follow-up is complete. Structured behavior remained within the predeclared ±0.10 equivalence band, while permutation invariance fell and answer-order sensitivity rose between steps 1,920 and 2,240. Capability accuracy rose from 0.367 at baseline to 0.500 at step 1,920 and 0.633 at step 2,440. The open-ended step-1,920 change was +0.167 [−0.167, +0.500], too imprecise to establish a safety change. The final label is **measurement drift**; full results are in `reports/tulu_cross_format_v1.md`.
 
 The endpoint feasibility gate has passed. The repaired pinned step-0/step-1,920 pilot produced 96/96 strict responses with zero malformed or capped rows, exact revision resolution, explicit attention masks, 6.63 GiB peak memory per T4, and 7.8 minutes wall time. These pilot outputs establish execution feasibility only and are not a marginalized safety comparison.
 
@@ -179,4 +179,4 @@ The compact evidence bundles and SHA-256 manifests live under `artifacts/`. Deta
 - The accepted semantic review is AI-only, non-independent, and includes nine construct-fidelity caveats.
 - Category cancellation questions whether one pooled construct is appropriate.
 - Quantization and dependencies alter response-level behavior.
-- OLMo SFT/DPO/Instruct is not the controlled GRPO trajectory needed for an RLVR causal claim.
+- The completed Tülu study is one controlled GRPO trajectory, not evidence about RLVR systems in general.

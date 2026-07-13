@@ -1,10 +1,10 @@
 # Research roadmap: Safety drift or measurement drift?
 
-Status: 2026-07-13. Phase 1 and the repaired Tülu endpoint pilot are complete. The frozen 12-point trajectory is in progress: structured wave 01 (steps 0 and 40) passed integrity with 1,152/1,152 unique strict responses, zero malformed/capped rows, and exact revisions. Its behavioral outcomes remain uninspected pending the complete structured panel. The project owner explicitly accepted disclosed AI semantic and free-form review in place of human review; independent human validation was not performed.
+Status: 2026-07-13. The computational experiment is complete. The 12-point structured trajectory produced 6,912/6,912 rows, the triggered 14-point dense refinement completed, and the cross-format phase produced 360 capability plus 144 open-ended safety responses. The final predeclared label is **measurement drift**: H6 safety drift is not supported, H7 capability improvement without structured safety drift is supported, H8 measurement drift is supported, and H9 cross-format safety replication is not supported. The project owner explicitly accepted disclosed AI semantic and free-form review in place of human review; independent human validation was not performed.
 
 ## Decision in one sentence
 
-The current project does not show that RLVR increased instrumental behavior. Two counterbalanced protocols find marginal OLMo stage spreads of 0.014 and 0.033, while exact reproduction shows that the historical prompt-pack comparison also changed inference runtime. The useful next contribution is to ask whether safety behavior or the measurement function changes along one controlled GRPO training trajectory.
+The controlled Tülu trajectory does not show that GRPO increased marginalized instrumental behavior by the predeclared practically important amount. It does show localized measurement drift: permutation invariance fell and answer-order range rose around steps 1,920–2,240 while the behavioral contrast remained equivalent. Capability-panel performance improved, and the blinded open-ended panel was too imprecise to establish a safety change. The useful contribution is therefore the completed separation of a behavioral trajectory from a changing measurement function.
 
 ## Corrected current-state verdict
 
@@ -20,7 +20,7 @@ The defensible headline is therefore:
 
 > No robust RLVR-related increase in instrumental behavior was detected. Two complete counterbalanced protocols bound the marginal OLMo stage contrasts inside ±0.10, while exact historical reproduction demonstrates substantial option/order and runtime sensitivity in the measurement process.
 
-This is a correction, not a negative finding about all RLVR systems. The models are small, the behavioral item pool has only 24 independent source items in the structured study, and the existing OLMo RL-Zero comparison is not a controlled GRPO trajectory.
+This is a lineage- and instrument-specific result, not a finding that all RLVR systems are safe. The models are small and the behavioral item pool has only 24 independent source items.
 
 ## Why stage × order is necessary but not the novelty
 
@@ -30,7 +30,7 @@ More directly, a [recent option-position audit](https://openreview.net/forum?id=
 
 Intermediate checkpoints introduce an additional construct-validity risk. [Bunn, Wiegreffe, and Bogin (GEM 2025)](https://aclanthology.org/2025.gem-1.46/) show that an intermediate model can identify answer text yet fail to emit the corresponding option label, confounding core ability with emerging format-following and symbol-binding ability. This makes the free-form anchor a required measurement check rather than an optional robustness appendix. Checkpoint-resolved RLVR analysis is also no longer novel by itself: [Wang et al. (2026)](https://arxiv.org/abs/2601.04537) analyze intermediate RLVR checkpoints and report approximately linear weight and teacher-forced output-log-probability trajectories across several settings. The novelty target here is narrower: decompose a safety-behavior trajectory from a simultaneously measured format/wording/order trajectory and require cross-format agreement.
 
-The completed factorials and runtime crossover show that inference reproducibility is part of the measurement question, not bookkeeping around it. The stronger direction begins after independent semantic review and the remaining Phase 2 gates: follow one exact GRPO lineage across training, marginalize known measurement perturbations at every checkpoint, and test whether the latent behavioral estimate and the measurement-error profile follow different trajectories. This follows the statistical-evaluation emphasis of [NIST AI 800-3](https://www.nist.gov/publications/expanding-ai-evaluation-toolbox-statistical-models): observations should be modeled as noisy, structured measurements rather than treated as a benchmark's ground truth.
+The completed factorials, runtime crossover, trajectory, refinement, and cross-format panels show that inference reproducibility is part of the measurement question, not bookkeeping around it. The next direction is independent semantic review and preregistered replication with more authored sources and another open lineage. This follows the statistical-evaluation emphasis of [NIST AI 800-3](https://www.nist.gov/publications/expanding-ai-evaluation-toolbox-statistical-models): observations should be modeled as noisy, structured measurements rather than treated as a benchmark's ground truth.
 
 ## Target question and operational definitions
 
@@ -122,6 +122,12 @@ Both computational runs pass completeness, parser/censoring, conditional power, 
 
 ## Phase 2: exact Tülu 3.1 8B GRPO trajectory
 
+### Completed result
+
+The primary trajectory is complete: 6,912/6,912 structured cells, 6,911 analyzed, one malformed row, and no capped rows. Every ordinary paired baseline interval remained inside the ±0.10 practical-equivalence band. Between steps 1,920 and 2,240, permutation invariance changed by −0.146 with simultaneous 95% CI [−0.291, −0.001], order range changed by +0.188 [+0.013, +0.362], and marginalized behavior changed by only +0.038 [+0.016, +0.060]. The triggered dense refinement localized a second credible measurement transition to steps 2,080→2,120.
+
+The complete cross-format panel passed its AI-review reliability gate: 88.9% exact agreement, quadratic-weighted κ=0.903, and 11.1% adjudication. Capability accuracy was 0.367 at baseline, 0.500 at step 1,920, and 0.633 at step 2,440. Open-ended risk was 0.500 at baseline and 0.667 at step 1,920, but the paired change of +0.167 had a wide interval [−0.167, +0.500]. The final claim label is therefore **measurement drift**, not safety drift. Full results are in `reports/tulu_cross_format_v1.md`.
+
 ### Why this lineage
 
 The [Tülu 3 report](https://arxiv.org/abs/2411.15124) documents the open post-training pipeline. The [Tülu 3.1 8B model card and checkpoint repository](https://huggingface.co/allenai/Llama-3.1-Tulu-3.1-8B) state that version 3.1 changes only the final RL stage relative to the Tülu 3 DPO model, switches that stage to GRPO without a reward model, and exposes intermediate checkpoint branches. This is a much cleaner intervention than comparing OLMo Instruct with RL-Zero-General, which differs in training path and output style.
@@ -174,14 +180,17 @@ All confidence intervals below are source-item-clustered. Confirmatory families 
 | **H8** | **GRPO produces measurement drift even when marginalized safety is stable.** Across two adjacent checkpoints, option/wording range or censoring changes by at least 0.10 while the behavioral contrast remains equivalent within ±0.10. | Measurement metrics are stable, or behavioral risk also changes; the latter implies mixed rather than pure measurement drift. |
 | **H9** | **A structured safety-drift signal generalizes across format.** Any H6 direction appears at the matching free-form milestones, with a paired contrast of at least 0.10, acceptable inter-rater agreement, and no checkpoint-specific censoring increase above five percentage points. | The free-form effect is absent, reverses, or is concentrated in unjudgeable rows. In that case the result is a structured-measure effect, not a safety-drift claim. |
 
-Current Phase 1 evidence status:
+Final hypothesis status:
 
 - **H1 meets its point-estimate criterion only in the standardized default-4-bit run.** Mean absolute P1/P2 historical-layout contrasts fall from 0.125 to 0.060 after order marginalization, a 51.9% attenuation. NF4 does not replicate that attenuation. Exact-image work further shows that the historical packs used different runtimes, so H1 cannot partition the original cross-run shifts.
 - **H2 is protocol-contingent, not robustly supported.** Default 4-bit supports pooled B-minus-A at +0.127 [0.047, 0.206], but NF4 gives +0.002 [-0.092, 0.096].
 - **H3 is not supported at the prespecified per-model aggregate level in either protocol.** Every wording-versus-original 95% interval includes zero. Category-level opposition remains important secondary evidence.
 - **H4 is supported conditionally for this instrument.** All paired stage 95% intervals in both protocols are fully contained inside ±0.10. This does not establish population-wide or causal equivalence.
 - **H5 is not supported.** All simultaneous stage contrasts for permutation invariance, wording range, and order range include zero in both protocols. Runtime changes alter position effects, but that is not a model-stage interaction.
-- **H6–H9 are Phase 2 hypotheses and have not been tested.**
+- **H6 is not supported.** No persistent adjacent structured risk increase of at least 0.10 passed the frozen uncertainty rule.
+- **H7 is supported under the frozen threshold.** Capability accuracy improved by +0.133 at step 1,920 while the corresponding structured safety contrast remained equivalent.
+- **H8 is supported.** The step-1,920→2,240 permutation-invariance and order-range changes exceeded 0.10 with simultaneous intervals excluding zero while behavior remained equivalent.
+- **H9 is not supported.** H6 did not supply a structured safety-drift direction to replicate; the open-ended panel's largest change was also imprecise.
 
 ## Primary metrics and analysis
 
@@ -226,11 +235,11 @@ The repaired endpoint pilot is the direct Tülu calibration. Pinned steps 0 and 
 | Phase 1 NF4 factorial | 1,728 at 96 tokens max | **Completed in about 49 wall-clock minutes**; 1,728/1,728 rows, zero malformed/capped |
 | Phase 1 default-4-bit replication | 1,728 at 96 tokens max | **Completed in about 72 wall-clock minutes**; 1,728/1,728 rows, zero malformed/capped |
 | Tülu endpoint feasibility pilot | 96 at 96 tokens max | **Completed in 7.8 wall-clock minutes** on T4×2; 96/96 strict, zero malformed/capped, 6.63 GiB peak per GPU |
-| Phase 2 primary trajectory | 6,912 at 96 tokens max | Six two-checkpoint waves; about 3 wall-clock hours of generation by linear pilot scaling, plus variable checkpoint-download and restart overhead |
-| Free-form anchor | 144 at 192 tokens max | **Frozen:** 24 constructs at six milestones; add after structured integrity checks |
-| Capability anchor | 360 at 256 tokens max | **Frozen:** 30 exact-match items at all 12 checkpoints; score separately by family and overall |
+| Phase 2 primary trajectory | 6,912 at 96 tokens max | **Completed:** six two-checkpoint waves, 6,912/6,912 rows |
+| Free-form anchor | 144 at 192 tokens max | **Completed:** 144/144 judgeable; AI-review reliability gate passed |
+| Capability anchor | 360 at 256 tokens max | **Completed:** 360/360; one capped baseline row retained and scored incorrect |
 
-The pilot projects about three wall-clock hours and six T4 GPU-hours for the 6,912-row structured panel by linear scaling. This excludes potentially substantial checkpoint-download and cache turnover, so it is a measured-throughput projection rather than a runtime guarantee. Each two-checkpoint wave must checkpoint after every source batch and retain at least a two-hour margin below Kaggle's session limit. If a wave projects past ten hours, reduce the shard size, not the checkpoint panel or factorial design. The capability panel and all cross-format rules are now frozen; changing them requires a new version and disclosure before any trajectory outcome is inspected.
+The six cross-format waves added 504 generations in 56.93 summed wall-clock minutes, equivalent to 1.90 T4 GPU-hours. All corrective and triggered compute specified by this protocol is complete.
 
 ## Decision and stop gates
 
@@ -239,15 +248,15 @@ The pilot projects about three wall-clock hours and six T4 GPU-hours for the 6,9
 3. **Precision gate:** both empirical paired-source diagnostics pass conditionally for a 0.10 change (minimum power 99.2% and 96.2%). Retain the limitation to this 24-item pool; add independent sources if broader-prompt generalization is a target.
 4. **Phase 2 pilot gate: passed.** The repaired pinned step-0/step-1,920 run completed 96/96 strict responses in 7.8 minutes, used 6.63 GiB peak memory per T4, resolved both exact revisions, and used explicit attention masks. The pilot is feasibility evidence only; do not interpret its two-order endpoint scores scientifically.
 5. **Cross-format freeze gate: passed under the disclosed AI-review assumption.** The 24-item free-form panel, 30-item exact-match capability panel, blinded AI scoring/adjudication protocol, and all censoring/exclusion rules are frozen and checksummed before trajectory outcomes.
-6. **Sparse-to-dense gate:** evaluate the twelve fixed trajectory points first. Add 40-step checkpoints only inside an interval whose adjacent endpoints differ by at least 0.10 on a behavioral or measurement metric.
-7. **Safety-claim gate:** use “safety drift” only if H6 and H9 pass and checkpoint-specific censoring does not account for the effect.
-8. **Measurement-claim gate:** if H8 passes while H6 is equivalent, stop behavioral escalation and report measurement drift. Do not run broader model families to search for a positive safety result.
+6. **Sparse-to-dense gate: triggered and completed.** Fourteen public 40-step checkpoints were added only inside the two prespecified intervals that crossed the 0.10 trigger.
+7. **Safety-claim gate: not met.** H6 and H9 did not pass; do not use “safety drift.”
+8. **Measurement-claim gate: met.** H8 passed while H6 remained equivalent. Stop behavioral escalation and report measurement drift; do not run broader model families to search for a positive safety result.
 9. **Mixed-result gate:** if both H6/H9 and H8 pass, report both trajectories and perform the prespecified dense interval follow-up; do not residualize away measurement drift post hoc.
 10. **Null stop gate:** if behavioral and measurement trajectories are both equivalent and the precision gate passed, stop. A well-bounded null trajectory is the result.
 11. **Failure stop gate:** if more than 5% of rows at two or more checkpoints are malformed/capped after one format repair, the instrument is not comparable for this lineage. End the checkpoint study as a documented judgeability failure.
 12. **External-validation gate:** only after a replicating safety signal should the project spend compute on reward-hacking or emergent-misalignment evaluations. Use the tasks and code released with [Anthropic's reward-hacking study](https://www.anthropic.com/research/emergent-misalignment-reward-hacking) and the [UK AISI evaluation repository](https://github.com/UKGovernmentBEIS/reward-hacking-misalignment), and predeclare which text-only tasks are compatible with Tülu. A failure to reproduce there bounds the claim to this instrument.
 
-## Research contribution if executed
+## Research contribution
 
 The contribution is not “models are sensitive to option order.” It is a checkpoint-resolved decomposition of a safety evaluation during one open, controlled GRPO stage:
 

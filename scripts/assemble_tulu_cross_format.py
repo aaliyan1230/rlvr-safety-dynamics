@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sys
 from collections import Counter
 from pathlib import Path
@@ -80,6 +81,18 @@ def main() -> None:
     write_jsonl(args.out_dir / "cross_format_generations.jsonl", sorted(rows, key=lambda row: (int(row["checkpoint"]), row["panel"], row["id"])))
     write_jsonl(args.out_dir / "capability_generations.jsonl", capability)
     write_jsonl(args.out_dir / "freeform_generations.jsonl", freeform)
+    shutil.copy2(
+        REPO / "src/rlvr_safety/cross_format_analysis.py",
+        args.out_dir / "cross_format_analysis.py",
+    )
+    shutil.copy2(
+        REPO / "src/rlvr_safety/cli/score_capability.py",
+        args.out_dir / "score_capability.py",
+    )
+    shutil.copy2(
+        REPO / "scripts/score_tulu_freeform_ai.py",
+        args.out_dir / "score_tulu_freeform_ai.py",
+    )
     capped = [
         row
         for row in rows
