@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "experiment_id": "tulu_cross_format_wave_04",
+  "role": "Frozen cross-format primary artifact; capped rows remain censored or incorrect.",
+  "remote_kernel": "aaliyanshaikh/rlvr-tulu-cross-format-wave-04",
+  "accepted_kernel_version": 1,
+  "completion": {
+    "rows": 84,
+    "expected_rows": 84,
+    "unique_cells": 84,
+    "capability_rows": 60,
+    "freeform_rows": 24,
+    "token_capped": 0,
+    "token_capped_rate": 0.0,
+    "quality_gate_passed": true,
+    "quality_exception": null,
+    "wall_clock_minutes": 9.08,
+    "peak_gpu_memory_bytes_per_model": 7119831040,
+    "attention_mask_mode": "explicit_all_ones",
+    "resolved_revisions_match_requested": true,
+    "scientific_interpretation_allowed": false
+  },
+  "files": {
+    "attempts.json": "b3e4fd089a150708ec499a473e1edf761b5c11d7c1157cc091aea16b3d24bce6",
+    "config.json": "1f4b80473047d2407ed2d2714bbac176c31a0ee5d873642ca88cdb004fd34741",
+    "cross_format_generations.jsonl": "f857b6940b5bd61d93b53425b7e307665ef069716643a59d6d94bc40748c1305",
+    "kaggle_cross_format.py": "870c758471869ee929bb5ed36e448345bdc0bf3d563a19aec6b3de4c034eb159",
+    "kernel-metadata.json": "1873ade1cb718eb6766e48b20d0db2e128b800f8c1605198bf4961880af805df",
+    "model_0_metadata.json": "c60c4d859920c9da64da902ec7f4f938c92e53e0077ebf66e1f6e8d8851113ce",
+    "model_1_metadata.json": "aee40828de98e9b5d225639b77b559b33475af90d2f4640e709978482a879686",
+    "run_metadata.json": "89b2406aab7db09fe0b9e85ba7093f0d52137f9dc035df75909b657d6ea48af7",
+    "run_summary.json": "44f1ebff11bbf9a2ec4d817ee8bd7ccc65d089613ab6cf43256126cd38076fda",
+    "run_wave.py": "496dd7cbbf4ea0c74ab5d80bf15d7798146e3c84a38cf76ed0e0cc0273d4ceec"
+  }
+}
