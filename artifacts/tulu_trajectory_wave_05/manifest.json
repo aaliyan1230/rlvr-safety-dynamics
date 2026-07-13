@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "experiment_id": "tulu_grpo_trajectory_wave_05",
+  "role": "Accepted integrity-only artifact; outcomes withheld until the complete trajectory panel is available.",
+  "remote_kernel": "aaliyanshaikh/rlvr-tulu-grpo-trajectory-wave-05",
+  "accepted_kernel_version": 1,
+  "completion": {
+    "rows": 1152,
+    "expected_rows": 1152,
+    "unique_cells": 1152,
+    "rows_per_checkpoint": 576,
+    "strict_parse_rows": 1151,
+    "malformed": 1,
+    "token_capped": 0,
+    "wall_clock_minutes": 26.05,
+    "peak_gpu_memory_bytes_per_model": 7119831040,
+    "attention_mask_mode": "explicit_all_ones",
+    "resolved_revisions_match_requested": true,
+    "scientific_interpretation_allowed": false,
+    "outcomes_inspected": false,
+    "source_prompt_sha256": "040de139b26f4d78230dc47ec9ee4f9be933b13bbeb3e44eb1a3d6630bb7ed29",
+    "config_sha256": "a58fb33438aab3bb4947cfd2911ec276cc7780324e14e89ce94d819af13143c0"
+  },
+  "files": {
+    "attempts.json": "e038c3d706debe8d2c48985a665986ef5a3356440f21071f9bee619cbe84ceff",
+    "choice_scores.csv": "624886e6470c956e956c970c0612e2eb325fe721d559c295cb75772fa8b03b2d",
+    "config.json": "a58fb33438aab3bb4947cfd2911ec276cc7780324e14e89ce94d819af13143c0",
+    "kaggle_trajectory.py": "01b1e55263a8a5242292c4bccb7c3ab7795dca69431fd61d544a2986382ca608",
+    "kernel-metadata.json": "3a3fdc08950b14f146ab1e67bab01a4cbba10fa08d97ec50de4f77f74c1c31a8",
+    "model_0_metadata.json": "dda7a324a389407996614406e27815389c5327d94c5e794cacc4b82fe6ab97b4",
+    "model_1_metadata.json": "0a41f2a255c0eee7083ef898c5ec675bf93f91586e68228b7c16e72590d1211b",
+    "run_metadata.json": "c3b4eec8e90cd3de7d97c277d85d6c746e43de28dace15595d736a1a74442c16",
+    "run_summary.json": "c76a49c7bcb1221df78cebacf3914262e175b2eab82e53e05974bfb70d837354",
+    "run_wave.py": "cd9491ea758ed27ce348b2741c589fc305127c74cd291566204c8e7121d15171"
+  }
+}

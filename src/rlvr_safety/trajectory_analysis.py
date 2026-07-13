@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Iterable, Mapping
 from typing import Any
 
 from .factorial_analysis import (
+    _as_bool,
     _source_means,
     analyze_factorial,
     simultaneous_cluster_bootstrap_intervals,
@@ -41,11 +43,18 @@ def analyze_trajectory(
     bootstrap_seed: int = 20260713,
     margin: float = 0.10,
 ) -> dict[str, Any]:
-    materialized = [dict(row) for row in rows]
+    all_rows = [dict(row) for row in rows]
+    censored = [
+        row
+        for row in all_rows
+        if _as_bool(row.get("malformed")) or _as_bool(row.get("verbosity_confounded"))
+    ]
+    materialized = [row for row in all_rows if row not in censored]
     metrics = analyze_factorial(
         materialized,
         bootstrap_repetitions=bootstrap_repetitions,
         bootstrap_seed=bootstrap_seed,
+        allow_incomplete=bool(censored),
     )
     observed_models = set(metrics["design"]["models"])
     if observed_models != set(model_steps) or len(model_steps) != 12:
@@ -137,6 +146,15 @@ def analyze_trajectory(
     return {
         "schema_version": 1,
         "margin": margin,
+        "quality": {
+            "total_rows": len(all_rows),
+            "analyzed_rows": len(materialized),
+            "censored_rows": len(censored),
+            "censoring_rate": len(censored) / len(all_rows),
+            "censored_by_model": dict(
+                Counter(str(row["model"]) for row in censored)
+            ),
+        },
         "checkpoint_schedule": steps,
         "checkpoints": checkpoints,
         "baseline_contrasts": baseline_contrasts,

@@ -87,13 +87,33 @@ def validate_scored_factorial(
         )
         for row in rows
     )
-    if set(observed) != expected or any(count != 1 for count in observed.values()):
+    if any(count != 1 for count in observed.values()):
+        raise FactorialAnalysisError("duplicate model × source × wording × order cells")
+    if not allow_incomplete and set(observed) != expected:
         missing = sorted(expected - set(observed))[:10]
         extra = sorted(set(observed) - expected)[:10]
         raise FactorialAnalysisError(
             "incomplete model × source × wording × order crossing; "
             f"missing={missing}, extra={extra}"
         )
+    if allow_incomplete:
+        extra = set(observed) - expected
+        if extra:
+            raise FactorialAnalysisError(f"unexpected factorial cells: {sorted(extra)[:10]}")
+        minimum_groups = {
+            (model, source, wording)
+            for model in models
+            for source in sources
+            for wording in wordings
+        }
+        observed_groups = {
+            (str(row["model"]), str(row["source_id"]), str(row["wording_id"]))
+            for row in rows
+        }
+        if observed_groups != minimum_groups:
+            raise FactorialAnalysisError(
+                "incomplete analysis requires at least one order in every model × source × wording cell"
+            )
 
     return {
         "rows": len(rows),
@@ -101,6 +121,8 @@ def validate_scored_factorial(
         "sources": sources,
         "wordings": wordings,
         "orders": orders,
+        "expected_rows": len(expected),
+        "missing_cells": len(expected) - len(observed),
     }
 
 

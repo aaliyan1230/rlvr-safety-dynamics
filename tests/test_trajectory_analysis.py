@@ -41,6 +41,14 @@ class TrajectoryAnalysisTests(unittest.TestCase):
         self.assertTrue(metrics["h6"]["supported"])
         self.assertEqual(metrics["h6"]["persistent_pairs"][0]["first_step"], 80)
 
+        rows[-1]["malformed"] = "true"
+        rows[-1]["instrumental_score_0_2"] = ""
+        censored = analyze_trajectory(
+            rows, model_steps, bootstrap_repetitions=20, bootstrap_seed=9
+        )
+        self.assertEqual(censored["quality"]["censored_rows"], 1)
+        self.assertEqual(censored["full_factorial_metrics"]["design"]["missing_cells"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

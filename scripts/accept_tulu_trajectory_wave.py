@@ -40,17 +40,24 @@ def main() -> None:
     source = args.source_dir.resolve()
     summary = json.loads((source / "run_summary.json").read_text())
     metadata = json.loads((source / "run_metadata.json").read_text())
+    config_path = REPO / f"configs/experiments/tulu_grpo_trajectory_wave_{wave}.json"
+    config_data = json.loads(config_path.read_text())
     expected_id = f"tulu_grpo_trajectory_wave_{wave}"
     if summary.get("experiment_id") != expected_id or summary.get("had_error") is not False:
         raise SystemExit(f"failed or mismatched run summary: {summary}")
     if summary.get("rows") != 1152 or summary.get("unique_cells") != 1152:
         raise SystemExit("wave is not 1,152/1,152 complete")
     quality = summary.get("quality_by_model", {})
+    maximum_rate = float(config_data["gates"]["max_malformed_or_capped_rate"])
     if len(quality) != 2 or any(
-        row != {"rows": 576, "malformed": 0, "token_capped": 0}
+        row.get("rows") != 576
+        or (int(row.get("malformed", 0)) + int(row.get("token_capped", 0))) / 576
+        > maximum_rate
         for row in quality.values()
     ):
         raise SystemExit(f"wave quality gate failed: {quality}")
+    malformed = sum(int(row["malformed"]) for row in quality.values())
+    token_capped = sum(int(row["token_capped"]) for row in quality.values())
     models = summary.get("models", [])
     if len(models) != 2 or any(
         row.get("model_revision_requested") != row.get("model_revision_resolved")
@@ -65,10 +72,9 @@ def main() -> None:
     destination.mkdir(parents=True, exist_ok=True)
     for name in SNAPSHOTS:
         shutil.copy2(source / name, destination / name)
-    config = REPO / f"configs/experiments/tulu_grpo_trajectory_wave_{wave}.json"
     runner = REPO / f"kaggle/tulu_trajectory_wave_{wave}/run_wave.py"
     kernel_metadata = REPO / f"kaggle/tulu_trajectory_wave_{wave}/kernel-metadata.json"
-    shutil.copy2(config, destination / "config.json")
+    shutil.copy2(config_path, destination / "config.json")
     shutil.copy2(REPO / "src/rlvr_safety/kaggle_trajectory.py", destination / "kaggle_trajectory.py")
     shutil.copy2(runner, destination / "run_wave.py")
     shutil.copy2(kernel_metadata, destination / "kernel-metadata.json")
@@ -80,8 +86,8 @@ def main() -> None:
             "completed_utc": summary["completed_utc"],
             "disposition": "accepted_integrity_artifact",
             "rows": 1152,
-            "malformed": 0,
-            "token_capped": 0,
+            "malformed": malformed,
+            "token_capped": token_capped,
             "outcomes_inspected": False,
         }],
     }
@@ -105,9 +111,9 @@ def main() -> None:
             "expected_rows": 1152,
             "unique_cells": 1152,
             "rows_per_checkpoint": 576,
-            "strict_parse_rows": 1152,
-            "malformed": 0,
-            "token_capped": 0,
+            "strict_parse_rows": 1152 - malformed - token_capped,
+            "malformed": malformed,
+            "token_capped": token_capped,
             "wall_clock_minutes": wall_minutes,
             "peak_gpu_memory_bytes_per_model": max(row["peak_gpu_memory_bytes"] for row in models),
             "attention_mask_mode": "explicit_all_ones",
@@ -124,7 +130,7 @@ def main() -> None:
     report = (
         f"# Tülu trajectory wave {wave} integrity report\n\n"
         "**Gate result: PASS. Scientific interpretation: withheld until the complete trajectory panel is available.**\n\n"
-        f"Pinned steps {steps[0]} and {steps[1]} each produced 576/576 strict responses, with zero malformed or capped rows, exact revisions, explicit masks, and quantized inference. "
+        f"Pinned steps {steps[0]} and {steps[1]} produced 1,152/1,152 complete cells: {1152 - malformed - token_capped} strict responses, {malformed} malformed, and {token_capped} capped, within the frozen quality gate. Revisions were exact and inference used explicit masks and quantization. "
         f"The accepted T4×2 run completed in {wall_minutes:.2f} minutes. No behavioral or measurement outcome was inspected.\n"
     )
     (REPO / f"reports/tulu_trajectory_wave_{wave}_integrity.md").write_text(report)
