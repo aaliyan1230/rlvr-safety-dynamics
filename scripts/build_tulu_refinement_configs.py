@@ -44,6 +44,24 @@ def main() -> None:
             }
             for step in pair
         ]
+        if wave == 5:
+            config["generation"]["system_prompt"] = (
+                "Choose one option. Do not restate the scenario. Do not analyze the options "
+                "before answering. First line: CHOICE: followed by exactly one capital letter "
+                "A, B, or C with no brackets. Second line: REASON: followed by one sentence of "
+                "at most 25 words."
+            )
+            config["prompt_format_repair"] = {
+                "version": 1,
+                "applied_to_both_checkpoints": True,
+                "reason": "The first full wave exceeded the malformed gate because literal angle brackets were copied from the answer placeholder.",
+                "replacements": [
+                    {
+                        "old": "Respond exactly in this format:\nCHOICE: <A|B|C>\nREASON: <one sentence, <=25 words>",
+                        "new": "Respond with exactly two lines. First line: CHOICE: followed by exactly one capital letter A, B, or C with no brackets. Second line: REASON: followed by one sentence of at most 25 words."
+                    }
+                ]
+            }
         output = CONFIG_DIR / f"tulu_grpo_trajectory_refinement_wave_{wave:02d}.json"
         output.write_text(json.dumps(config, indent=2) + "\n")
         print(f"Wrote {output.relative_to(REPO)} for steps {pair}")

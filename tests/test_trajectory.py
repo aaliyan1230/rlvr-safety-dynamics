@@ -88,6 +88,12 @@ class TrajectoryWaveTests(unittest.TestCase):
                 f"aaliyanshaikh/rlvr-tulu-trajectory-refinement-wave-{wave_index:02d}",
             )
         self.assertEqual(observed, expected)
+        repaired = json.loads(
+            (REPO / "configs/experiments/tulu_grpo_trajectory_refinement_wave_05.json").read_text()
+        )
+        self.assertEqual(repaired["prompt_format_repair"]["version"], 1)
+        self.assertTrue(repaired["prompt_format_repair"]["applied_to_both_checkpoints"])
+        self.assertNotIn("<A|B|C>", repaired["generation"]["system_prompt"])
 
 
 if __name__ == "__main__":

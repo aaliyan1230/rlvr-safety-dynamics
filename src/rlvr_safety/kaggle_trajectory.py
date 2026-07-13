@@ -122,9 +122,22 @@ def run_worker(
     validate_wave_config(config)
     model_spec = config["models"][model_index]
     output_path = out_dir / f"model_{model_index}_generations.jsonl"
+    prompt_rows = [dict(row) for row in read_jsonl(prompts_path)]
+    repair = config.get("prompt_format_repair")
+    if repair:
+        if repair.get("version") != 1 or repair.get("applied_to_both_checkpoints") is not True:
+            raise ValueError("format repair must be versioned and applied to both checkpoints")
+        for row in prompt_rows:
+            prompt = str(row["prompt"])
+            for replacement in repair.get("replacements", []):
+                old = str(replacement["old"])
+                if old not in prompt:
+                    raise ValueError(f"format-repair target absent from {row['id']}")
+                prompt = prompt.replace(old, str(replacement["new"]))
+            row["prompt"] = prompt
     rows, metadata = generate_model_rows(
         model_spec["name"],
-        list(read_jsonl(prompts_path)),
+        prompt_rows,
         model_id=model_spec["id"],
         max_new_tokens=int(config["generation"]["max_new_tokens"]),
         model_revision=model_spec["revision"],
