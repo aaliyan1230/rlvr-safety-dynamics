@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "remote_kernel": "aaliyanshaikh/rlvr-tulu-trajectory-refinement-wave-05",
+  "attempts": [
+    {
+      "kernel_version": 1,
+      "disposition": "failed_before_generation",
+      "rows": 0,
+      "reason": "Both checkpoints completed, but the frozen integrity gate failed because step 2000 produced 67/576 literal-angle-bracket CHOICE responses; one full-wave prompt-format repair was authorized.",
+      "outcomes_inspected": false
+    },
+    {
+      "kernel_version": 2,
+      "completed_utc": "2026-07-13T09:54:36.777037+00:00",
+      "disposition": "accepted_integrity_artifact",
+      "rows": 1152,
+      "malformed": 0,
+      "token_capped": 0,
+      "outcomes_inspected": false
+    }
+  ]
+}
