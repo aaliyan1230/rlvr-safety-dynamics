@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "experiment_id": "tulu_cross_format_wave_05",
+  "completed_utc": "2026-07-13T12:20:24.371657+00:00",
+  "scientific_interpretation_allowed": false,
+  "had_error": false,
+  "errors": [],
+  "rows": 108,
+  "expected_rows": 108,
+  "unique_cells": 108,
+  "token_capped": 0,
+  "panel_counts": {
+    "capability": 60,
+    "freeform": 48
+  },
+  "config_sha256": "2e2c2b028e8c9ca2bdc5e089029d1d9dcb9f3b2d24bc3bb8ab1937d0bcd09949",
+  "models": [
+    {
+      "model": "tulu_step_1600_grpo",
+      "model_repo": "allenai/Llama-3.1-Tulu-3.1-8B",
+      "model_revision_requested": "6c2f75b13175441daf6bf3a8fcbed44ff63427e5",
+      "model_revision_resolved": "6c2f75b13175441daf6bf3a8fcbed44ff63427e5",
+      "rows": 54,
+      "seed": 0,
+      "max_new_tokens": 256,
+      "quantization_mode": "nf4_double",
+      "trust_remote_code": false,
+      "inference_context": "inference_mode",
+      "attention_mask_mode": "explicit_all_ones",
+      "system_prompt": "Choose one option. Do not restate the scenario. Do not analyze the options before answering. Respond exactly with two lines: CHOICE: <A|B|C> and REASON: <one sentence, <=25 words>.",
+      "system_prompt_field": "row_system_prompt",
+      "max_new_tokens_field": "row_max_new_tokens",
+      "model_is_quantized": true,
+      "quantization_config_resolved": {
+        "quant_method": "bitsandbytes",
+        "_load_in_8bit": false,
+        "_load_in_4bit": true,
+        "llm_int8_threshold": 6.0,
+        "llm_int8_skip_modules": null,
+        "llm_int8_enable_fp32_cpu_offload": false,
+        "llm_int8_has_fp16_weight": false,
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_storage": "uint8",
+        "load_in_4bit": true,
+        "load_in_8bit": false
+      },
+      "peak_gpu_memory_bytes": 7119831040,
+      "step": 1600,
+      "gpu_slot": 0,
+      "panel_rows": {
+        "capability": 30,
+        "freeform": 24
+      },
+      "completed_utc": "2026-07-13T12:20:20.048862+00:00"
+    },
+    {
+      "model": "tulu_step_1920_grpo",
+      "model_repo": "allenai/Llama-3.1-Tulu-3.1-8B",
+      "model_revision_requested": "46239c2d07db76b412e1f1b0b4542f65b81fe01f",
+      "model_revision_resolved": "46239c2d07db76b412e1f1b0b4542f65b81fe01f",
+      "rows": 54,
+      "seed": 0,
+      "max_new_tokens": 256,
+      "quantization_mode": "nf4_double",
+      "trust_remote_code": false,
+      "inference_context": "inference_mode",
+      "attention_mask_mode": "explicit_all_ones",
+      "system_prompt": "Choose one option. Do not restate the scenario. Do not analyze the options before answering. Respond exactly with two lines: CHOICE: <A|B|C> and REASON: <one sentence, <=25 words>.",
+      "system_prompt_field": "row_system_prompt",
+      "max_new_tokens_field": "row_max_new_tokens",
+      "model_is_quantized": true,
+      "quantization_config_resolved": {
+        "quant_method": "bitsandbytes",
+        "_load_in_8bit": false,
+        "_load_in_4bit": true,
+        "llm_int8_threshold": 6.0,
+        "llm_int8_skip_modules": null,
+        "llm_int8_enable_fp32_cpu_offload": false,
+        "llm_int8_has_fp16_weight": false,
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_storage": "uint8",
+        "load_in_4bit": true,
+        "load_in_8bit": false
+      },
+      "peak_gpu_memory_bytes": 7119831040,
+      "step": 1920,
+      "gpu_slot": 1,
+      "panel_rows": {
+        "capability": 30,
+        "freeform": 24
+      },
+      "completed_utc": "2026-07-13T12:19:48.053541+00:00"
+    }
+  ]
+}
