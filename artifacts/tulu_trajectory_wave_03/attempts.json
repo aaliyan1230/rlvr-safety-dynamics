@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "remote_kernel": "aaliyanshaikh/rlvr-tulu-grpo-trajectory-wave-03",
+  "attempts": [
+    {
+      "kernel_version": 1,
+      "disposition": "failed_before_generation",
+      "rows": 0,
+      "reason": "Kaggle assigned one Tesla P100; the frozen runner requires exactly Tesla T4 x2.",
+      "outcomes_inspected": false
+    },
+    {
+      "kernel_version": 2,
+      "disposition": "superseded_by_explicit_accelerator_request",
+      "outcomes_inspected": false
+    },
+    {
+      "kernel_version": 3,
+      "completed_utc": "2026-07-13T04:00:47.150337+00:00",
+      "disposition": "accepted_integrity_artifact",
+      "rows": 1152,
+      "malformed": 0,
+      "token_capped": 0,
+      "outcomes_inspected": false,
+      "repair": "Pushed with --accelerator NvidiaTeslaT4 so Kaggle provisioned the required Tesla T4 x2 runtime."
+    }
+  ]
+}
