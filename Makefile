@@ -1,7 +1,7 @@
 PYTHON ?= python3
 export PYTHONPATH := src:$(PYTHONPATH)
 
-.PHONY: validate validate-choice audit-ai anchors trajectory-wave-configs subset choice-eval factorial-pack kaggle-bundle compile test verify-artifacts check smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis paper-tables baseline-analysis analyze-sensitivity analyze-factorial analyze-factorial-nf4 analyze-factorial-default4bit compare-factorial-protocols compare-historical-default4bit compare-historical-exact-stage compare-historical-exact-paraphrase analyze-runtime-crossover analyze-tulu-pilot
+.PHONY: validate validate-choice audit-ai anchors trajectory-wave-configs cross-format-wave-configs subset choice-eval factorial-pack kaggle-bundle compile test verify-artifacts check smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis paper-tables baseline-analysis analyze-sensitivity analyze-factorial analyze-factorial-nf4 analyze-factorial-default4bit compare-factorial-protocols compare-historical-default4bit compare-historical-exact-stage compare-historical-exact-paraphrase analyze-runtime-crossover analyze-tulu-pilot
 
 validate:
 	$(PYTHON) scripts/validate_prompts.py --prompts data/prompts_seed.jsonl
@@ -17,6 +17,9 @@ anchors:
 
 trajectory-wave-configs:
 	$(PYTHON) scripts/build_tulu_wave_configs.py
+
+cross-format-wave-configs: trajectory-wave-configs
+	$(PYTHON) scripts/build_tulu_cross_format_configs.py
 
 subset:
 	$(PYTHON) scripts/select_prompt_subset.py --prompts data/prompts_seed.jsonl --out results/prompts_cheap_test.jsonl --per-category 2 --seed 7
@@ -34,13 +37,14 @@ factorial-pack:
 		--manifest-out data/choice_factorial_v1.manifest.json
 	$(PYTHON) scripts/validate_choice_prompts.py --prompts data/choice_factorial_v1.jsonl --expected-count 576
 
-kaggle-bundle: factorial-pack trajectory-wave-configs
+kaggle-bundle: factorial-pack cross-format-wave-configs
 	$(PYTHON) scripts/prepare_kaggle_bundle.py
 
 compile:
 	$(PYTHON) -m compileall -q src scripts tests kaggle/factorial_v1 \
 		kaggle/historical_stage_v1 kaggle/historical_paraphrase_v1 \
 		kaggle/tulu_endpoint_v1 kaggle/tulu_trajectory_wave_*
+	$(PYTHON) -m compileall -q kaggle/tulu_cross_format_wave_*
 
 test:
 	$(PYTHON) -m unittest discover -s tests -v

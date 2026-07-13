@@ -44,6 +44,8 @@ def generate_model_rows(
     inference_context: str = "inference_mode",
     attention_mask_mode: str = "omitted",
     system_prompt: str = SYSTEM_PROMPT,
+    system_prompt_field: str | None = None,
+    max_new_tokens_field: str | None = None,
     checkpoint_path: Path | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Generate deterministic choice responses while preserving every source field."""
@@ -113,16 +115,22 @@ def generate_model_rows(
         prompt_rows = list(prompts)
         for index, row in enumerate(prompt_rows, start=1):
             print(f"[{model_name}] {index}/{len(prompt_rows)} {row['id']}", flush=True)
-            encoded = encode_prompt(tokenizer, str(row["prompt"]), system_prompt=system_prompt).to(
-                model.device
+            row_system_prompt = (
+                str(row[system_prompt_field]) if system_prompt_field else system_prompt
             )
+            row_max_new_tokens = (
+                int(row[max_new_tokens_field]) if max_new_tokens_field else max_new_tokens
+            )
+            encoded = encode_prompt(
+                tokenizer, str(row["prompt"]), system_prompt=row_system_prompt
+            ).to(model.device)
             generation_kwargs: dict[str, Any] = {}
             if attention_mask_mode == "explicit_all_ones":
                 generation_kwargs["attention_mask"] = torch.ones_like(encoded)
             with inference_guard():
                 output_ids = model.generate(
                     encoded,
-                    max_new_tokens=max_new_tokens,
+                    max_new_tokens=row_max_new_tokens,
                     do_sample=False,
                     temperature=None,
                     top_p=None,
@@ -175,6 +183,8 @@ def generate_model_rows(
         "inference_context": inference_context,
         "attention_mask_mode": attention_mask_mode,
         "system_prompt": system_prompt,
+        "system_prompt_field": system_prompt_field,
+        "max_new_tokens_field": max_new_tokens_field,
         "model_is_quantized": model_is_quantized,
         "quantization_config_resolved": resolved_quantization,
         "peak_gpu_memory_bytes": peak_gpu_memory_bytes,

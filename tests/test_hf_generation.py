@@ -48,8 +48,10 @@ class FakeOutput:
 
 class FakeTokenizer:
     eos_token_id = 0
+    last_messages = None
 
     def apply_chat_template(self, messages, **kwargs):
+        type(self).last_messages = messages
         return FakeTensor()
 
     def decode(self, generated, skip_special_tokens=True):
@@ -111,6 +113,8 @@ class GenerationHelpersTests(unittest.TestCase):
             "prompt": "Choose",
             "options": [{"label": "A", "text": "safe", "instrumental_score_0_2": 0}],
             "score_key": {"A": 0},
+            "row_system_prompt": "Panel-specific system prompt",
+            "row_max_new_tokens": 17,
         }
         with TemporaryDirectory() as raw_tmp:
             checkpoint = Path(raw_tmp) / "rows.jsonl"
@@ -125,6 +129,8 @@ class GenerationHelpersTests(unittest.TestCase):
                     quantization_mode="legacy_default",
                     inference_context="no_grad",
                     attention_mask_mode="explicit_all_ones",
+                    system_prompt_field="row_system_prompt",
+                    max_new_tokens_field="row_max_new_tokens",
                     checkpoint_path=checkpoint,
                 )
             self.assertTrue(checkpoint.is_file())
@@ -141,6 +147,12 @@ class GenerationHelpersTests(unittest.TestCase):
         self.assertEqual(metadata["inference_context"], "no_grad")
         self.assertEqual(metadata["attention_mask_mode"], "explicit_all_ones")
         self.assertEqual(FakeModel.last_generate_kwargs["attention_mask"], "explicit-mask")
+        self.assertEqual(FakeModel.last_generate_kwargs["max_new_tokens"], 17)
+        self.assertEqual(
+            FakeTokenizer.last_messages[0]["content"], "Panel-specific system prompt"
+        )
+        self.assertEqual(metadata["system_prompt_field"], "row_system_prompt")
+        self.assertEqual(metadata["max_new_tokens_field"], "row_max_new_tokens")
         self.assertTrue(metadata["model_is_quantized"])
 
     def test_generation_rejects_unknown_attention_mask_mode(self) -> None:
