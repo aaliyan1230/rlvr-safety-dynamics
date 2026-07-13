@@ -62,6 +62,20 @@ class FactorialAnalysisTests(unittest.TestCase):
         with self.assertRaises(FactorialAnalysisError):
             analyze_factorial(self.build_scores()[:-1], bootstrap_repetitions=10)
 
+    def test_incomplete_diagnostic_uses_available_paired_layout_cells(self) -> None:
+        rows = self.build_scores()
+        missing = next(
+            index
+            for index, row in enumerate(rows)
+            if row["wording_id"] == "p1" and row["option_order"] == "012"
+        )
+        metrics = analyze_factorial(
+            rows[:missing] + rows[missing + 1 :],
+            bootstrap_repetitions=10,
+            allow_incomplete=True,
+        )
+        self.assertEqual(metrics["design"]["missing_cells"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

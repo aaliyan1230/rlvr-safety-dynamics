@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "experiment_id": "tulu_grpo_trajectory_refinement_v1",
+  "role": "Triggered dense localization of two primary measurement-change intervals; not a new primary safety-drift family.",
+  "completion": {
+    "interior_checkpoints": 14,
+    "generated_rows": 8064,
+    "accepted_primary_rows_with_endpoints": 10368,
+    "analyzed_rows_with_endpoints": 10362,
+    "format_repair_steps": [2000, 2040],
+    "localized_credible_interval": [2080, 2120]
+  },
+  "files": {
+    "config.json": "b7aad82bd2b445e5c572da266e35dc39cab9f7d82745a585ae4bec4f0a36686a",
+    "metrics.json": "8bb06dff097ddb72e3ad504610db7f107c33e99d1d025fdeb6edad61cdb97f7c",
+    "refinement_analysis.py": "70f64821d05ee6e8502109bce4b48e06a43a363f6e12a3192e15f1b7e8deb7a6"
+  }
+}

@@ -407,9 +407,12 @@ def analyze_factorial(
             candidate_naive = _source_means(
                 row for row in candidate_all if str(row["option_order"]) == "012"
             )
+            naive_sources = sorted(set(candidate_naive) & set(original_naive))
+            if not naive_sources:
+                continue
             naive_delta = {
                 source: candidate_naive[source] - original_naive[source]
-                for source in design["sources"]
+                for source in naive_sources
             }
             marginalized_delta = {
                 source: candidate_marginal[source] - original_marginal[source]
@@ -417,7 +420,7 @@ def analyze_factorial(
             }
             confounding_shift = {
                 source: naive_delta[source] - marginalized_delta[source]
-                for source in design["sources"]
+                for source in naive_sources
             }
             naive_estimate = _estimate(
                 naive_delta,

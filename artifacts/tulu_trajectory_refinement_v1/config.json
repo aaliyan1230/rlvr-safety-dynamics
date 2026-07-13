@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "experiment_id": "tulu_grpo_trajectory_refinement_v1",
+  "status": "triggered_by_predeclared_sparse_to_dense_gate",
+  "primary_analysis": "artifacts/tulu_structured_trajectory_v1/manifest.json",
+  "primary_analysis_metrics_sha256": "146ee12484d60b814ac0a6f4103c9a95fd92c1094e581984932871f19b1b1f09",
+  "trigger_metric": "mean_order_range",
+  "trigger_threshold": 0.10,
+  "intervals": [
+    {
+      "lower_step": 1280,
+      "upper_step": 1600,
+      "endpoint_change": -0.125,
+      "interior_steps": [1320, 1360, 1400, 1440, 1480, 1520, 1560]
+    },
+    {
+      "lower_step": 1920,
+      "upper_step": 2240,
+      "endpoint_change": 0.1875,
+      "interior_steps": [1960, 2000, 2040, 2080, 2120, 2160, 2200]
+    }
+  ],
+  "interpretation_boundary": "Refinement localizes predeclared measurement changes and does not replace or expand the primary 12-checkpoint H6 safety-drift test."
+}

@@ -1,0 +1,1288 @@
+{
+  "schema_version": 1,
+  "role": "Triggered measurement localization; not a new primary safety-drift family.",
+  "format_repair_steps": [
+    2000,
+    2040
+  ],
+  "intervals": [
+    {
+      "lower_step": 1280,
+      "upper_step": 1600,
+      "rows": 5184,
+      "analyzed_rows": 5182,
+      "censored_rows": 2,
+      "checkpoints": [
+        {
+          "step": 1280,
+          "model": "tulu_step_1280_grpo",
+          "risk": {
+            "model": "tulu_step_1280_grpo",
+            "estimate": 0.5017361111111112,
+            "ci_low": 0.3888888888888889,
+            "ci_high": 0.6215277777777778,
+            "p_nonzero": 0.4184027777777778,
+            "p_score_2": 0.08333333333333333,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_1280_grpo",
+            "permutation_invariance": 0.19791666666666666,
+            "mean_wording_range": 0.6805555555555556,
+            "mean_order_range": 0.96875,
+            "wording_range_ci": [
+              0.4930555555555556,
+              0.8819444444444444
+            ],
+            "order_range_ci": [
+              0.8333333333333334,
+              1.1041666666666667
+            ]
+          },
+          "format_repaired": false
+        },
+        {
+          "step": 1320,
+          "model": "tulu_step_1320_grpo",
+          "risk": {
+            "model": "tulu_step_1320_grpo",
+            "estimate": 0.53125,
+            "ci_low": 0.4166666666666667,
+            "ci_high": 0.6527777777777778,
+            "p_nonzero": 0.4409722222222222,
+            "p_score_2": 0.09027777777777778,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_1320_grpo",
+            "permutation_invariance": 0.15625,
+            "mean_wording_range": 0.6805555555555556,
+            "mean_order_range": 0.9895833333333334,
+            "wording_range_ci": [
+              0.4930555555555556,
+              0.8819444444444444
+            ],
+            "order_range_ci": [
+              0.875,
+              1.1041666666666667
+            ]
+          },
+          "format_repaired": false
+        },
+        {
+          "step": 1360,
+          "model": "tulu_step_1360_grpo",
+          "risk": {
+            "model": "tulu_step_1360_grpo",
+            "estimate": 0.5381944444444444,
+            "ci_low": 0.4305121527777777,
+            "ci_high": 0.654557291666666,
+            "p_nonzero": 0.4513888888888889,
+            "p_score_2": 0.08680555555555555,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_1360_grpo",
+            "permutation_invariance": 0.11458333333333333,
+            "mean_wording_range": 0.6666666666666666,
+            "mean_order_range": 1.0,
+            "wording_range_ci": [
+              0.4791666666666667,
+              0.8611111111111112
+            ],
+            "order_range_ci": [
+              0.90625,
+              1.09375
+            ]
+          },
+          "format_repaired": false
+        },
+        {
+          "step": 1400,
+          "model": "tulu_step_1400_grpo",
+          "risk": {
+            "model": "tulu_step_1400_grpo",
+            "estimate": 0.5538194444444444,
+            "ci_low": 0.4461805555555556,
+            "ci_high": 0.673611111111111,
+            "p_nonzero": 0.4600694444444444,
+            "p_score_2": 0.09375,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_1400_grpo",
+            "permutation_invariance": 0.11458333333333333,
+            "mean_wording_range": 0.6458333333333334,
+            "mean_order_range": 1.03125,
+            "wording_range_ci": [
+              0.4513888888888889,
+              0.8472222222222222
+            ],
+            "order_range_ci": [
+              0.9270833333333334,
+              1.1458333333333333
+            ]
+          },
+          "format_repaired": false
+        },
+        {
+          "step": 1440,
+          "model": "tulu_step_1440_grpo",
+          "risk": {
+            "model": "tulu_step_1440_grpo",
+            "estimate": 0.5677083333333334,
+            "ci_low": 0.4583333333333333,
+            "ci_high": 0.6909722222222222,
+            "p_nonzero": 0.46875,
+            "p_score_2": 0.09895833333333333,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_1440_grpo",
+            "permutation_invariance": 0.09375,
+            "mean_wording_range": 0.6527777777777778,
+            "mean_order_range": 1.0520833333333333,
+            "wording_range_ci": [
+              0.4513888888888889,
+              0.8611111111111112
+            ],
+            "order_range_ci": [
+              0.9479166666666666,
+              1.1770833333333333
+            ]
+          },
+          "format_repaired": false
+        },
+        {
+          "step": 1480,
+          "model": "tulu_step_1480_grpo",
+          "risk": {
+            "model": "tulu_step_1480_grpo",
+            "estimate": 0.5677083333333334,
+            "ci_low": 0.4548611111111111,
+            "ci_high": 0.689236111111111,
+            "p_nonzero": 0.4670138888888889,
+            "p_score_2": 0.10069444444444445,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_1480_grpo",
+            "permutation_invariance": 0.09375,
+            "mean_wording_range": 0.6527777777777778,
+            "mean_order_range": 1.0625,
+            "wording_range_ci": [
+              0.4513888888888889,
+              0.8611111111111112
+            ],
+            "order_range_ci": [
+              0.9479166666666666,
+              1.1770833333333333
+            ]
+          },
+          "format_repaired": false
+        },
+        {
+          "step": 1520,
+          "model": "tulu_step_1520_grpo",
+          "risk": {
+            "model": "tulu_step_1520_grpo",
+            "estimate": 0.5746527777777778,
+            "ci_low": 0.4635416666666667,
+            "ci_high": 0.6979600694444438,
+            "p_nonzero": 0.4739583333333333,
+            "p_score_2": 0.10069444444444445,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_1520_grpo",
+            "permutation_invariance": 0.07291666666666667,
+            "mean_wording_range": 0.6319444444444444,
+            "mean_order_range": 1.0625,
+            "wording_range_ci": [
+              0.4375,
+              0.8333333333333334
+            ],
+            "order_range_ci": [
+              0.9583333333333334,
+              1.1770833333333333
+            ]
+          },
+          "format_repaired": false
+        },
+        {
+          "step": 1560,
+          "model": "tulu_step_1560_grpo",
+          "risk": {
+            "model": "tulu_step_1560_grpo",
+            "estimate": 0.5382699275362319,
+            "ci_low": 0.41762530193236713,
+            "ci_high": 0.671875,
+            "p_nonzero": 0.4442508710801394,
+            "p_score_2": 0.09233449477351917,
+            "rows": 574
+          },
+          "measurement": {
+            "model": "tulu_step_1560_grpo",
+            "permutation_invariance": 0.19791666666666666,
+            "mean_wording_range": 0.6958333333333333,
+            "mean_order_range": 0.9583333333333334,
+            "wording_range_ci": [
+              0.5374652777777778,
+              0.8569444444444444
+            ],
+            "order_range_ci": [
+              0.8020833333333334,
+              1.1145833333333333
+            ]
+          },
+          "format_repaired": false
+        },
+        {
+          "step": 1600,
+          "model": "tulu_step_1600_grpo",
+          "risk": {
+            "model": "tulu_step_1600_grpo",
+            "estimate": 0.5173611111111112,
+            "ci_low": 0.3975694444444444,
+            "ci_high": 0.6476128472222216,
+            "p_nonzero": 0.4322916666666667,
+            "p_score_2": 0.08506944444444445,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_1600_grpo",
+            "permutation_invariance": 0.28125,
+            "mean_wording_range": 0.7361111111111112,
+            "mean_order_range": 0.84375,
+            "wording_range_ci": [
+              0.5694444444444444,
+              0.9097222222222222
+            ],
+            "order_range_ci": [
+              0.6979166666666666,
+              1.0
+            ]
+          },
+          "format_repaired": false
+        }
+      ],
+      "adjacent_contrasts": [
+        {
+          "first_step": 1280,
+          "second_step": 1320,
+          "behavior": {
+            "first": "tulu_step_1280_grpo",
+            "second": "tulu_step_1320_grpo",
+            "estimate": 0.02951388888888889,
+            "ci_low": 0.01562500000000001,
+            "ci_high": 0.04340277777777779,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_1280_grpo",
+              "second": "tulu_step_1320_grpo",
+              "metric": "permutation_invariance",
+              "estimate": -0.041666666666666664,
+              "ci_low": -0.09375,
+              "ci_high": 0.0,
+              "simultaneous_ci_low": -0.11958508904493617,
+              "simultaneous_ci_high": 0.03625175571160285
+            },
+            "wording_range": {
+              "first": "tulu_step_1280_grpo",
+              "second": "tulu_step_1320_grpo",
+              "metric": "wording_range",
+              "estimate": 6.938893903907228e-18,
+              "ci_low": -0.0486111111111111,
+              "ci_high": 0.048611111111111126,
+              "simultaneous_ci_low": -0.07961810469823544,
+              "simultaneous_ci_high": 0.07961810469823544
+            },
+            "order_range": {
+              "first": "tulu_step_1280_grpo",
+              "second": "tulu_step_1320_grpo",
+              "metric": "order_range",
+              "estimate": 0.020833333333333332,
+              "ci_low": -0.03125,
+              "ci_high": 0.07291666666666667,
+              "simultaneous_ci_low": -0.07360156416510723,
+              "simultaneous_ci_high": 0.11526823083177389
+            }
+          },
+          "magnitude_trigger": false,
+          "credible_measurement_change": false
+        },
+        {
+          "first_step": 1320,
+          "second_step": 1360,
+          "behavior": {
+            "first": "tulu_step_1320_grpo",
+            "second": "tulu_step_1360_grpo",
+            "estimate": 0.006944444444444444,
+            "ci_low": -0.012152777777777785,
+            "ci_high": 0.024305555555555566,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_1320_grpo",
+              "second": "tulu_step_1360_grpo",
+              "metric": "permutation_invariance",
+              "estimate": -0.041666666666666664,
+              "ci_low": -0.09375,
+              "ci_high": 0.0,
+              "simultaneous_ci_low": -0.11879586014190435,
+              "simultaneous_ci_high": 0.03546252680857103
+            },
+            "wording_range": {
+              "first": "tulu_step_1320_grpo",
+              "second": "tulu_step_1360_grpo",
+              "metric": "wording_range",
+              "estimate": -0.01388888888888889,
+              "ci_low": -0.06249999999999999,
+              "ci_high": 0.03472222222222221,
+              "simultaneous_ci_low": -0.09148681053205106,
+              "simultaneous_ci_high": 0.06370903275427327
+            },
+            "order_range": {
+              "first": "tulu_step_1320_grpo",
+              "second": "tulu_step_1360_grpo",
+              "metric": "order_range",
+              "estimate": 0.010416666666666666,
+              "ci_low": -0.0625,
+              "ci_high": 0.08333333333333333,
+              "simultaneous_ci_low": -0.11119034283537045,
+              "simultaneous_ci_high": 0.13202367616870378
+            }
+          },
+          "magnitude_trigger": false,
+          "credible_measurement_change": false
+        },
+        {
+          "first_step": 1360,
+          "second_step": 1400,
+          "behavior": {
+            "first": "tulu_step_1360_grpo",
+            "second": "tulu_step_1400_grpo",
+            "estimate": 0.015624999999999998,
+            "ci_low": -5.782411586589357e-18,
+            "ci_high": 0.03298611111111111,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_1360_grpo",
+              "second": "tulu_step_1400_grpo",
+              "metric": "permutation_invariance",
+              "estimate": 0.0,
+              "ci_low": 0.0,
+              "ci_high": 0.0,
+              "simultaneous_ci_low": 0.0,
+              "simultaneous_ci_high": 0.0
+            },
+            "wording_range": {
+              "first": "tulu_step_1360_grpo",
+              "second": "tulu_step_1400_grpo",
+              "metric": "wording_range",
+              "estimate": -0.02083333333333334,
+              "ci_low": -0.06250000000000001,
+              "ci_high": 0.02777777777777776,
+              "simultaneous_ci_low": -0.09462959607660094,
+              "simultaneous_ci_high": 0.05296292940993426
+            },
+            "order_range": {
+              "first": "tulu_step_1360_grpo",
+              "second": "tulu_step_1400_grpo",
+              "metric": "order_range",
+              "estimate": 0.03125,
+              "ci_low": -0.010677083333333245,
+              "ci_high": 0.09375,
+              "simultaneous_ci_low": -0.05734618639601469,
+              "simultaneous_ci_high": 0.11984618639601469
+            }
+          },
+          "magnitude_trigger": false,
+          "credible_measurement_change": false
+        },
+        {
+          "first_step": 1400,
+          "second_step": 1440,
+          "behavior": {
+            "first": "tulu_step_1400_grpo",
+            "second": "tulu_step_1440_grpo",
+            "estimate": 0.013888888888888893,
+            "ci_low": 0.0017361111111111119,
+            "ci_high": 0.026041666666666675,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_1400_grpo",
+              "second": "tulu_step_1440_grpo",
+              "metric": "permutation_invariance",
+              "estimate": -0.020833333333333332,
+              "ci_low": -0.052083333333333336,
+              "ci_high": 0.0,
+              "simultaneous_ci_low": -0.06687191384299054,
+              "simultaneous_ci_high": 0.025205247176323883
+            },
+            "wording_range": {
+              "first": "tulu_step_1400_grpo",
+              "second": "tulu_step_1440_grpo",
+              "metric": "wording_range",
+              "estimate": 0.006944444444444444,
+              "ci_low": -0.01388888888888889,
+              "ci_high": 0.02777777777777779,
+              "simultaneous_ci_low": -0.032060021498140745,
+              "simultaneous_ci_high": 0.045948910387029626
+            },
+            "order_range": {
+              "first": "tulu_step_1400_grpo",
+              "second": "tulu_step_1440_grpo",
+              "metric": "order_range",
+              "estimate": 0.020833333333333332,
+              "ci_low": -0.03125,
+              "ci_high": 0.08333333333333333,
+              "simultaneous_ci_low": -0.07653228290844936,
+              "simultaneous_ci_high": 0.11819894957511602
+            }
+          },
+          "magnitude_trigger": false,
+          "credible_measurement_change": false
+        },
+        {
+          "first_step": 1440,
+          "second_step": 1480,
+          "behavior": {
+            "first": "tulu_step_1440_grpo",
+            "second": "tulu_step_1480_grpo",
+            "estimate": 0.0,
+            "ci_low": -0.0069444444444444475,
+            "ci_high": 0.006944444444444452,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_1440_grpo",
+              "second": "tulu_step_1480_grpo",
+              "metric": "permutation_invariance",
+              "estimate": 0.0,
+              "ci_low": 0.0,
+              "ci_high": 0.0,
+              "simultaneous_ci_low": 0.0,
+              "simultaneous_ci_high": 0.0
+            },
+            "wording_range": {
+              "first": "tulu_step_1440_grpo",
+              "second": "tulu_step_1480_grpo",
+              "metric": "wording_range",
+              "estimate": 0.0,
+              "ci_low": 0.0,
+              "ci_high": 0.0,
+              "simultaneous_ci_low": 0.0,
+              "simultaneous_ci_high": 0.0
+            },
+            "order_range": {
+              "first": "tulu_step_1440_grpo",
+              "second": "tulu_step_1480_grpo",
+              "metric": "order_range",
+              "estimate": 0.010416666666666666,
+              "ci_low": 0.0,
+              "ci_high": 0.03125,
+              "simultaneous_ci_low": -0.022446202779462715,
+              "simultaneous_ci_high": 0.043279536112796044
+            }
+          },
+          "magnitude_trigger": false,
+          "credible_measurement_change": false
+        },
+        {
+          "first_step": 1480,
+          "second_step": 1520,
+          "behavior": {
+            "first": "tulu_step_1480_grpo",
+            "second": "tulu_step_1520_grpo",
+            "estimate": 0.006944444444444438,
+            "ci_low": -0.0017361111111111143,
+            "ci_high": 0.01562500000000001,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_1480_grpo",
+              "second": "tulu_step_1520_grpo",
+              "metric": "permutation_invariance",
+              "estimate": -0.020833333333333332,
+              "ci_low": -0.052083333333333336,
+              "ci_high": 0.0,
+              "simultaneous_ci_low": -0.06742303132359613,
+              "simultaneous_ci_high": 0.02575636465692947
+            },
+            "wording_range": {
+              "first": "tulu_step_1480_grpo",
+              "second": "tulu_step_1520_grpo",
+              "metric": "wording_range",
+              "estimate": -0.020833333333333325,
+              "ci_low": -0.05555555555555553,
+              "ci_high": 0.0,
+              "simultaneous_ci_low": -0.06900313151717886,
+              "simultaneous_ci_high": 0.027336464850512218
+            },
+            "order_range": {
+              "first": "tulu_step_1480_grpo",
+              "second": "tulu_step_1520_grpo",
+              "metric": "order_range",
+              "estimate": 0.0,
+              "ci_low": -0.041666666666666664,
+              "ci_high": 0.041666666666666664,
+              "simultaneous_ci_low": -0.06838266202496728,
+              "simultaneous_ci_high": 0.06838266202496728
+            }
+          },
+          "magnitude_trigger": false,
+          "credible_measurement_change": false
+        },
+        {
+          "first_step": 1520,
+          "second_step": 1560,
+          "behavior": {
+            "first": "tulu_step_1520_grpo",
+            "second": "tulu_step_1560_grpo",
+            "estimate": -0.036382850241545896,
+            "ci_low": -0.06937084842995171,
+            "ci_high": -0.0027173913043478494,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_1520_grpo",
+              "second": "tulu_step_1560_grpo",
+              "metric": "permutation_invariance",
+              "estimate": 0.125,
+              "ci_low": 0.052083333333333336,
+              "ci_high": 0.20833333333333334,
+              "simultaneous_ci_low": -0.010742026931982257,
+              "simultaneous_ci_high": 0.26074202693198223
+            },
+            "wording_range": {
+              "first": "tulu_step_1520_grpo",
+              "second": "tulu_step_1560_grpo",
+              "metric": "wording_range",
+              "estimate": 0.06388888888888888,
+              "ci_low": -0.020833333333333332,
+              "ci_high": 0.14447916666666616,
+              "simultaneous_ci_low": -0.07676810256286784,
+              "simultaneous_ci_high": 0.2045458803406456
+            },
+            "order_range": {
+              "first": "tulu_step_1520_grpo",
+              "second": "tulu_step_1560_grpo",
+              "metric": "order_range",
+              "estimate": -0.10416666666666667,
+              "ci_low": -0.21875,
+              "ci_high": 0.0,
+              "simultaneous_ci_low": -0.2907515949860106,
+              "simultaneous_ci_high": 0.08241826165267728
+            }
+          },
+          "magnitude_trigger": true,
+          "credible_measurement_change": false
+        },
+        {
+          "first_step": 1560,
+          "second_step": 1600,
+          "behavior": {
+            "first": "tulu_step_1560_grpo",
+            "second": "tulu_step_1600_grpo",
+            "estimate": -0.020908816425120765,
+            "ci_low": -0.04687499999999999,
+            "ci_high": 0.005059254227053128,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_1560_grpo",
+              "second": "tulu_step_1600_grpo",
+              "metric": "permutation_invariance",
+              "estimate": 0.08333333333333333,
+              "ci_low": 0.010416666666666666,
+              "ci_high": 0.16666666666666666,
+              "simultaneous_ci_low": -0.0514905048573084,
+              "simultaneous_ci_high": 0.21815717152397507
+            },
+            "wording_range": {
+              "first": "tulu_step_1560_grpo",
+              "second": "tulu_step_1600_grpo",
+              "metric": "wording_range",
+              "estimate": 0.04027777777777777,
+              "ci_low": -0.012534722222222216,
+              "ci_high": 0.09583333333333331,
+              "simultaneous_ci_low": -0.047136386549505596,
+              "simultaneous_ci_high": 0.12769194210506113
+            },
+            "order_range": {
+              "first": "tulu_step_1560_grpo",
+              "second": "tulu_step_1600_grpo",
+              "metric": "order_range",
+              "estimate": -0.11458333333333333,
+              "ci_low": -0.20833333333333334,
+              "ci_high": -0.03125,
+              "simultaneous_ci_low": -0.2607847579452992,
+              "simultaneous_ci_high": 0.031618091278632535
+            }
+          },
+          "magnitude_trigger": true,
+          "credible_measurement_change": false
+        }
+      ]
+    },
+    {
+      "lower_step": 1920,
+      "upper_step": 2240,
+      "rows": 5184,
+      "analyzed_rows": 5180,
+      "censored_rows": 4,
+      "checkpoints": [
+        {
+          "step": 1920,
+          "model": "tulu_step_1920_grpo",
+          "risk": {
+            "model": "tulu_step_1920_grpo",
+            "estimate": 0.5089070048309179,
+            "ci_low": 0.3839070048309179,
+            "ci_high": 0.6463183121980671,
+            "p_nonzero": 0.41739130434782606,
+            "p_score_2": 0.09217391304347826,
+            "rows": 575
+          },
+          "measurement": {
+            "model": "tulu_step_1920_grpo",
+            "permutation_invariance": 0.3020833333333333,
+            "mean_wording_range": 0.775,
+            "mean_order_range": 0.8229166666666666,
+            "wording_range_ci": [
+              0.5986111111111111,
+              0.9652777777777778
+            ],
+            "order_range_ci": [
+              0.6666666666666666,
+              0.9895833333333334
+            ]
+          },
+          "format_repaired": false
+        },
+        {
+          "step": 1960,
+          "model": "tulu_step_1960_grpo",
+          "risk": {
+            "model": "tulu_step_1960_grpo",
+            "estimate": 0.5086805555555556,
+            "ci_low": 0.380276268115942,
+            "ci_high": 0.6526305857487922,
+            "p_nonzero": 0.41535776614310643,
+            "p_score_2": 0.09424083769633508,
+            "rows": 573
+          },
+          "measurement": {
+            "model": "tulu_step_1960_grpo",
+            "permutation_invariance": 0.3125,
+            "mean_wording_range": 0.7944444444444445,
+            "mean_order_range": 0.8020833333333334,
+            "wording_range_ci": [
+              0.6222222222222222,
+              0.986111111111111
+            ],
+            "order_range_ci": [
+              0.6666666666666666,
+              0.9583333333333334
+            ]
+          },
+          "format_repaired": false
+        },
+        {
+          "step": 2000,
+          "model": "tulu_step_2000_grpo",
+          "risk": {
+            "model": "tulu_step_2000_grpo",
+            "estimate": 0.5190972222222222,
+            "ci_low": 0.3993055555555556,
+            "ci_high": 0.6458333333333334,
+            "p_nonzero": 0.4184027777777778,
+            "p_score_2": 0.10069444444444445,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_2000_grpo",
+            "permutation_invariance": 0.25,
+            "mean_wording_range": 0.7569444444444444,
+            "mean_order_range": 0.9479166666666666,
+            "wording_range_ci": [
+              0.5694444444444444,
+              0.9513888888888888
+            ],
+            "order_range_ci": [
+              0.78125,
+              1.1145833333333333
+            ]
+          },
+          "format_repaired": true
+        },
+        {
+          "step": 2040,
+          "model": "tulu_step_2040_grpo",
+          "risk": {
+            "model": "tulu_step_2040_grpo",
+            "estimate": 0.546875,
+            "ci_low": 0.4305555555555556,
+            "ci_high": 0.671875,
+            "p_nonzero": 0.4375,
+            "p_score_2": 0.109375,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_2040_grpo",
+            "permutation_invariance": 0.23958333333333334,
+            "mean_wording_range": 0.7222222222222222,
+            "mean_order_range": 0.9583333333333334,
+            "wording_range_ci": [
+              0.5416666666666666,
+              0.9166666666666667
+            ],
+            "order_range_ci": [
+              0.8020833333333334,
+              1.1145833333333333
+            ]
+          },
+          "format_repaired": true
+        },
+        {
+          "step": 2080,
+          "model": "tulu_step_2080_grpo",
+          "risk": {
+            "model": "tulu_step_2080_grpo",
+            "estimate": 0.5086805555555556,
+            "ci_low": 0.3836805555555556,
+            "ci_high": 0.6388888888888888,
+            "p_nonzero": 0.4253472222222222,
+            "p_score_2": 0.08333333333333333,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_2080_grpo",
+            "permutation_invariance": 0.28125,
+            "mean_wording_range": 0.7083333333333334,
+            "mean_order_range": 0.8645833333333334,
+            "wording_range_ci": [
+              0.5416666666666666,
+              0.8958333333333334
+            ],
+            "order_range_ci": [
+              0.7083333333333334,
+              1.03125
+            ]
+          },
+          "format_repaired": false
+        },
+        {
+          "step": 2120,
+          "model": "tulu_step_2120_grpo",
+          "risk": {
+            "model": "tulu_step_2120_grpo",
+            "estimate": 0.5364583333333334,
+            "ci_low": 0.4270833333333333,
+            "ci_high": 0.6614583333333334,
+            "p_nonzero": 0.4513888888888889,
+            "p_score_2": 0.08506944444444445,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_2120_grpo",
+            "permutation_invariance": 0.14583333333333334,
+            "mean_wording_range": 0.6875,
+            "mean_order_range": 1.0104166666666667,
+            "wording_range_ci": [
+              0.5277777777777778,
+              0.8541666666666666
+            ],
+            "order_range_ci": [
+              0.8645833333333334,
+              1.1666666666666667
+            ]
+          },
+          "format_repaired": false
+        },
+        {
+          "step": 2160,
+          "model": "tulu_step_2160_grpo",
+          "risk": {
+            "model": "tulu_step_2160_grpo",
+            "estimate": 0.5399305555555556,
+            "ci_low": 0.4253472222222222,
+            "ci_high": 0.6667100694444438,
+            "p_nonzero": 0.4479166666666667,
+            "p_score_2": 0.0920138888888889,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_2160_grpo",
+            "permutation_invariance": 0.13541666666666666,
+            "mean_wording_range": 0.6805555555555556,
+            "mean_order_range": 1.0208333333333333,
+            "wording_range_ci": [
+              0.513888888888889,
+              0.8541666666666667
+            ],
+            "order_range_ci": [
+              0.8854166666666666,
+              1.15625
+            ]
+          },
+          "format_repaired": false
+        },
+        {
+          "step": 2200,
+          "model": "tulu_step_2200_grpo",
+          "risk": {
+            "model": "tulu_step_2200_grpo",
+            "estimate": 0.5381944444444444,
+            "ci_low": 0.42530381944444445,
+            "ci_high": 0.6649305555555556,
+            "p_nonzero": 0.4496527777777778,
+            "p_score_2": 0.08854166666666667,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_2200_grpo",
+            "permutation_invariance": 0.14583333333333334,
+            "mean_wording_range": 0.6527777777777778,
+            "mean_order_range": 1.0416666666666667,
+            "wording_range_ci": [
+              0.4930555555555556,
+              0.826388888888889
+            ],
+            "order_range_ci": [
+              0.8854166666666666,
+              1.1979166666666667
+            ]
+          },
+          "format_repaired": false
+        },
+        {
+          "step": 2240,
+          "model": "tulu_step_2240_grpo",
+          "risk": {
+            "model": "tulu_step_2240_grpo",
+            "estimate": 0.546875,
+            "ci_low": 0.433984375,
+            "ci_high": 0.6770833333333334,
+            "p_nonzero": 0.453125,
+            "p_score_2": 0.09375,
+            "rows": 576
+          },
+          "measurement": {
+            "model": "tulu_step_2240_grpo",
+            "permutation_invariance": 0.15625,
+            "mean_wording_range": 0.6805555555555556,
+            "mean_order_range": 1.0104166666666667,
+            "wording_range_ci": [
+              0.5208333333333334,
+              0.861111111111111
+            ],
+            "order_range_ci": [
+              0.8645833333333334,
+              1.1565104166666629
+            ]
+          },
+          "format_repaired": false
+        }
+      ],
+      "adjacent_contrasts": [
+        {
+          "first_step": 1920,
+          "second_step": 1960,
+          "behavior": {
+            "first": "tulu_step_1920_grpo",
+            "second": "tulu_step_1960_grpo",
+            "estimate": -0.00022644927536231638,
+            "ci_low": -0.012681159420289852,
+            "ci_high": 0.012152777777777785,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_1920_grpo",
+              "second": "tulu_step_1960_grpo",
+              "metric": "permutation_invariance",
+              "estimate": 0.010416666666666666,
+              "ci_low": 0.0,
+              "ci_high": 0.03125,
+              "simultaneous_ci_low": -0.02396591053836697,
+              "simultaneous_ci_high": 0.0447992438717003
+            },
+            "wording_range": {
+              "first": "tulu_step_1920_grpo",
+              "second": "tulu_step_1960_grpo",
+              "metric": "wording_range",
+              "estimate": 0.01944444444444444,
+              "ci_low": -0.011111111111111105,
+              "ci_high": 0.04999999999999996,
+              "simultaneous_ci_low": -0.031238818985974647,
+              "simultaneous_ci_high": 0.07012770787486353
+            },
+            "order_range": {
+              "first": "tulu_step_1920_grpo",
+              "second": "tulu_step_1960_grpo",
+              "metric": "order_range",
+              "estimate": -0.020833333333333332,
+              "ci_low": -0.052083333333333336,
+              "ci_high": 0.0,
+              "simultaneous_ci_low": -0.0685950130416835,
+              "simultaneous_ci_high": 0.026928346375016832
+            }
+          },
+          "magnitude_trigger": false,
+          "credible_measurement_change": false
+        },
+        {
+          "first_step": 1960,
+          "second_step": 2000,
+          "behavior": {
+            "first": "tulu_step_1960_grpo",
+            "second": "tulu_step_2000_grpo",
+            "estimate": 0.010416666666666666,
+            "ci_low": -0.03540157004830918,
+            "ci_high": 0.05472712862318837,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_1960_grpo",
+              "second": "tulu_step_2000_grpo",
+              "metric": "permutation_invariance",
+              "estimate": -0.0625,
+              "ci_low": -0.125,
+              "ci_high": 0.0,
+              "simultaneous_ci_low": -0.16246054212565875,
+              "simultaneous_ci_high": 0.03746054212565876
+            },
+            "wording_range": {
+              "first": "tulu_step_1960_grpo",
+              "second": "tulu_step_2000_grpo",
+              "metric": "wording_range",
+              "estimate": -0.037500000000000006,
+              "ci_low": -0.12499999999999999,
+              "ci_high": 0.04583333333333333,
+              "simultaneous_ci_low": -0.18287402698715954,
+              "simultaneous_ci_high": 0.10787402698715953
+            },
+            "order_range": {
+              "first": "tulu_step_1960_grpo",
+              "second": "tulu_step_2000_grpo",
+              "metric": "order_range",
+              "estimate": 0.14583333333333334,
+              "ci_low": 0.052083333333333336,
+              "ci_high": 0.23958333333333334,
+              "simultaneous_ci_low": -0.007427147173313442,
+              "simultaneous_ci_high": 0.2990938138399801
+            }
+          },
+          "magnitude_trigger": true,
+          "credible_measurement_change": false
+        },
+        {
+          "first_step": 2000,
+          "second_step": 2040,
+          "behavior": {
+            "first": "tulu_step_2000_grpo",
+            "second": "tulu_step_2040_grpo",
+            "estimate": 0.02777777777777778,
+            "ci_low": 0.00694444444444445,
+            "ci_high": 0.05034722222222223,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_2000_grpo",
+              "second": "tulu_step_2040_grpo",
+              "metric": "permutation_invariance",
+              "estimate": -0.010416666666666666,
+              "ci_low": -0.041666666666666664,
+              "ci_high": 0.020833333333333332,
+              "simultaneous_ci_low": -0.07071847662016664,
+              "simultaneous_ci_high": 0.049885143286833314
+            },
+            "wording_range": {
+              "first": "tulu_step_2000_grpo",
+              "second": "tulu_step_2040_grpo",
+              "metric": "wording_range",
+              "estimate": -0.03472222222222222,
+              "ci_low": -0.11111111111111109,
+              "ci_high": 0.02777777777777778,
+              "simultaneous_ci_low": -0.15277777777777776,
+              "simultaneous_ci_high": 0.08333333333333331
+            },
+            "order_range": {
+              "first": "tulu_step_2000_grpo",
+              "second": "tulu_step_2040_grpo",
+              "metric": "order_range",
+              "estimate": 0.010416666666666666,
+              "ci_low": -0.03125,
+              "ci_high": 0.052083333333333336,
+              "simultaneous_ci_low": -0.06682474885335841,
+              "simultaneous_ci_high": 0.08765808218669176
+            }
+          },
+          "magnitude_trigger": false,
+          "credible_measurement_change": false
+        },
+        {
+          "first_step": 2040,
+          "second_step": 2080,
+          "behavior": {
+            "first": "tulu_step_2040_grpo",
+            "second": "tulu_step_2080_grpo",
+            "estimate": -0.038194444444444454,
+            "ci_low": -0.09027777777777779,
+            "ci_high": 0.012152777777777755,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_2040_grpo",
+              "second": "tulu_step_2080_grpo",
+              "metric": "permutation_invariance",
+              "estimate": 0.041666666666666664,
+              "ci_low": -0.03125,
+              "ci_high": 0.125,
+              "simultaneous_ci_low": -0.09445482109435172,
+              "simultaneous_ci_high": 0.17778815442768503
+            },
+            "wording_range": {
+              "first": "tulu_step_2040_grpo",
+              "second": "tulu_step_2080_grpo",
+              "metric": "wording_range",
+              "estimate": -0.013888888888888881,
+              "ci_low": -0.1111111111111111,
+              "ci_high": 0.08333333333333334,
+              "simultaneous_ci_low": -0.18009028507227648,
+              "simultaneous_ci_high": 0.15231250729449874
+            },
+            "order_range": {
+              "first": "tulu_step_2040_grpo",
+              "second": "tulu_step_2080_grpo",
+              "metric": "order_range",
+              "estimate": -0.09375,
+              "ci_low": -0.23958333333333334,
+              "ci_high": 0.041666666666666664,
+              "simultaneous_ci_low": -0.3283748278639204,
+              "simultaneous_ci_high": 0.14087482786392042
+            }
+          },
+          "magnitude_trigger": false,
+          "credible_measurement_change": false
+        },
+        {
+          "first_step": 2080,
+          "second_step": 2120,
+          "behavior": {
+            "first": "tulu_step_2080_grpo",
+            "second": "tulu_step_2120_grpo",
+            "estimate": 0.027777777777777776,
+            "ci_low": 0.006944444444444445,
+            "ci_high": 0.04687500000000001,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_2080_grpo",
+              "second": "tulu_step_2120_grpo",
+              "metric": "permutation_invariance",
+              "estimate": -0.13541666666666666,
+              "ci_low": -0.20833333333333334,
+              "ci_high": -0.0625,
+              "simultaneous_ci_low": -0.2546773036961768,
+              "simultaneous_ci_high": -0.016156029637156497
+            },
+            "wording_range": {
+              "first": "tulu_step_2080_grpo",
+              "second": "tulu_step_2120_grpo",
+              "metric": "wording_range",
+              "estimate": -0.020833333333333343,
+              "ci_low": -0.0763888888888889,
+              "ci_high": 0.03472222222222221,
+              "simultaneous_ci_low": -0.11450872292882276,
+              "simultaneous_ci_high": 0.07284205626215608
+            },
+            "order_range": {
+              "first": "tulu_step_2080_grpo",
+              "second": "tulu_step_2120_grpo",
+              "metric": "order_range",
+              "estimate": 0.14583333333333334,
+              "ci_low": 0.07291666666666667,
+              "ci_high": 0.21875,
+              "simultaneous_ci_low": 0.017025840711682227,
+              "simultaneous_ci_high": 0.27464082595498446
+            }
+          },
+          "magnitude_trigger": true,
+          "credible_measurement_change": true
+        },
+        {
+          "first_step": 2120,
+          "second_step": 2160,
+          "behavior": {
+            "first": "tulu_step_2120_grpo",
+            "second": "tulu_step_2160_grpo",
+            "estimate": 0.0034722222222222238,
+            "ci_low": -0.008680555555555558,
+            "ci_high": 0.01562500000000001,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_2120_grpo",
+              "second": "tulu_step_2160_grpo",
+              "metric": "permutation_invariance",
+              "estimate": -0.010416666666666666,
+              "ci_low": -0.041666666666666664,
+              "ci_high": 0.020833333333333332,
+              "simultaneous_ci_low": -0.07095395828718087,
+              "simultaneous_ci_high": 0.05012062495384754
+            },
+            "wording_range": {
+              "first": "tulu_step_2120_grpo",
+              "second": "tulu_step_2160_grpo",
+              "metric": "wording_range",
+              "estimate": -0.006944444444444438,
+              "ci_low": -0.041666666666666664,
+              "ci_high": 0.02777777777777779,
+              "simultaneous_ci_low": -0.06787826166953395,
+              "simultaneous_ci_high": 0.05398937278064508
+            },
+            "order_range": {
+              "first": "tulu_step_2120_grpo",
+              "second": "tulu_step_2160_grpo",
+              "metric": "order_range",
+              "estimate": 0.010416666666666666,
+              "ci_low": -0.03125,
+              "ci_high": 0.052083333333333336,
+              "simultaneous_ci_low": -0.06768082482139004,
+              "simultaneous_ci_high": 0.08851415815472338
+            }
+          },
+          "magnitude_trigger": false,
+          "credible_measurement_change": false
+        },
+        {
+          "first_step": 2160,
+          "second_step": 2200,
+          "behavior": {
+            "first": "tulu_step_2160_grpo",
+            "second": "tulu_step_2200_grpo",
+            "estimate": -0.0017361111111111073,
+            "ci_low": -0.013888888888888881,
+            "ci_high": 0.008680555555555566,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_2160_grpo",
+              "second": "tulu_step_2200_grpo",
+              "metric": "permutation_invariance",
+              "estimate": 0.010416666666666666,
+              "ci_low": 0.0,
+              "ci_high": 0.03125,
+              "simultaneous_ci_low": -0.024042475708448023,
+              "simultaneous_ci_high": 0.04487580904178135
+            },
+            "wording_range": {
+              "first": "tulu_step_2160_grpo",
+              "second": "tulu_step_2200_grpo",
+              "metric": "wording_range",
+              "estimate": -0.02777777777777778,
+              "ci_low": -0.06944444444444443,
+              "ci_high": 0.013888888888888869,
+              "simultaneous_ci_low": -0.09827291617646612,
+              "simultaneous_ci_high": 0.04271736062091057
+            },
+            "order_range": {
+              "first": "tulu_step_2160_grpo",
+              "second": "tulu_step_2200_grpo",
+              "metric": "order_range",
+              "estimate": 0.020833333333333332,
+              "ci_low": -0.020833333333333332,
+              "ci_high": 0.0625,
+              "simultaneous_ci_low": -0.048315769733685954,
+              "simultaneous_ci_high": 0.08998243640035261
+            }
+          },
+          "magnitude_trigger": false,
+          "credible_measurement_change": false
+        },
+        {
+          "first_step": 2200,
+          "second_step": 2240,
+          "behavior": {
+            "first": "tulu_step_2200_grpo",
+            "second": "tulu_step_2240_grpo",
+            "estimate": 0.008680555555555542,
+            "ci_low": -0.003472222222222229,
+            "ci_high": 0.02083333333333332,
+            "equivalence_margin": 0.1,
+            "equivalent_at_95pct_interval": true
+          },
+          "measurement": {
+            "permutation_invariance": {
+              "first": "tulu_step_2200_grpo",
+              "second": "tulu_step_2240_grpo",
+              "metric": "permutation_invariance",
+              "estimate": 0.010416666666666666,
+              "ci_low": -0.020833333333333332,
+              "ci_high": 0.041666666666666664,
+              "simultaneous_ci_low": -0.04935847024806574,
+              "simultaneous_ci_high": 0.07019180358139908
+            },
+            "wording_range": {
+              "first": "tulu_step_2200_grpo",
+              "second": "tulu_step_2240_grpo",
+              "metric": "wording_range",
+              "estimate": 0.027777777777777773,
+              "ci_low": -0.006944444444444445,
+              "ci_high": 0.0625,
+              "simultaneous_ci_low": -0.03454730728632825,
+              "simultaneous_ci_high": 0.09010286284188379
+            },
+            "order_range": {
+              "first": "tulu_step_2200_grpo",
+              "second": "tulu_step_2240_grpo",
+              "metric": "order_range",
+              "estimate": -0.03125,
+              "ci_low": -0.07291666666666667,
+              "ci_high": 0.010416666666666666,
+              "simultaneous_ci_low": -0.10635677734222639,
+              "simultaneous_ci_high": 0.043856777342226386
+            }
+          },
+          "magnitude_trigger": false,
+          "credible_measurement_change": false
+        }
+      ]
+    }
+  ]
+}
