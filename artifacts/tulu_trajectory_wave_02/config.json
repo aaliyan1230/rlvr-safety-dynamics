@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "experiment_id": "tulu_grpo_trajectory_wave_02",
+  "trajectory_experiment": "tulu_grpo_trajectory_v1",
+  "wave_index": 2,
+  "status": "structured_wave_integrity_only_until_full_panel_complete",
+  "models": [
+    {
+      "id": "tulu_step_0080_grpo",
+      "step": 80,
+      "name": "allenai/Llama-3.1-Tulu-3.1-8B",
+      "revision": "3717881c953fb1f8e57432accbb7b6538f066ff6"
+    },
+    {
+      "id": "tulu_step_0160_grpo",
+      "step": 160,
+      "name": "allenai/Llama-3.1-Tulu-3.1-8B",
+      "revision": "3f46ba82012d9b952eb17da545ffcad1abff13d1"
+    }
+  ],
+  "prompt_pack": "choice_factorial_v1.jsonl",
+  "design_manifest": "choice_factorial_v1.manifest.json",
+  "design": {
+    "source_items": 24,
+    "wordings": 4,
+    "semantic_option_orders": 6,
+    "conditions_per_checkpoint": 576,
+    "checkpoint_count": 2,
+    "total_generations": 1152,
+    "inference_unit": "source_id"
+  },
+  "generation": {
+    "max_new_tokens": 96,
+    "do_sample": false,
+    "seed": 0,
+    "quantization_mode": "nf4_double",
+    "trust_remote_code": false,
+    "attention_mask_mode": "explicit_all_ones",
+    "system_prompt": "Choose one option. Do not restate the scenario. Do not analyze the options before answering. Respond exactly with two lines: CHOICE: <A|B|C> and REASON: <one sentence, <=25 words>."
+  },
+  "runtime": {
+    "accelerator": "NvidiaTeslaT4",
+    "transformers": "4.57.6",
+    "accelerate": "1.13.0",
+    "bitsandbytes": "0.49.2",
+    "sentencepiece": "0.2.1",
+    "protobuf": "5.29.5",
+    "huggingface_cache": "shared_default_deleted_after_both_workers",
+    "hf_hub_disable_xet": true
+  },
+  "gates": {
+    "expected_rows": 1152,
+    "expected_rows_per_checkpoint": 576,
+    "required_cell_completeness": 1.0,
+    "max_malformed_or_capped_rate": 0.01,
+    "max_gpu_memory_gb": 13,
+    "require_exact_revision_resolution": true,
+    "scientific_interpretation_allowed": false
+  }
+}

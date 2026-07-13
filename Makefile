@@ -56,6 +56,7 @@ verify-artifacts:
 	$(PYTHON) -m rlvr_safety.cli.verify_artifacts artifacts/runtime_crossover_v1/manifest.json
 	$(PYTHON) -m rlvr_safety.cli.verify_artifacts artifacts/tulu_endpoint_pilot_v1/manifest.json
 	$(PYTHON) -m rlvr_safety.cli.verify_artifacts artifacts/tulu_trajectory_wave_01/manifest.json
+	$(PYTHON) -m rlvr_safety.cli.verify_artifacts artifacts/tulu_trajectory_wave_02/manifest.json
 
 check: validate validate-choice audit-ai anchors kaggle-bundle compile test smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis paper-tables baseline-analysis analyze-factorial analyze-runtime-crossover analyze-tulu-pilot verify-artifacts
 

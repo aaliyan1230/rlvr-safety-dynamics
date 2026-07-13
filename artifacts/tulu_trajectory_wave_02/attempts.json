@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "remote_kernel": "aaliyanshaikh/rlvr-tulu-grpo-trajectory-wave-02",
+  "attempts": [{
+    "kernel_version": 1,
+    "disposition": "accepted_integrity_artifact",
+    "rows": 1152,
+    "malformed": 0,
+    "token_capped": 0,
+    "outcomes_inspected": false
+  }]
+}

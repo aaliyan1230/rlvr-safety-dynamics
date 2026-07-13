@@ -70,6 +70,7 @@ The primary result files are:
 - `reports/historical_runtime_crossover_v1.md`
 - `reports/tulu_endpoint_pilot_v1.md`
 - `reports/tulu_trajectory_wave_01_integrity.md`
+- `reports/tulu_trajectory_wave_02_integrity.md`
 - `reports/ai_semantic_audit_v1.md`
 - `data/tulu_cross_format_anchors_v1.manifest.json`
 - `reports/methodology_audit.md`
