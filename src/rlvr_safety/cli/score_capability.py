@@ -35,7 +35,17 @@ def main(argv: list[str] | None = None) -> None:
         if key in seen:
             raise ValueError(f"duplicate capability generation: {key}")
         seen.add(key)
+        token_capped = int(row.get("generated_tokens", 0)) >= int(
+            row.get("row_max_new_tokens", 2**31)
+        )
         result = score_capability_response(by_id[item_id], str(row.get("response", "")))
+        if token_capped:
+            result = {
+                **result,
+                "correct": False,
+                "parse_status": "token_capped",
+                "parsed_answer": None,
+            }
         scored.append({**row, **result})
     args.out_jsonl.parent.mkdir(parents=True, exist_ok=True)
     args.out_summary.parent.mkdir(parents=True, exist_ok=True)

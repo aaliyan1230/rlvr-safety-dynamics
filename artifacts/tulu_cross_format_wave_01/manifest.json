@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "experiment_id": "tulu_cross_format_wave_01",
+  "role": "Frozen cross-format primary artifact; capped rows remain censored or incorrect.",
+  "remote_kernel": "aaliyanshaikh/rlvr-tulu-cross-format-wave-01",
+  "accepted_kernel_version": 1,
+  "completion": {
+    "rows": 84,
+    "expected_rows": 84,
+    "unique_cells": 84,
+    "capability_rows": 60,
+    "freeform_rows": 24,
+    "token_capped": 1,
+    "token_capped_rate": 0.011904761904761904,
+    "quality_gate_passed": false,
+    "quality_exception": "token-cap rate exceeded the one-percent wave gate; rows retained under frozen censoring rules",
+    "wall_clock_minutes": 17.8,
+    "peak_gpu_memory_bytes_per_model": 7119831040,
+    "attention_mask_mode": "explicit_all_ones",
+    "resolved_revisions_match_requested": true,
+    "scientific_interpretation_allowed": false
+  },
+  "files": {
+    "attempts.json": "28a29cc82d1eb9d55d5082d845b1be1e98ab10f732cd618ae8831cf4a6df3536",
+    "config.json": "f00f298dad1f6906115f6baa5ff192f0113d38a7c96d46d86995a1c9f200bac1",
+    "cross_format_generations.jsonl": "49216fdf2f82e1112217f043ccaca0402ca8873eebcb74d5256174907ef43f17",
+    "kaggle_cross_format.py": "870c758471869ee929bb5ed36e448345bdc0bf3d563a19aec6b3de4c034eb159",
+    "kernel-metadata.json": "bfc6fc8149f4c4fed53b850ca20f3e86deb0fd34e198b27906791632f2010145",
+    "model_0_metadata.json": "3ad67e7175f857880997b734abb44c615940834a84511d99739fc9f67fd934a0",
+    "model_1_metadata.json": "0e603b27a0a759eb35f1c7fb20b8355c489bdb0990fd89c8a8c0e4a143a1abb7",
+    "run_metadata.json": "dc831a7460590abda11c1beaad5f1a386d7b7e75bd0ac06edd61cc76906d49e9",
+    "run_summary.json": "67a55d19827925c07780d09f7ab385e6d0e9d5ce22ec21721e79ef58074a1bf3",
+    "run_wave.py": "f7e95133ebddca85829ac9b9f36c05c2429a6a16337b6d9234cea1ac9e82a4eb"
+  }
+}

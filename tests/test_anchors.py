@@ -87,6 +87,8 @@ class AnchorTests(unittest.TestCase):
             }
             for row in pack_rows
         ]
+        generations[0]["generated_tokens"] = 256
+        generations[0]["row_max_new_tokens"] = 256
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
             generations_path = tmp_path / "generations.jsonl"
@@ -108,8 +110,11 @@ class AnchorTests(unittest.TestCase):
                 ]
             )
             summary = json.loads(out_summary.read_text())
-            self.assertEqual(summary["groups"][0]["accuracy"], 1.0)
+            self.assertEqual(summary["groups"][0]["accuracy"], 29 / 30)
             self.assertEqual(summary["groups"][0]["rows"], 30)
+            scored = [json.loads(line) for line in out_jsonl.read_text().splitlines()]
+            self.assertEqual(scored[0]["parse_status"], "token_capped")
+            self.assertFalse(scored[0]["correct"])
 
 
 if __name__ == "__main__":

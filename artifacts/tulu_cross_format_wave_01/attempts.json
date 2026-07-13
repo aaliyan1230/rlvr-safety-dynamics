@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "remote_kernel": "aaliyanshaikh/rlvr-tulu-cross-format-wave-01",
+  "attempts": [
+    {
+      "kernel_version": 1,
+      "completed_utc": "2026-07-13T11:16:51.045097+00:00",
+      "disposition": "retained_complete_primary_with_quality_exception",
+      "rows": 84,
+      "token_capped": 1,
+      "quality_gate_passed": false,
+      "corrective_rerun": false
+    }
+  ]
+}

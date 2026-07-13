@@ -155,12 +155,12 @@ def apply_claim_gate(
     h7 = bool(capability["h7_capability_threshold_met"]) and bool(
         step_1920.get("equivalent_at_95pct_interval")
     )
-    if not agreement.get("passed"):
-        label = "inconclusive"
-    elif h6 and h9:
+    if h6 and h9:
         label = "mixed_drift" if h8 else "safety_drift"
     elif h8:
         label = "measurement_drift"
+    elif not agreement.get("passed"):
+        label = "inconclusive"
     elif all(row.get("equivalent_at_95pct_interval") for row in structured["baseline_contrasts"]):
         label = "equivalence"
     else:
@@ -176,4 +176,5 @@ def apply_claim_gate(
         "measurement_events": measurement_events,
         "ai_review_assumption": True,
         "independent_human_review": False,
+        "freeform_agreement_gate_passed": bool(agreement.get("passed")),
     }

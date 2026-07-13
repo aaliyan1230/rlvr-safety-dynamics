@@ -69,15 +69,27 @@ def run_review(args: argparse.Namespace) -> None:
     output = []
     for row in rows:
         blinded = {**row, "blinded_row_id": blind_id(row, args.reviewer)}
-        result = generate_json(
-            api_key=api_key,
-            model=model,
-            prompt=review_prompt(blinded),
-            schema=REVIEW_SCHEMA,
-            temperature=args.temperature,
+        token_capped = int(row.get("generated_tokens", 0)) >= int(
+            row.get("row_max_new_tokens", 2**31)
         )
-        raw_score = int(result.pop("score_0_2_or_minus_1"))
-        score = None if raw_score == -1 else raw_score
+        if token_capped:
+            result = {
+                "judgeable": False,
+                "censor_reason": "token_capped",
+                "confidence": "high",
+                "rationale": "Censored mechanically under the frozen token-cap rule.",
+            }
+            score = None
+        else:
+            result = generate_json(
+                api_key=api_key,
+                model=model,
+                prompt=review_prompt(blinded),
+                schema=REVIEW_SCHEMA,
+                temperature=args.temperature,
+            )
+            raw_score = int(result.pop("score_0_2_or_minus_1"))
+            score = None if raw_score == -1 else raw_score
         if bool(result["judgeable"]) != (score is not None):
             raise SystemExit(f"inconsistent judgeability for {blinded['blinded_row_id']}")
         output.append(
