@@ -1,12 +1,18 @@
 from __future__ import annotations
 
+import csv
 import unittest
+from pathlib import Path
 
 from test_factorial import choice_row
 
 from rlvr_safety.choice import score_generation
 from rlvr_safety.factorial import build_factorial_rows
-from rlvr_safety.factorial_analysis import FactorialAnalysisError, analyze_factorial
+from rlvr_safety.factorial_analysis import (
+    FactorialAnalysisError,
+    _variance_components,
+    analyze_factorial,
+)
 
 
 class FactorialAnalysisTests(unittest.TestCase):
@@ -75,6 +81,57 @@ class FactorialAnalysisTests(unittest.TestCase):
             allow_incomplete=True,
         )
         self.assertEqual(metrics["design"]["missing_cells"], 1)
+
+    def test_variance_components_are_stable_across_python_versions(self) -> None:
+        scores_path = (
+            Path(__file__).resolve().parents[1]
+            / "artifacts"
+            / "factorial_nf4_v1"
+            / "choice_scores.csv"
+        )
+        with scores_path.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+
+        self.assertEqual(
+            _variance_components(rows),
+            [
+                {
+                    "component": "model",
+                    "sum_squares": 0.06018518518518527,
+                    "share_total": 0.0001227818108192028,
+                },
+                {
+                    "component": "source_item",
+                    "sum_squares": 110.47164351851852,
+                    "share_total": 0.2253695555416508,
+                },
+                {
+                    "component": "wording",
+                    "sum_squares": 3.9045138888888897,
+                    "share_total": 0.007965469976895772,
+                },
+                {
+                    "component": "option_order",
+                    "sum_squares": 20.454282407407405,
+                    "share_total": 0.041728106763506884,
+                },
+                {
+                    "component": "model × wording",
+                    "sum_squares": 0.27777777777777773,
+                    "share_total": 0.000566685280704012,
+                },
+                {
+                    "component": "model × option_order",
+                    "sum_squares": 0.8425925925925928,
+                    "share_total": 0.001718945351468837,
+                },
+                {
+                    "component": "other interactions / residual",
+                    "sum_squares": 354.1689814814814,
+                    "share_total": 0.7225284552749545,
+                },
+            ],
+        )
 
 
 if __name__ == "__main__":

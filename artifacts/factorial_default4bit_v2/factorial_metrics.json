@@ -974,37 +974,37 @@
     {
       "component": "model",
       "sum_squares": 0.3206018518518517,
-      "share_total": 0.0006060055809394807
+      "share_total": 0.0006060055809394834
     },
     {
       "component": "source_item",
       "sum_squares": 113.77719907407408,
-      "share_total": 0.21506306724145946
+      "share_total": 0.21506306724146043
     },
     {
       "component": "wording",
       "sum_squares": 2.946180555555556,
-      "share_total": 0.005568906881882487
+      "share_total": 0.0055689068818825125
     },
     {
       "component": "option_order",
-      "sum_squares": 32.27372685185186,
-      "share_total": 0.061004197190277845
+      "sum_squares": 32.273726851851855,
+      "share_total": 0.0610041971902781
     },
     {
       "component": "model \u00d7 wording",
-      "sum_squares": 0.9062499999999999,
-      "share_total": 0.001713004945399327
+      "sum_squares": 0.9062499999999998,
+      "share_total": 0.0017130049453993343
     },
     {
       "component": "model \u00d7 option_order",
-      "sum_squares": 2.061342592592593,
-      "share_total": 0.0038963752334051113
+      "sum_squares": 2.0613425925925926,
+      "share_total": 0.0038963752334051282
     },
     {
       "component": "other interactions / residual",
-      "sum_squares": 376.7557870370394,
-      "share_total": 0.7121484429266364
+      "sum_squares": 376.755787037037,
+      "share_total": 0.712148442926635
     }
   ]
 }

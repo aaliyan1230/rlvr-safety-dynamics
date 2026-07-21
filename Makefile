@@ -1,7 +1,7 @@
 PYTHON ?= python3
 export PYTHONPATH := src:$(PYTHONPATH)
 
-.PHONY: validate validate-choice audit-ai anchors trajectory-wave-configs refinement-wave-configs cross-format-wave-configs subset choice-eval factorial-pack kaggle-bundle compile test verify-artifacts check smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis paper-tables baseline-analysis analyze-sensitivity analyze-factorial analyze-factorial-nf4 analyze-factorial-default4bit compare-factorial-protocols compare-historical-default4bit compare-historical-exact-stage compare-historical-exact-paraphrase analyze-runtime-crossover analyze-tulu-pilot
+.PHONY: validate validate-choice audit-ai anchors trajectory-wave-configs refinement-wave-configs cross-format-wave-configs subset choice-eval factorial-pack kaggle-bundle compile test verify-artifacts check smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis paper-tables readme-figures baseline-analysis analyze-sensitivity analyze-factorial analyze-factorial-nf4 analyze-factorial-default4bit compare-factorial-protocols compare-historical-default4bit compare-historical-exact-stage compare-historical-exact-paraphrase analyze-runtime-crossover analyze-tulu-pilot
 
 validate:
 	$(PYTHON) scripts/validate_prompts.py --prompts data/prompts_seed.jsonl
@@ -86,7 +86,7 @@ verify-artifacts:
 	$(PYTHON) -m rlvr_safety.cli.verify_artifacts artifacts/tulu_cross_format_wave_06/manifest.json
 	$(PYTHON) -m rlvr_safety.cli.verify_artifacts artifacts/tulu_cross_format_v1/manifest.json
 
-check: validate validate-choice audit-ai anchors kaggle-bundle compile test smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis paper-tables baseline-analysis analyze-factorial analyze-runtime-crossover analyze-tulu-pilot verify-artifacts
+check: validate validate-choice audit-ai anchors kaggle-bundle compile test smoke-score smoke-choice-score smoke-gemini-judge smoke-gemini-paraphrase smoke-judge-analysis paper-tables readme-figures baseline-analysis analyze-factorial analyze-runtime-crossover analyze-tulu-pilot verify-artifacts
 
 smoke-score:
 	$(PYTHON) scripts/score_manual_template.py --generations tests/fixtures/generations_sample.jsonl --out results/manual_scores_template.sample.csv
@@ -107,6 +107,9 @@ smoke-judge-analysis: smoke-gemini-judge
 paper-tables:
 	$(PYTHON) scripts/build_paper_tables.py --out results/paper_tables.md
 	$(PYTHON) scripts/build_paper_tables.py --out reports/paper_tables.md
+
+readme-figures:
+	$(PYTHON) scripts/build_readme_figures.py
 
 baseline-analysis:
 	$(PYTHON) -m rlvr_safety.cli.analyze_baseline \

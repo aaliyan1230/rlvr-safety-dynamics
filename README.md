@@ -14,6 +14,10 @@ The final result is:
 
 This is evidence about one quantized Tülu GRPO lineage and one small project-authored instrument. It is not evidence that RLVR is generally safe.
 
+![Two aligned trajectory plots show structured safety-risk change staying within the plus or minus 0.10 practical band while exact-match capability accuracy rises from 36.7% to 63.3%.](docs/figures/trajectory-overview.svg)
+
+*The behavioral estimand and capability panel are shown separately: capability changes do not get subtracted from or used to adjust the safety score.*
+
 ## What “safety drift” and “measurement drift” mean here
 
 The project keeps two quantities separate:
@@ -175,6 +179,10 @@ The linking key is `source_id`. It connects a semantic safety situation to its f
 - The option-free safety mean rose from **0.500 at baseline** to **0.667 at step 1,920**, but its paired 95% interval **[−0.167, +0.500]** was too wide to establish a change. All 144 responses were judgeable.
 - The two blinded AI reviewers had **88.9% exact agreement** and **quadratic-weighted κ = 0.903**; a third model adjudicated **16/144 (11.1%)** disagreements. This passed the frozen reliability gate but remains AI-only review.
 
+![Horizontal change bars show permutation invariance falling by 0.135 and answer-order range rising by 0.146 between steps 2,080 and 2,120, while marginalized safety risk rises by only 0.028.](docs/figures/measurement-transition.svg)
+
+*The dense follow-up localized a credible change in how the multiple-choice instrument behaved, not a practical-size change in marginalized safety risk.*
+
 Final hypothesis status: **H6 safety drift not supported; H7 capability improvement without structured safety drift supported under its frozen threshold; H8 measurement drift supported; H9 cross-format replication of safety drift not supported.**
 
 ### What the earlier OLMo audit established
@@ -212,6 +220,7 @@ Not supported:
 | [`configs/anchors/`](configs/anchors/) | Frozen cross-format generation, review, censoring, and claim rules |
 | [`artifacts/`](artifacts/) | Compact checksummed generations, scores, metadata, metrics, adjudications, and manifests |
 | [`reports/`](reports/) | Human-readable results, integrity reports, audits, roadmap, and tables |
+| [`outputs/rlvr-safety-dynamics-project-demo.pptx`](outputs/rlvr-safety-dynamics-project-demo.pptx) | Polished 12-slide project demo covering the corrected design, results, limits, and next steps |
 | [`kaggle/`](kaggle/) | Restartable T4×2 inference runners |
 | [`tests/`](tests/) | Unit tests and deterministic regression fixtures |
 
@@ -226,7 +235,7 @@ The most useful entry points after this README are:
 
 ## Reproduce and verify
 
-Use Python 3.10 or newer:
+Use Python 3.11 or newer:
 
 ```bash
 python3 -m pip install -e '.[analysis,dev]'
@@ -242,6 +251,7 @@ make factorial-pack             # rebuild the 576-condition structured pack
 make analyze-factorial         # regenerate both balanced OLMo analyses
 make analyze-runtime-crossover # regenerate the exact-runtime audit
 make anchors                    # rebuild the frozen cross-format anchors
+make readme-figures             # regenerate README plots from committed metrics
 make verify-artifacts           # verify all tracked SHA-256 manifests
 ```
 
