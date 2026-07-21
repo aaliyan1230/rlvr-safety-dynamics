@@ -220,6 +220,7 @@ Not supported:
 | [`configs/anchors/`](configs/anchors/) | Frozen cross-format generation, review, censoring, and claim rules |
 | [`artifacts/`](artifacts/) | Compact checksummed generations, scores, metadata, metrics, adjudications, and manifests |
 | [`reports/`](reports/) | Human-readable results, integrity reports, audits, roadmap, and tables |
+| [`outputs/rlvr-safety-dynamics-project-demo.pptx`](outputs/rlvr-safety-dynamics-project-demo.pptx) | Polished 12-slide project demo covering the corrected design, results, limits, and next steps |
 | [`kaggle/`](kaggle/) | Restartable T4×2 inference runners |
 | [`tests/`](tests/) | Unit tests and deterministic regression fixtures |
 

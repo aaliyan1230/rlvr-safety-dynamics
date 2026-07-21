@@ -12,6 +12,7 @@ docs/*
 !docs/figures/
 docs/figures/*
 !docs/figures/*.svg
+outputs/*.inspect.ndjson
 
 # Generated Kaggle dataset bundle; rebuild with `make kaggle-bundle`.
 kaggle/datasets/factorial-v1/bundle_manifest.json
