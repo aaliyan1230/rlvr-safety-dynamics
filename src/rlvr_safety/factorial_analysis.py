@@ -272,11 +272,14 @@ def _estimate(
 def _variance_components(rows: list[Mapping[str, Any]]) -> list[dict[str, float | str]]:
     scores = [_score(row) for row in rows]
     grand = mean(scores)
-    total = sum((score - grand) ** 2 for score in scores)
+    # Python 3.12 changed ``sum``'s float accumulation algorithm.  These
+    # descriptive values are written to checksummed artifacts, so use fsum to
+    # keep their byte representation stable across supported Python versions.
+    total = math.fsum((score - grand) ** 2 for score in scores)
 
     def main_effect(field: str) -> float:
         grouped = _group(rows, field)
-        return sum(
+        return math.fsum(
             len(group_rows) * (mean(_score(row) for row in group_rows) - grand) ** 2
             for group_rows in grouped.values()
         )
@@ -290,7 +293,7 @@ def _variance_components(rows: list[Mapping[str, Any]]) -> list[dict[str, float 
             key[0]: mean(_score(row) for row in group_rows)
             for key, group_rows in _group(rows, second).items()
         }
-        return sum(
+        return math.fsum(
             len(group_rows)
             * (
                 mean(_score(row) for row in group_rows)
@@ -310,7 +313,7 @@ def _variance_components(rows: list[Mapping[str, Any]]) -> list[dict[str, float 
         ("model × wording", interaction("model", "wording_id")),
         ("model × option_order", interaction("model", "option_order")),
     ]
-    explained = sum(value for _, value in components)
+    explained = math.fsum(value for _, value in components)
     components.append(("other interactions / residual", max(0.0, total - explained)))
     return [
         {

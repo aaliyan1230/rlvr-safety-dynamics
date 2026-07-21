@@ -8,7 +8,10 @@ results/**
 !results/paper_tables.md
 !results/*.sample.*
 local
-docs/
+docs/*
+!docs/figures/
+docs/figures/*
+!docs/figures/*.svg
 
 # Generated Kaggle dataset bundle; rebuild with `make kaggle-bundle`.
 kaggle/datasets/factorial-v1/bundle_manifest.json

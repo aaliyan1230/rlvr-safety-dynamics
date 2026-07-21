@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="690" viewBox="0 0 1200 690" role="img" aria-labelledby="trajectory-title trajectory-desc">
+<title id="trajectory-title">Safety-risk and capability trajectories across Tülu GRPO training</title>
+<desc id="trajectory-desc">The structured safety-risk change remains inside the plus or minus 0.10 practical band at all twelve checkpoints, while capability accuracy rises from 36.7 percent at baseline to 63.3 percent at step 2440.</desc>
+<rect width="1200" height="690" rx="24" fill="#f7f9fc"/>
+<text x="60.0" y="58.0" fill="#172033" font-size="28" font-weight="500" text-anchor="start" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">What changed across the GRPO trajectory?</text>
+<text x="60.0" y="91.0" fill="#5f6b7a" font-size="16" font-weight="400" text-anchor="start" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">Behavior stayed inside the predeclared practical band while the capability panel improved.</text>
+<text x="110.0" y="138.0" fill="#172033" font-size="18" font-weight="500" text-anchor="start" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">Structured safety risk · change from DPO baseline</text>
+<text x="1140.0" y="138.0" fill="#5f6b7a" font-size="14" font-weight="400" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">12 checkpoints · 6,912 responses</text>
+<rect x="110" y="165" width="1030" height="190" rx="12" fill="#ffffff"/>
+<rect x="110" y="165.0" width="1030" height="190.0" rx="12" fill="#fef3c7" opacity="0.72"/>
+<line x1="110" y1="355.0" x2="1140" y2="355.0" stroke="#d8dee8"/>
+<text x="94.0" y="360.0" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">-0.10</text>
+<line x1="110" y1="307.5" x2="1140" y2="307.5" stroke="#d8dee8"/>
+<text x="94.0" y="312.5" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">-0.05</text>
+<line x1="110" y1="260.0" x2="1140" y2="260.0" stroke="#d8dee8"/>
+<text x="94.0" y="265.0" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">+0.00</text>
+<line x1="110" y1="212.5" x2="1140" y2="212.5" stroke="#d8dee8"/>
+<text x="94.0" y="217.5" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">+0.05</text>
+<line x1="110" y1="165.0" x2="1140" y2="165.0" stroke="#d8dee8"/>
+<text x="94.0" y="170.0" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">+0.10</text>
+<line x1="110" y1="260.0" x2="1140" y2="260.0" stroke="#172033" stroke-width="1.5"/>
+<text x="1132.0" y="185.0" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">+0.10 practical threshold</text>
+<text x="1132.0" y="345.0" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">−0.10 practical threshold</text>
+<path d="M 110.0 260.0 L 126.9 260.0 L 143.8 261.6 L 177.5 256.7 L 245.1 261.6 L 380.2 278.1 L 515.2 251.8 L 650.3 248.5 L 785.4 233.6 L 920.5 241.6 L 1055.6 205.6 L 1140.0 212.2" fill="none" stroke="#d97706" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="110.0" cy="260.0" r="5" fill="#ffffff" stroke="#d97706" stroke-width="3"/>
+<circle cx="126.9" cy="260.0" r="5" fill="#ffffff" stroke="#d97706" stroke-width="3"/>
+<circle cx="143.8" cy="261.6" r="5" fill="#ffffff" stroke="#d97706" stroke-width="3"/>
+<circle cx="177.5" cy="256.7" r="5" fill="#ffffff" stroke="#d97706" stroke-width="3"/>
+<circle cx="245.1" cy="261.6" r="5" fill="#ffffff" stroke="#d97706" stroke-width="3"/>
+<circle cx="380.2" cy="278.1" r="5" fill="#ffffff" stroke="#d97706" stroke-width="3"/>
+<circle cx="515.2" cy="251.8" r="5" fill="#ffffff" stroke="#d97706" stroke-width="3"/>
+<circle cx="650.3" cy="248.5" r="5" fill="#ffffff" stroke="#d97706" stroke-width="3"/>
+<circle cx="785.4" cy="233.6" r="5" fill="#ffffff" stroke="#d97706" stroke-width="3"/>
+<circle cx="920.5" cy="241.6" r="5" fill="#ffffff" stroke="#d97706" stroke-width="3"/>
+<circle cx="1055.6" cy="205.6" r="5" fill="#ffffff" stroke="#d97706" stroke-width="3"/>
+<circle cx="1140.0" cy="212.2" r="5" fill="#ffffff" stroke="#d97706" stroke-width="3"/>
+<text x="1043.6" y="230.6" fill="#d97706" font-size="14" font-weight="500" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">+0.057 max</text>
+<text x="110.0" y="416.0" fill="#172033" font-size="18" font-weight="500" text-anchor="start" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">Capability panel · exact-match accuracy</text>
+<text x="1140.0" y="416.0" fill="#5f6b7a" font-size="14" font-weight="400" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">30 authored items per checkpoint</text>
+<rect x="110" y="445" width="1030" height="155" rx="12" fill="#ffffff"/>
+<line x1="110" y1="600.0" x2="1140" y2="600.0" stroke="#d8dee8"/>
+<text x="94.0" y="605.0" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">0.2</text>
+<line x1="110" y1="548.3" x2="1140" y2="548.3" stroke="#d8dee8"/>
+<text x="94.0" y="553.3" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">0.4</text>
+<line x1="110" y1="496.7" x2="1140" y2="496.7" stroke="#d8dee8"/>
+<text x="94.0" y="501.7" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">0.6</text>
+<line x1="110" y1="445.0" x2="1140" y2="445.0" stroke="#d8dee8"/>
+<text x="94.0" y="450.0" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">0.8</text>
+<path d="M 110.0 556.9 L 126.9 539.7 L 143.8 496.7 L 177.5 496.7 L 245.1 479.4 L 380.2 522.5 L 515.2 556.9 L 650.3 513.9 L 785.4 505.3 L 920.5 522.5 L 1055.6 496.7 L 1140.0 488.1" fill="none" stroke="#2563eb" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="110.0" cy="556.9" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+<circle cx="126.9" cy="539.7" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+<circle cx="143.8" cy="496.7" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+<circle cx="177.5" cy="496.7" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+<circle cx="245.1" cy="479.4" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+<circle cx="380.2" cy="522.5" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+<circle cx="515.2" cy="556.9" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+<circle cx="650.3" cy="513.9" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+<circle cx="785.4" cy="505.3" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+<circle cx="920.5" cy="522.5" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+<circle cx="1055.6" cy="496.7" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+<circle cx="1140.0" cy="488.1" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+<text x="118.0" y="540.9" fill="#2563eb" font-size="14" font-weight="500" text-anchor="start" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">36.7%</text>
+<text x="1140.0" y="472.1" fill="#2563eb" font-size="14" font-weight="500" text-anchor="end" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">63.3%</text>
+<line x1="110.0" y1="600" x2="110.0" y2="608" stroke="#5f6b7a"/>
+<text x="110.0" y="630.0" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">0</text>
+<line x1="245.1" y1="600" x2="245.1" y2="608" stroke="#5f6b7a"/>
+<text x="245.1" y="630.0" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">320</text>
+<line x1="515.2" y1="600" x2="515.2" y2="608" stroke="#5f6b7a"/>
+<text x="515.2" y="630.0" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">960</text>
+<line x1="785.4" y1="600" x2="785.4" y2="608" stroke="#5f6b7a"/>
+<text x="785.4" y="630.0" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">1,600</text>
+<line x1="920.5" y1="600" x2="920.5" y2="608" stroke="#5f6b7a"/>
+<text x="920.5" y="630.0" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">1,920</text>
+<line x1="1140.0" y1="600" x2="1140.0" y2="608" stroke="#5f6b7a"/>
+<text x="1140.0" y="630.0" fill="#5f6b7a" font-size="13" font-weight="400" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">2,440</text>
+<text x="625.0" y="660.0" fill="#5f6b7a" font-size="14" font-weight="400" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">GRPO training step</text>
+</svg>
