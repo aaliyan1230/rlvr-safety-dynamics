@@ -1,0 +1,44 @@
+# Setup defaults. The bootstrapper asks for these values for each project.
+# Region and filesystem are fixed together: Lambda filesystems are created in
+# one region and can never move, and can only be attached to an instance at
+# launch time. So once `filesystem` below is set, `region` MUST match the
+# region that filesystem actually lives in - check with:
+#   python lambda/lambda_cli.py filesystems
+
+# The API key selects the Lambda workspace. Choose a filesystem visible to
+# that key; the bootstrapper validates it with a read-only API call.
+filesystem: "ic-fs-2"
+region: "us-east-1"
+
+# SSH key registered with Lambda (see README) used to access every pod.
+# Set this to a registered key name in the selected Lambda workspace.
+ssh_key_name: "lambda-public-key"
+ssh_public_key_file: "~/.ssh/lambda_id_ed25519.pub"
+ssh_private_key_file: "~/.ssh/lambda_id_ed25519"
+
+# GPU tiers to try, in priority order, when no --instance-type is given.
+# Matched as a case-insensitive substring against Lambda instance_type_name.
+# Confirmed live against the account 2026-08-15 via `types --filter a100`:
+# Lambda does NOT sell a single-GPU 80GB A100 - the 80GB SXM4 variant only
+# exists as an 8x-GPU node bundle (gpu_8x_a100_80gb_sxm4, $22.32/hr for all
+# 8 GPUs, no capacity anywhere at check time anyway). Listed first in case
+# that ever changes / has capacity later, but gpu_1x_a100_sxm4 (40GB) is the
+# realistic single-GPU default and had live capacity in us-east-1,
+# us-west-2, and asia-south-1 at check time. Re-run
+# `python lambda/lambda_cli.py types --filter a100` if these stop matching.
+# Matched as a case-insensitive SUBSTRING, so "a100_80gb_sxm4" also matches
+# gpu_8x_a100_80gb_sxm4 - an 8-GPU node at $22.32/hr. That is not theoretical:
+# on 2026-08-15 it had capacity, won the match, and launched. Single-GPU names
+# only, most specific first.
+preferred_instance_types:
+  - "gpu_1x_a100_sxm4"
+  - "gpu_1x_a100"
+
+# Optional, OFF by default: you chose explicit-stop-only (no watchdog, no
+# hard cap) as the idle-safety policy, so bin/run.sh's primary and only
+# built-in mechanism is stopping the pod itself when the run finishes or
+# fails (see the trap in bin/run.sh). If you ever want an extra backstop for
+# unattended/overnight runs, set this to a number of hours and bin/run.sh
+# will background a timer that force-stops the pod if it's still up past
+# that point. Leave empty ("") to keep the no-cap behavior you chose.
+max_runtime_hours: ""

@@ -48,3 +48,11 @@ kaggle/datasets/paraphrase-v3/
 
 # Redundant source-blind seed-3 label check; source-aware review is tracked.
 data/gemini_choice_paraphrase_validations_v3.jsonl
+# BEGIN repo bootstrapper managed entries
+# Agent instructions and project-local working notes are intentionally private.
+/AGENTS.md
+/local/
+# Inherited skills are supplied by the parent bootstrapper.
+/.agents/skills
+/.agent/skills
+# END repo bootstrapper managed entries
