@@ -7,12 +7,14 @@
 
 # The API key selects the Lambda workspace. Choose a filesystem visible to
 # that key; the bootstrapper validates it with a read-only API call.
-filesystem: "ic-fs-2"
+# RLVR Safety Dynamics has its own workspace but no filesystem yet. Leave this
+# unset until its billing and workspace resources are ready.
+filesystem: ""
 region: "us-east-1"
 
 # SSH key registered with Lambda (see README) used to access every pod.
 # Set this to a registered key name in the selected Lambda workspace.
-ssh_key_name: "lambda-public-key"
+ssh_key_name: ""
 ssh_public_key_file: "~/.ssh/lambda_id_ed25519.pub"
 ssh_private_key_file: "~/.ssh/lambda_id_ed25519"
 
@@ -34,11 +36,7 @@ preferred_instance_types:
   - "gpu_1x_a100_sxm4"
   - "gpu_1x_a100"
 
-# Optional, OFF by default: you chose explicit-stop-only (no watchdog, no
-# hard cap) as the idle-safety policy, so bin/run.sh's primary and only
-# built-in mechanism is stopping the pod itself when the run finishes or
-# fails (see the trap in bin/run.sh). If you ever want an extra backstop for
-# unattended/overnight runs, set this to a number of hours and bin/run.sh
-# will background a timer that force-stops the pod if it's still up past
-# that point. Leave empty ("") to keep the no-cap behavior you chose.
+# Optional runtime backstop for an individual pod run. A value in hours makes
+# bin/run.sh stop a pod after that duration. This is not a dollar spending cap
+# and does not cover other pods or persistent filesystem charges.
 max_runtime_hours: ""
