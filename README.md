@@ -235,6 +235,11 @@ The most useful entry points after this README are:
 
 ## Reproduce and verify
 
+For a fresh checkout, private team docs, and contribution instructions, start
+with [CONTRIBUTING.md](CONTRIBUTING.md). The completed study is reproducible
+from this repository; the planned SPAR permission-following benchmark is
+described in the team's private docs repository and is not implemented yet.
+
 Use Python 3.11 or newer:
 
 ```bash

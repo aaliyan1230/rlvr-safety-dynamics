@@ -3,6 +3,19 @@ __pycache__/
 .ipynb_checkpoints/
 .venv/
 .env
+.env.*
+!.env.example
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+# Local application records and disposable previews are not research artifacts.
+/When-RLVR-Changes-the-Model--t-*.csv
+/tmp/
+# Working manuscript lives in the separate private docs repository.
+/submission
 results/**
 !results/.gitkeep
 !results/paper_tables.md
@@ -13,6 +26,15 @@ docs/*
 docs/figures/*
 !docs/figures/*.svg
 outputs/*.inspect.ndjson
+
+# LaTeX build products that can expose local paths in a source bundle.
+submission/*.aux
+submission/*.bbl
+submission/*.blg
+submission/*.fdb_latexmk
+submission/*.fls
+submission/*.log
+submission/*.out
 
 # Generated Kaggle dataset bundle; rebuild with `make kaggle-bundle`.
 kaggle/datasets/factorial-v1/bundle_manifest.json
