@@ -23,6 +23,9 @@
 #                         (skips --yes requirement; nothing new is billed by this call)
 #   --keep-alive          do NOT stop the pod when done (prints a loud reminder + the
 #                         exact stop command). Use for interactive follow-up work only.
+#   --forward-lambda-api-key / --no-forward-lambda-api-key
+#                         override LAMBDA_FORWARD_API_KEY in the local .env;
+#                         credentials are sent through SSH stdin, never saved remotely.
 #
 # Exit behavior: a trap ALWAYS stops any pod this invocation launched, on
 # success, on error, or on Ctrl-C - unless --keep-alive was passed.
@@ -43,6 +46,7 @@ INSTANCE_TYPE_OVERRIDE=""
 POD_ID=""
 KEEP_ALIVE=0
 CONFIRM=0
+FORWARD_KEY_ARGS=()
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -55,6 +59,8 @@ while [ $# -gt 0 ]; do
         --instance-type) INSTANCE_TYPE_OVERRIDE="$2"; shift 2 ;;
         --pod-id) POD_ID="$2"; shift 2 ;;
         --keep-alive) KEEP_ALIVE=1; shift ;;
+        --forward-lambda-api-key|--no-forward-lambda-api-key)
+            FORWARD_KEY_ARGS=("$1"); shift ;;
         --yes) CONFIRM=1; shift ;;
         -h|--help) grep '^#' "$0" | sed 's/^# \?//'; exit 0 ;;
         *) echo "Unknown arg: $1" >&2; exit 1 ;;
@@ -64,6 +70,7 @@ done
 [ -n "$REPO" ] || { echo "ERROR: --repo is required" >&2; exit 1; }
 [ -n "$CMD" ] || { echo "ERROR: --cmd is required" >&2; exit 1; }
 [ -z "$PROJECT_NAME" ] && PROJECT_NAME="$(basename "$REPO" .git)"
+python3 "$HERE/lambda/run_remote.py" ${FORWARD_KEY_ARGS[@]+"${FORWARD_KEY_ARGS[@]}"} --check-env
 
 # ---- config -------------------------------------------------------------
 eval "$(python3 "$HERE/lambda/config_to_env.py")"
@@ -218,12 +225,10 @@ ssh "${SSH_OPTS[@]}" "$SSH_USER@$IP" \
     "WORKSPACE_DIR='$POD_WORKSPACE' PROJECT_NAME='$PROJECT_NAME' REPO_DIR='$REMOTE_REPO_DIR' REQ_FILE='$REQ_FILE' LOCK_FILE='$LOCK_FILE' bash -s" \
     < "$HERE/pod-env/bootstrap_pod.sh"
 
-ssh "${SSH_OPTS[@]}" "$SSH_USER@$IP" bash -lc "
-set -euo pipefail
-source '$POD_WORKSPACE/envs/${PROJECT_NAME}.env'
-cd '$REMOTE_REPO_DIR'
-$CMD
-"
+python3 "$HERE/lambda/run_remote.py" ${FORWARD_KEY_ARGS[@]+"${FORWARD_KEY_ARGS[@]}"} \
+    --env-file "$POD_WORKSPACE/envs/${PROJECT_NAME}.env" \
+    --repo-dir "$REMOTE_REPO_DIR" --cmd "$CMD" \
+    -- "${SSH_OPTS[@]}" "$SSH_USER@$IP"
 
 END_TS=$(date +%s)
 ELAPSED_MIN=$(( (END_TS - START_TS) / 60 ))

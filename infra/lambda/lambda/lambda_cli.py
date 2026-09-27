@@ -12,7 +12,8 @@ password, per Lambda's docs:
     curl -H 'User-Agent: OpenAI File Downloader, XaiImageApiFetch/1.0' \
       -u "$LAMBDA_API_KEY:" https://cloud.lambdalabs.com/api/v1/instances
 
-Reads LAMBDA_API_KEY from the environment, then a local key file (default
+Reads LAMBDA_API_KEY from the environment or owner-only project .env,
+then a local key file (default
 ~/.config/lambda-cloud/api_key; override with LAMBDA_API_KEY_FILE). Get a key
 at https://cloud.lambda.ai/api-keys and never commit it.
 
@@ -44,12 +45,19 @@ import sys
 import time
 from typing import Any
 
+from project_env import load_project_env
+
 API_BASE = "https://cloud.lambdalabs.com/api/v1"
 _STATUS_MARKER = "<<<LAMBDA_CLI_HTTP_STATUS>>>"
 USER_AGENT = "OpenAI File Downloader, XaiImageApiFetch/1.0"
 
 
 def api_key() -> str:
+    try:
+        load_project_env()
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        sys.exit(1)
     key = os.environ.get("LAMBDA_API_KEY")
     if not key:
         key_file = os.environ.get("LAMBDA_API_KEY_FILE", "~/.config/lambda-cloud/api_key")
@@ -78,12 +86,8 @@ def request(method: str, path: str, body: dict | None = None) -> dict:
     Python's own TLS stack regardless of headers; curl's fingerprint passes.
     Confirmed by testing both against the same key/endpoint.
 
-    The API key goes on curl's argv via -u (same form as Lambda's own docs
-    show), not piped in - readable via `ps` by another local user on a
-    shared machine, but this runs on your own laptop and matches the
-    documented usage pattern. The request body goes over stdin instead, so
-    arbitrarily large/quote-heavy JSON payloads never touch argv or need
-    shell escaping.
+    Credentials and the optional JSON body go through curl's stdin config,
+    keeping the key out of process arguments and shell history.
     """
     url = f"{API_BASE}{path}"
     # -4 forces IPv4. macOS resolv.conf commonly lists an IPv6 link-local nameserver
@@ -91,11 +95,20 @@ def request(method: str, path: str, body: dict | None = None) -> dict:
     # "Could not resolve host" while nslookup and other clients fall through to the
     # IPv4 nameserver and succeed. The API has no IPv6 requirement, so this costs
     # nothing and removes a failure mode that looks exactly like the API being down.
-    cmd = ["curl", "-4", "-sS", "-X", method, "-H", f"User-Agent: {USER_AGENT}", "-u", f"{api_key()}:"]
-    input_data = None
+    cmd = [
+        "curl", "-4", "-sS", "-X", method, "-H", f"User-Agent: {USER_AGENT}",
+        "--config", "-",
+    ]
+
+    def config_quote(value: str) -> str:
+        return '"' + value.replace("\\", "\\\\").replace('"', '\\"').replace(
+            "\n", "\\n"
+        ).replace("\r", "\\r").replace("\t", "\\t") + '"'
+
+    input_data = f"user = {config_quote(api_key() + ':')}\n"
     if body is not None:
-        cmd += ["-H", "Content-Type: application/json", "--data-binary", "@-"]
-        input_data = json.dumps(body)
+        cmd += ["-H", "Content-Type: application/json"]
+        input_data += f"data-binary = {config_quote(json.dumps(body))}\n"
     cmd += ["-w", f"\n{_STATUS_MARKER}%{{http_code}}", url]
 
     result = subprocess.run(cmd, input=input_data, capture_output=True, text=True, check=False)

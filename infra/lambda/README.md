@@ -75,6 +75,28 @@ toolkit's policy, matching what was decided when it was built:
 
 ## First-time setup (once per Lambda account, not per project)
 
+### Project credentials
+
+The CLI also reads Lambda settings from the project's ignored `.env` file.
+Copy `.env.example`, fill `LAMBDA_API_KEY` locally, and run `chmod 600 .env`.
+An exported environment variable overrides the file. Only Lambda variables
+are loaded; other project credentials are not forwarded. Never commit real keys.
+
+To make the Lambda key available to a GPU workload, set
+`LAMBDA_FORWARD_API_KEY=1` in the local `.env`, or use
+`bin/run.sh --forward-lambda-api-key` with the usual run arguments. The wrapper
+sends the key over encrypted SSH stdin and exports it in the workload process.
+It does not save it to the pod's filesystem, repo, or persistent activation file.
+Use `--no-forward-lambda-api-key` to disable this for one run. A workload that
+prints its environment can still expose the key; share keys only through a
+private secret channel. Lambda API keys grant full API access and can launch
+paid resources. Verify the effective workspace; selecting a workspace in the
+console does not by itself prove the key targets it.
+
+No GPU launch is authorized by setting a key or enabling forwarding. Configure
+the filesystem and registered SSH key, verify the key's workspace in Lambda,
+and obtain the per-launch approval described above before running a workload.
+
 1. **Get an API key**: https://cloud.lambda.ai/api-keys → save it to a
    local file rather than pasting it anywhere it'd end up in git or a chat
    transcript:
