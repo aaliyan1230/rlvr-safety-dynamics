@@ -103,3 +103,19 @@ removed. Do not use this as a general experiment runner: dataset execution,
 lock-file enforcement, external watchdogs, and scientific runtime equivalence
 remain separate acceptance work. A successful arithmetic probe is infrastructure
 validation, not a study result.
+
+## Optional interactive tmux
+
+For interactive work on an already-approved running Pod, remote tmux can retain
+an experiment session across SSH disconnects. Verify it is installed in the
+image, then use `tmux new-session -s experiment`; detach with Ctrl-b then d and
+reconnect using `tmux attach-session -t experiment`. Run these on the Pod.
+Local tmux can also preserve the controller after a terminal window closes,
+provided the laptop remains awake and online.
+The automated probe already uses a detached `nohup` job and local watchdog;
+it does not require tmux. Neither remote tmux nor laptop tmux guarantees cloud
+termination after laptop sleep/reboot or API/network loss. Processes are not
+persistent storage: write outputs to a network volume and keep external backups.
+An independent always-on controller remains acceptance work for unattended jobs.
+This workflow is the same with macOS/Ubuntu and any local terminal emulator.
+See [tmux upstream documentation](https://github.com/tmux/tmux).
