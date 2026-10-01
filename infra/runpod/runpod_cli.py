@@ -51,7 +51,8 @@ def config_quote(value: str) -> str:
     return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
-def request(path: str, params: dict | None = None) -> dict:
+def request(path: str, params: dict | None = None, *, method: str = "GET",
+            body: dict | None = None) -> dict:
     """Never put credentials in command arguments or echo provider bodies on error."""
     if not path.startswith("/") or "?" in path or "#" in path:
         raise ValueError("Expected a relative API path without query or fragment")
@@ -60,12 +61,15 @@ def request(path: str, params: dict | None = None) -> dict:
     if params:
         url += "?" + urlencode(params)
     command = [
-        "curl", "-4", "--silent", "--show-error", "--connect-timeout", "10",
-        "--max-time", "45", "--request", "GET", "--config", "-",
+        "curl", "--disable", "-4", "--silent", "--show-error", "--connect-timeout", "10",
+        "--max-time", "45", "--request", method, "--config", "-",
         "--header", f"User-Agent: {USER_AGENT}",
         "--write-out", f"\n{MARKER}%{{http_code}}", url,
     ]
     credentials = "header = " + config_quote("Authorization: Bearer " + key) + "\n"
+    if body is not None:
+        credentials += "header = \"Content-Type: application/json\"\n"
+        credentials += "data-binary = " + config_quote(json.dumps(body)) + "\n"
     result = subprocess.run(
         command, input=credentials, capture_output=True, text=True, check=False,
         env={name: value for name, value in os.environ.items() if name != "RUNPOD_API_KEY"},
@@ -77,7 +81,9 @@ def request(path: str, params: dict | None = None) -> dict:
         raise ApiError("RunPod returned an invalid HTTP response")
     status = int(status_text.strip())
     if status >= 400:
-        raise ApiError(f"RunPod GET {path} returned HTTP {status}", status)
+        raise ApiError(f"RunPod {method} {path} returned HTTP {status}", status)
+    if status == 204:
+        return {}
     try:
         data = json.loads(payload)
     except json.JSONDecodeError:

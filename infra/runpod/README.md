@@ -59,3 +59,47 @@ client with an older CLI/tutorial without verifying its current API behavior.
 - [Billing](https://docs.runpod.io/accounts-billing/billing)
 
 Account/payment observations and migration decisions belong only in `local/`.
+
+## Bounded migration pilot
+
+`pilot.py` is a specific acceptance probe, separate from the read-only inspection
+CLI. It creates up to two sequential one-GPU A100 SXM 80 GB Secure Cloud Pods
+and a temporary 50 GB STANDARD network volume. Its catalog ceiling is $1.59/hour;
+it terminates immediately if the accepted Pod quote exceeds $1.69/hour.
+Obtain authorization and reserve the combined compute/storage exposure in the
+private ledger before running it:
+
+```bash
+python3 infra/runpod/pilot.py run --yes --datacenter EUR-IS-1 \
+  --output /absolute/path/to/ignored-private-pilot-record
+```
+
+The probe registers the local SSH **public** key while preserving existing keys,
+clones this public repo, builds a volume-backed environment, loads a fixed
+Qwen2.5-7B-Instruct revision in bf16, and checks a benign deterministic answer.
+Dependencies, prompt, generation settings, GPU, timing, and peak GPU memory are
+recorded. Each progress poll opens a fresh direct SSH connection to a detached
+job. The second Pod verifies that the result's SHA-256 survived the first Pod's
+deletion. An intentional exit-7 command verifies failure detection. Results and
+logs are copied locally before final resource deletion. No cloud API credential
+is forwarded to either Pod. The temporary volume is deleted at the end; this
+probe does not establish a permanent model cache.
+
+The overall deadline is one hour, including boot and download overhead, with a
+30-minute workload timeout. `finally` cleanup runs on ordinary failures. A
+separate detached **local** watchdog also recovers uniquely named resources,
+including an ambiguous create response. It survives the controlling process
+exiting but requires the Mac and network to remain available. It is not a cloud
+deadline or a guaranteed dollar cap. Verify deletion before ending a session:
+
+```bash
+python3 infra/runpod/pilot.py cleanup --state /absolute/path/to/pilot/state.json
+python3 infra/runpod/runpod_cli.py pods
+python3 infra/runpod/runpod_cli.py volumes
+```
+
+Only resources recorded by that pilot or matching its unique run name are
+removed. Do not use this as a general experiment runner: dataset execution,
+lock-file enforcement, external watchdogs, and scientific runtime equivalence
+remain separate acceptance work. A successful arithmetic probe is infrastructure
+validation, not a study result.
