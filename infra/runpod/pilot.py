@@ -271,7 +271,7 @@ def main():
     pilot = subs.add_parser('run')
     pilot.add_argument('--yes', action='store_true')
     pilot.add_argument('--datacenter', default='EUR-IS-1')
-    pilot.add_argument('--private-key', type=Path, default=Path.home() / '.ssh/lambda_id_ed25519')
+    pilot.add_argument('--private-key', type=Path, required=True)
     pilot.add_argument('--output', type=Path, required=True)
     guard = subs.add_parser('watchdog')
     guard.add_argument('--state', type=Path, required=True)

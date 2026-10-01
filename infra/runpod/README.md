@@ -1,9 +1,10 @@
-# RunPod REST v2 migration foundation
+# RunPod GPU workflow
 
-This project's stdlib-only CLI uses the RunPod REST v2 control plane and the
-required User-Agent. It currently provides **read-only** inventory, capacity,
-connection inspection, and billing reconciliation. It does not launch, fund,
-stop, or delete resources. Lambda remains available in `infra/lambda/`.
+RunPod is this project's sole configured GPU provider. The REST v2 inspection
+client and bounded acceptance pilot are maintained here. The October 1 live
+pilot passed provisioning, 7B inference, detached progress polling, replacement
+Pod persistence, failure detection, and verified resource deletion. It does not
+validate arbitrary scientific workloads or unattended recovery after Mac failure.
 
 Store `RUNPOD_API_KEY` in the ignored project `.env` with mode `600`, or export
 it for the CLI process. The CLI reads only that variable and does not execute
@@ -24,28 +25,24 @@ catalog rates, not an accepted launch quote. Availability is advisory; probe
 actual GPU access after launch. Inventory follows pagination and rejects
 malformed responses rather than interpreting them as an empty account.
 
-## Remaining acceptance gates
+## Before a paid workload
 
-Before implementing or using paid provisioning, reconcile usage across both
-providers and reserve the maximum run cost in the private ledger. Keep the $950
-allocation and $600 review checkpoint. Do not count a prepaid-credit purchase
-again as consumed GPU usage; record cash purchases separately from utilization.
+Reconcile current account-wide usage and reserve compute, storage, and tax
+exposure in the private project ledger. Obtain explicit approval after quoting
+the GPU/count, hourly rate, maximum runtime, image, and volume/location. Catalog
+availability and prices are advisory; verify the accepted quote and CUDA access.
+Credit purchases and consumed usage are separate records. Disabled auto-pay and
+an hourly spend limit are not cumulative project-dollar caps.
 
-The next stage must provide a reviewed launch plan with explicit GPU ID/count,
-price ceiling, runtime deadline, image, and volume/location. Obtain launch
-approval after quoting the concrete GPU and hourly rate. Preserve known resource
-IDs before waiting; do not retry an ambiguous create request blindly. Verify
-teardown independently. A local process timeout does not survive laptop failure
-and is not a provider-enforced cap.
-
-Use direct SSH with port 22 mapped, registered public keys, and an image running
-sshd. Keep repos, per-project environments, model caches, progress records, and
-outputs on a network volume. Verify retrieval after Pod deletion and off-provider
-backups. Rebuild environments from pinned dependencies; do not copy a Lambda venv.
-
-Run a benign development pilot covering CUDA access, inference, progress polling,
-failure cleanup, and persistence before changing confirmatory experiments. Keep
-runtime, model, tokenizer, generation, and scoring provenance exact.
+The pilot below is the supported automated acceptance probe. A general experiment
+runner, dependency-lock enforcement, off-provider backups, and a deadline
+controller independent of the laptop remain acceptance work before unattended
+research jobs. Preserve exact model/checkpoint, prompt, runtime, generation, and
+scoring provenance when implementing those jobs. Use direct SSH with port 22,
+registered public keys, and sshd in the selected image. Network volumes are tied
+to a data center and continue billing after Pod deletion; retrieve outputs and
+explicitly verify volume cleanup. A remote workload timeout alone does not stop
+cloud billing. Never retry an ambiguous create request blindly.
 
 ## API transition
 
@@ -71,6 +68,7 @@ private ledger before running it:
 
 ```bash
 python3 infra/runpod/pilot.py run --yes --datacenter EUR-IS-1 \
+  --private-key /absolute/path/to/your/ssh-private-key \
   --output /absolute/path/to/ignored-private-pilot-record
 ```
 
