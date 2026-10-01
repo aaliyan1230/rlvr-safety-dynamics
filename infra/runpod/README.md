@@ -27,8 +27,10 @@ malformed responses rather than interpreting them as an empty account.
 
 ## Before a paid workload
 
-Reconcile current account-wide usage and reserve compute, storage, and tax
-exposure in the private project ledger. Obtain explicit approval after quoting
+Inspect RunPod-native account-wide billing and credit balance. Estimate maximum
+compute, storage, and tax exposure in the launch plan, including concurrent runs.
+Use native billing/invoices as spending authority; no local transaction ledger
+or reservation database is required. Obtain explicit approval after quoting
 the GPU/count, hourly rate, maximum runtime, image, and volume/location. Catalog
 availability and prices are advisory; verify the accepted quote and CUDA access.
 Credit purchases and consumed usage are separate records. Disabled auto-pay and
@@ -63,8 +65,8 @@ Account/payment observations and migration decisions belong only in `local/`.
 CLI. It creates up to two sequential one-GPU A100 SXM 80 GB Secure Cloud Pods
 and a temporary 50 GB STANDARD network volume. Its catalog ceiling is $1.59/hour;
 it terminates immediately if the accepted Pod quote exceeds $1.69/hour.
-Obtain authorization and reserve the combined compute/storage exposure in the
-private ledger before running it:
+Obtain authorization after comparing estimated compute/storage exposure with
+native spending, available credit and the project allocation before running it:
 
 ```bash
 python3 infra/runpod/pilot.py run --yes --datacenter EUR-IS-1 \
