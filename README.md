@@ -10,7 +10,7 @@ We corrected the design, then moved to a controlled model lineage: the Tülu 3.1
 
 The final result is:
 
-> **Capability-panel performance improved and the multiple-choice measurement function changed, but we did not detect the predeclared persistent increase in safety risk. The final label is measurement drift, not safety drift.**
+> **Capability-panel performance improved, while counterbalancing revealed a late shift in how answer order affects the safety score. The averaged structured score stayed inside the prespecified practical band. A targeted human review supported most checked source orderings and flagged an open-ended risk increase for follow-up.**
 
 This is evidence about one quantized Tülu GRPO lineage and one small project-authored instrument. It is not evidence that RLVR is generally safe.
 
@@ -37,7 +37,7 @@ flowchart LR
     H["24 option-free safety anchors<br/>at 6 milestones"] --> G
     D --> G
     E --> G
-    G --> I["Final label:<br/>measurement drift"]
+    G --> I["Structured result:<br/>measurement drift"]
 ```
 
 ## How the project evolved
@@ -77,7 +77,7 @@ Each source is represented by its original wording and three AI-generated paraph
 
 The score follows the option's semantic class, not its displayed letter. The design is exactly balanced: each semantic class appears equally often in A, B, and C. This makes it possible to average out wording and position while separately measuring their influence.
 
-The three paraphrase packs passed source-aware Gemini validation and a disclosed prompt-only AI semantic audit. All 72 source/paraphrase pairs were accepted; nine retain construct-fidelity caveats. The project owner explicitly accepted this AI review in place of the planned human audit. **No independent human semantic validation was performed.**
+The three paraphrase packs passed source-aware Gemini validation and a disclosed prompt-only AI semantic audit. All 72 source/paraphrase pairs were accepted at study freeze; nine retained construct-fidelity caveats. A later single-human review checked those nine and nine additional pairs. The reviewer judged seven pairs different from their sources, all within the previously caveated group. Excluding all nine caveated pairs in a post-hoc analysis leaves the main structured pattern similar; the review does not validate the entire paraphrase set.
 
 ### 3. Corrective OLMo audit
 
@@ -176,8 +176,9 @@ The linking key is `source_id`. It connects a semantic safety situation to its f
 - Between steps **1,920 and 2,240**, permutation invariance fell by **0.146** and answer-order range grew by **0.188**, while marginalized behavior changed by only **+0.038**. The dense follow-up localized the clearest transition to **2,080→2,120**: invariance changed by **−0.135**, order range by **+0.146**, and behavior by only **+0.028**.
 - Of 6,912 primary structured rows, one step-1,920 row was malformed and remained censored under the frozen rule; none was token-capped.
 - Capability exact-match accuracy rose from **11/30 at baseline** to **15/30 at step 1,920** and **19/30 at step 2,440**. Early gains partly reflect better format compliance: invalid-format outputs fell from 14 at baseline to zero from step 1,600 onward.
-- The option-free safety mean rose from **0.500 at baseline** to **0.667 at step 1,920**, but its paired 95% interval **[−0.167, +0.500]** was too wide to establish a change. All 144 responses were judgeable.
-- The two blinded AI reviewers had **88.9% exact agreement** and **quadratic-weighted κ = 0.903**; a third model adjudicated **16/144 (11.1%)** disagreements. This passed the frozen reliability gate but remains AI-only review.
+- The option-free safety mean rose from **0.500 at baseline** to **0.667 at step 1,920**. Its paired 95% interval **[−0.167, +0.500]** leaves the size of that change uncertain. All 144 responses were judgeable under the frozen AI review.
+- The two blinded AI reviewers had **88.9% exact agreement** and **quadratic-weighted κ = 0.903**; a third model adjudicated **16/144 (11.1%)** disagreements. This passed the frozen reliability gate. A later targeted human review independently checked 48 open answers and 18 paraphrase pairs.
+- In that targeted human review, **22/24** source risk orderings were accepted. Removing nine previously flagged paraphrases from saved responses barely changed the structured result. On **21** source pairs the reviewer could score at both steps, the option-free risk contrast was **+0.381 [0.143, 0.667]**.
 
 ![Horizontal change bars show permutation invariance falling by 0.135 and answer-order range rising by 0.146 between steps 2,080 and 2,120, while marginalized safety risk rises by only 0.028.](docs/figures/measurement-transition.svg)
 
@@ -207,7 +208,7 @@ Not supported:
 - that the model's latent intentions were measured;
 - that 6,912 repeated conditions are 6,912 independent safety situations;
 - that the capability panel is an official GSM/MATH score;
-- that the semantic or free-form review was independently human validated; or
+- that the full set of semantic pairs or free-form answers was independently human validated; or
 - that the original historical prompt-pack shifts were pure wording effects.
 
 ## Repository map
@@ -269,7 +270,7 @@ The expensive model inference was performed on Kaggle T4×2 workers. The compact
 - The 0/1/2 score is ordinal and judgment-dependent; opposing category effects can cancel in a pooled mean.
 - Quantization and dependency/runtime changes can alter individual responses and position effects.
 - The option-free panel has only 24 items per milestone, so its confidence intervals are wide.
-- AI systems performed the accepted semantic audit and free-form review; independent human validation remains a priority.
+- AI systems performed the frozen semantic audit and free-form scoring. A later targeted single-human review covered 18/72 paraphrase pairs and 48/144 open answers; a larger independent review remains a priority.
 - This is one 8B GRPO lineage. Replication requires more independently authored safety situations and another open, pinned training trajectory.
 
 The next defensible step is external validation—not a broader model search for a positive result: independently review the semantic pairs, expand the source-item pool, preregister a replication, and test whether the behavioral/measurement decomposition holds in another open RLVR lineage.
