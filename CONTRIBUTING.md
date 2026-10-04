@@ -70,10 +70,9 @@ check` before proposing a change that affects the pipeline or its artifacts.
 
 ## GPU work
 
-The project includes its own Lambda toolkit under `infra/lambda/`. See its
-[guide](infra/lambda/README.md). Account access, filesystem, SSH registration,
-and GPU dependencies are separate from the local reproduction setup. The
-checked-in configuration deliberately has no selected filesystem or registered
-SSH key name. Verify setup and the current hourly price before requesting a
-launch; the repository's private instructions describe the spending approval
-rule. Cloning or running `make check` never starts a GPU instance.
+RunPod is the sole configured GPU provider. See the [GPU guide](infra/runpod/README.md)
+for REST v2 inventory/billing commands, the validated bounded pilot, and remaining
+acceptance work for general experiments. Account access and SSH setup are separate
+from local reproduction. Keep the API key in an ignored owner-only `.env`, never
+on the Pod. Reconcile costs and obtain approval of the concrete GPU/hourly rate
+before each paid launch. Cloning or `make check` never starts a GPU resource.
