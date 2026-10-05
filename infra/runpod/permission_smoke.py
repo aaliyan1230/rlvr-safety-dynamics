@@ -18,7 +18,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import pilot
-from runpod_cli import USER_AGENT, list_pods, public_pod, request
+from runpod_cli import USER_AGENT, ApiError, list_pods, public_pod, request
 
 HERE = Path(__file__).resolve().parent
 PROJECT = HERE.parents[1]
@@ -379,6 +379,9 @@ def run(args) -> None:
         if workload_exit != 0:
             raise RuntimeError(f"workload incomplete or failed (exit {workload_exit})")
         state["workload_completed"] = True
+    except ApiError as exc:
+        state["api_error"] = {"status": exc.status, "problem": exc.problem}
+        raise
     finally:
         try:
             if connection:

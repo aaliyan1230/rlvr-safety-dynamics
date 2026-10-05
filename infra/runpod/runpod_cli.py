@@ -19,9 +19,10 @@ MARKER = "<<<RUNPOD_HTTP_STATUS>>>"
 
 
 class ApiError(RuntimeError):
-    def __init__(self, message: str, status: int | None = None):
+    def __init__(self, message: str, status: int | None = None, problem: dict | None = None):
         super().__init__(message)
         self.status = status
+        self.problem = problem
 
 
 def api_key(path: Path = PROJECT_ENV) -> str:
@@ -81,7 +82,18 @@ def request(path: str, params: dict | None = None, *, method: str = "GET",
         raise ApiError("RunPod returned an invalid HTTP response")
     status = int(status_text.strip())
     if status >= 400:
-        raise ApiError(f"RunPod {method} {path} returned HTTP {status}", status)
+        problem = None
+        try:
+            parsed = json.loads(payload)
+            if isinstance(parsed, dict):
+                problem = {name: parsed[name].replace(key, "[redacted]")
+                           for name in ("title", "detail") if isinstance(parsed.get(name), str)}
+                errors = parsed.get("errors")
+                if isinstance(errors, list) and all(isinstance(item, str) for item in errors):
+                    problem["errors"] = [item.replace(key, "[redacted]") for item in errors]
+        except (ValueError, TypeError):
+            pass
+        raise ApiError(f"RunPod {method} {path} returned HTTP {status}", status, problem)
     if status == 204:
         return {}
     try:

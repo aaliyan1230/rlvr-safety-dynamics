@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
 import subprocess
 import unittest
@@ -52,6 +53,21 @@ class RunPodCliTests(unittest.TestCase):
                 cli.request("/pods")
             self.assertEqual(caught.exception.status, 403)
             self.assertNotIn("secret", str(caught.exception))
+
+    def test_problem_details_are_selective_redacted_and_not_echoed(self):
+        payload = {"title": "Bad Request", "detail": "no capacity; secret", "errors": ["secret"],
+                   "env": {"OTHER_KEY": "private"}, "request": "private"}
+        result = subprocess.CompletedProcess([], 0, json.dumps(payload) + cli.MARKER + "400", "")
+        with patch.object(cli, "api_key", return_value="secret"), patch.object(
+            cli.subprocess, "run", return_value=result
+        ):
+            with self.assertRaises(cli.ApiError) as caught:
+                cli.request("/pods", method="POST", body={"name": "test"})
+        self.assertEqual(caught.exception.problem, {
+            "title": "Bad Request", "detail": "no capacity; [redacted]", "errors": ["[redacted]"]
+        })
+        self.assertNotIn("capacity", str(caught.exception))
+        self.assertNotIn("private", repr(caught.exception.problem))
 
     def test_inventory_pagination_and_malformed_response(self):
         with patch.object(cli, "request", side_effect=[

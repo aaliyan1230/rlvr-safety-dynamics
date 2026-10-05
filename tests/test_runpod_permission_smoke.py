@@ -253,6 +253,28 @@ class RunPodPermissionSmokeTests(unittest.TestCase):
         self.assertTrue(state["name"].startswith("rlvr-permission-smoke-"))
         self.assertEqual(state["volume_id"], "volume")
 
+    def test_provider_rejection_records_problem_and_cleans_up(self):
+        problem = {"title": "Bad Request", "detail": "no available capacity"}
+
+        def request(path, params=None, *, method="GET", body=None):
+            if path == "/pods" and method == "POST":
+                raise smoke.ApiError("RunPod POST /pods returned HTTP 400", 400, problem)
+            return self._launch_request(path, params, method=method, body=body)
+
+        with (
+            patch.object(smoke, "list_pods", return_value=[]),
+            patch.object(smoke, "request", side_effect=request),
+            patch.object(smoke.subprocess, "Popen", return_value=SimpleNamespace(pid=123)),
+            patch.object(smoke.pilot, "cleanup") as cleanup,
+            self.assertRaises(smoke.ApiError),
+        ):
+            smoke.run(self.args)
+        state = json.loads((self.args.output / "state.json").read_text())
+        self.assertEqual(state["api_error"], {"status": 400, "problem": problem})
+        self.assertFalse(state["passed"])
+        self.assertTrue(state["cleanup_verified"])
+        cleanup.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()
