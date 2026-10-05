@@ -104,6 +104,40 @@ lock-file enforcement, external watchdogs, and scientific runtime equivalence
 remain separate acceptance work. A successful arithmetic probe is infrastructure
 validation, not a study result.
 
+## Supervised permission smoke
+
+`permission_smoke.py` prepares a separate development workload for the BF16
+Hugging Face adapter in `permission_generation.py`. It runs 26 responses: ten
+neutral serialization/execution controls and sixteen matched conditions from
+one draft situation. It is an engineering check, not the endpoint pilot or a
+scientific safety result. Preparation needs pinned model metadata including
+weight hashes, native tokenizer configuration, and a private development bank:
+
+```bash
+python3 infra/runpod/permission_smoke.py prepare \
+  --scenarios /absolute/path/to/private/scenarios.jsonl \
+  --metadata /absolute/path/to/private/model_metadata.json \
+  --tokenizer-config /absolute/path/to/private/tokenizer_config.json \
+  --output /absolute/path/to/private/prepared-bundle
+```
+
+After a fresh native billing/balance/inventory check and approval of the exact
+GPU, rate, image, runtime and location, launch the prepared bundle with `run`,
+`--bundle`, `--private-key`, `--output` and `--yes`. Preparation performs no paid
+resource creation. The controller checks the archive against the prepared
+files, registers only the public SSH key, preserves resource IDs, polls a
+detached job, retrieves checksummed outputs locally and deletes its Pod/volume.
+Recovery uses `pilot.py cleanup --state ...`, followed by independent inventory
+inspection. Never retry an ambiguous create blindly.
+
+The one-GPU controller deadline is 60 minutes, including setup; the remote
+workload timeout is 45 minutes. Its detached local watchdog requires the
+supervising laptop and network to remain available. Keep this run supervised.
+Top-level package versions are enforced and the complete installed environment
+is recorded; a fully locked dependency environment and independent deadline
+controller remain requirements for unattended work. Unit tests and fixture
+replay do not establish live GPU acceptance.
+
 ## Optional interactive tmux
 
 For interactive work on an already-approved running Pod, remote tmux can retain

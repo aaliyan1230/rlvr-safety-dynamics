@@ -127,6 +127,7 @@ def _code_hashes() -> dict:
             "permission_prompts.py",
             "permission_environment.py",
             "permission_benchmark.py",
+            "permission_generation.py",
             "io.py",
         )
     }
