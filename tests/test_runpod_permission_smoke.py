@@ -3,6 +3,8 @@ from __future__ import annotations
 import importlib.util
 import io
 import json
+import shutil
+import subprocess
 import sys
 import tarfile
 import tempfile
@@ -134,6 +136,22 @@ class RunPodPermissionSmokeTests(unittest.TestCase):
         ):
             smoke.run(self.args)
         inventory.assert_not_called()
+
+    def test_remote_extraction_preserves_bytes_without_archive_ownership(self):
+        target = self.root / "remote"
+        target.mkdir()
+        shutil.copyfile(self.root / "bundle.tar.gz", target / "bundle.tar.gz")
+        subprocess.run(["bash", "-c", smoke.extract_bundle_command(str(target))], check=True)
+        verify_manifest(target / "bundle_manifest.json")
+
+    def test_expired_overall_deadline_prevents_resource_creation(self):
+        self.args.deadline = smoke.time.time() - 1
+        with (
+            patch.object(smoke, "request") as api,
+            self.assertRaisesRegex(ValueError, "overall deadline"),
+        ):
+            smoke.run(self.args)
+        api.assert_not_called()
 
     def _launch_request(self, path, params=None, *, method="GET", body=None):
         if path == "/network-volumes":

@@ -163,6 +163,19 @@ def ssh(
         },
     )
     if check and result.returncode:
+        diagnostic = args.output / "ssh-failure.json"
+        diagnostic.write_text(
+            json.dumps(
+                {
+                    "command": command,
+                    "exit": result.returncode,
+                    "stderr": result.stderr.decode(errors="replace")[-8000:],
+                },
+                indent=2,
+            )
+            + "\n"
+        )
+        diagnostic.chmod(0o600)
         raise RuntimeError(f"SSH failed with exit {result.returncode}")
     return result
 
@@ -218,6 +231,25 @@ venv/bin/python permission_workload.py --bundle {q}
 """
 
 
+def extract_bundle_command(root: str) -> str:
+    return f"""python3 - <<'EXTRACT'
+import tarfile
+from pathlib import Path
+root = Path({root!r})
+with tarfile.open(root / 'bundle.tar.gz', 'r:gz') as archive:
+    members = archive.getmembers()
+    for member in members:
+        path = Path(member.name)
+        if path.is_absolute() or '..' in path.parts or not member.isfile():
+            raise ValueError('unsafe prepared archive member')
+    for member in members:
+        target = root / member.name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(archive.extractfile(member).read())
+EXTRACT
+"""
+
+
 def run(args) -> None:
     if not args.yes:
         raise ValueError("launch requires the quoted human approval and --yes")
@@ -226,6 +258,11 @@ def run(args) -> None:
     launch = config["launch"]
     if launch["controller_seconds"] != 3600 or launch["gpu_count"] != 1:
         raise ValueError("this controller is limited to one GPU and one hour")
+    deadline = min(
+        time.time() + launch["controller_seconds"], getattr(args, "deadline", None) or float("inf")
+    )
+    if deadline - time.time() < 180:
+        raise ValueError("approved overall deadline leaves insufficient launch/cleanup time")
     archive = args.bundle.parent / (args.bundle.name + ".tar.gz")
     expected = (args.bundle.parent / (args.bundle.name + ".tar.gz.sha256")).read_text().strip()
     if sha256_file(archive) != expected:
@@ -258,7 +295,7 @@ def run(args) -> None:
         "name": "rlvr-permission-smoke-" + uuid.uuid4().hex[:10],
         "pod_ids": [],
         "started_at": time.time(),
-        "deadline": time.time() + launch["controller_seconds"],
+        "deadline": deadline,
         "bundle_sha256": expected,
         "launch": launch,
         "supervised_only": True,
@@ -342,7 +379,7 @@ def run(args) -> None:
         remote_hash = ssh(connection, args, f"sha256sum {remote_root}/bundle.tar.gz").stdout
         if remote_hash.decode().split()[0] != expected:
             raise RuntimeError("uploaded archive checksum mismatch")
-        ssh(connection, args, f"tar -xzf {remote_root}/bundle.tar.gz -C {remote_root}")
+        ssh(connection, args, extract_bundle_command(remote_root))
         ssh(
             connection,
             args,
@@ -444,6 +481,7 @@ def main() -> None:
     launch.add_argument("--private-key", type=Path, required=True)
     launch.add_argument("--output", type=Path, required=True)
     launch.add_argument("--yes", action="store_true")
+    launch.add_argument("--deadline", type=float, help="Earlier approved overall Unix deadline")
     args = parser.parse_args()
     if args.command == "prepare":
         print(
