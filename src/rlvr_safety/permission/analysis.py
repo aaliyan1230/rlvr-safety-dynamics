@@ -287,6 +287,24 @@ def evaluate_gate(gate: dict, rows: list[dict], expected_rows: int, metrics: dic
             observed={"n": len(subset), "classified": classified},
             required={"min_fraction": params["min_fraction"]},
         )
+    elif kind == "valid_fraction":
+        subset = [
+            r
+            for r in rows
+            if r["format"] == params["format"] and _matches(r, params.get("filter", {}))
+        ]
+        valid = sum(
+            r["score"]["result_status"] == "classified"
+            if params["format"] == "mcq"
+            else bool(r["score"].get("valid_format"))
+            for r in subset
+        )
+        fraction = valid / len(subset) if subset else 0.0
+        ok = bool(subset) and fraction >= params["min_fraction"]
+        result.update(
+            observed={"n": len(subset), "valid": valid, "fraction": fraction},
+            required={"min_fraction": params["min_fraction"]},
+        )
     elif kind == "median_coverage":
         value = metrics["readouts"][params["format"]]["median_coverage"]
         ok = value is not None and value >= params["minimum"]

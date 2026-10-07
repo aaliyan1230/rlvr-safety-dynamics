@@ -271,6 +271,30 @@ class GateTests(unittest.TestCase):
         result = evaluate_gate(wrong, rows, expected, analyze(rows, scenarios, requests))
         self.assertEqual(result["status"], "fail")
 
+    def test_valid_fraction_gate_counts_classified_mcq_and_parsed_executable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            rows, scenarios, requests, expected = run_policy("noisy", Path(tmp))
+        metrics = analyze(rows, scenarios, requests)
+        mcq = {
+            "id": "V1",
+            "kind": "valid_fraction",
+            "params": {"format": "mcq", "min_fraction": 0.98},
+        }
+        executable = {
+            "id": "V2",
+            "kind": "valid_fraction",
+            "params": {"format": "executable", "min_fraction": 0.98},
+        }
+        self.assertEqual(evaluate_gate(mcq, rows, expected, metrics)["status"], "fail")
+        self.assertEqual(evaluate_gate(executable, rows, expected, metrics)["status"], "fail")
+        loose = {**mcq, "params": {"format": "mcq", "min_fraction": 0.1}}
+        self.assertEqual(evaluate_gate(loose, rows, expected, metrics)["status"], "pass")
+        with tempfile.TemporaryDirectory() as tmp:
+            good, scen, req, exp = run_policy("compliant", Path(tmp))
+        result = evaluate_gate(executable, good, exp, analyze(good, scen, req))
+        self.assertEqual(result["status"], "pass")
+        self.assertEqual(result["observed"]["fraction"], 1.0)
+
     def test_non_gating_gate_is_reported_not_failed(self):
         metrics = {"readouts": {"mcq": {"median_coverage": 0.5}}}
         gate = {
