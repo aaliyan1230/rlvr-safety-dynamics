@@ -42,3 +42,14 @@ Scorer releases stored in every score record.
   action followed (controls), executed/attempted violation, task success and role choice separately.
 - `answer-logprobs-2026-10-08`: per-candidate log-probabilities become action probabilities
   renormalized over valid candidates, plus coverage (probability mass on valid candidates).
+
+## Provider (no release ID; recorded per run in the provenance block)
+
+- Greedy decoding is enforced, not assumed: inherited generation settings are overridden
+  (`num_beams=1`, `repetition_penalty=1.0`, no sampling, no length penalties) and the run is
+  refused if the merged configuration is still not greedy. Both the inherited and the effective
+  configuration are saved.
+- Provenance also records tokenizer/config file hashes, the launch image name, pod ID and driver.
+- `choice_logprobs` readout: log-probabilities of each candidate answer (letters for multiple
+  choice, exact JSON for executable prompts) plus the top-5 first tokens. Checked against the real
+  Tülu tokenizer: the prompt ends with `<|assistant|>\n` and A/B/C are single tokens 32/33/34.
