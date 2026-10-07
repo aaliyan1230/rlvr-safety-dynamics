@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -175,7 +176,7 @@ class CoreTests(unittest.TestCase):
     def test_failing_command_does_not_write_a_response(self):
         write_plan(self.dir, "demo", "demo-rubric-1", tasks(1))
         backend = CommandBackend([sys.executable, "-c", "raise SystemExit(3)"], "bad", "none")
-        with self.assertRaises(Exception):
+        with self.assertRaises(subprocess.CalledProcessError):
             run_backend(self.dir, backend)
         self.assertEqual(len(pending_tasks(self.dir)), 1)
 
