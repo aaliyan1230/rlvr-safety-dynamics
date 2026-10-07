@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 
-from .permission_schema import parse_actions, validate_response, validate_scenario
+from .schema import parse_actions, validate_response, validate_scenario
 
 
 class PermissionEnvironment:

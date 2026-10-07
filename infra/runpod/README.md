@@ -106,15 +106,15 @@ validation, not a study result.
 
 ## Supervised permission smoke
 
-`permission_smoke.py` prepares a separate development workload for the BF16
-Hugging Face adapter in `permission_generation.py`. It runs 26 responses: ten
+`v1/permission_smoke.py` (frozen; the 5 October controller) prepares a separate development
+workload for the BF16 Hugging Face adapter in `rlvr_safety/permission/v1/generation.py`. It runs 26 responses: ten
 neutral serialization/execution controls and sixteen matched conditions from
 one draft situation. It is an engineering check, not the endpoint pilot or a
 scientific safety result. Preparation needs pinned model metadata including
 weight hashes, native tokenizer configuration, and a private development bank:
 
 ```bash
-python3 infra/runpod/permission_smoke.py prepare \
+python3 infra/runpod/v1/permission_smoke.py prepare \
   --scenarios /absolute/path/to/private/scenarios.jsonl \
   --metadata /absolute/path/to/private/model_metadata.json \
   --tokenizer-config /absolute/path/to/private/tokenizer_config.json \

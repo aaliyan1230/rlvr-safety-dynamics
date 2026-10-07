@@ -7,19 +7,19 @@ from copy import deepcopy
 from pathlib import Path
 
 from rlvr_safety.io import read_jsonl, sha256_file, write_jsonl
-from rlvr_safety.permission_benchmark import (
+from rlvr_safety.permission.v1.benchmark import (
     FixtureProvider,
     prepare_requests,
     run_benchmark,
     scripted_responses,
 )
-from rlvr_safety.permission_prompts import build_conditions, score_mcq
-from rlvr_safety.permission_schema import digest
+from rlvr_safety.permission.v1.prompts import build_conditions, score_mcq
+from rlvr_safety.permission.v1.schema import digest
 from rlvr_safety.provenance import verify_manifest
 
 
 def scenario() -> dict:
-    return json.loads((Path(__file__).parent / "fixtures/permission_scenario.json").read_text())
+    return json.loads((Path(__file__).parent / "permission_scenario.json").read_text())
 
 
 class PermissionBenchmarkTests(unittest.TestCase):

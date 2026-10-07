@@ -8,8 +8,8 @@ import json
 import time
 from pathlib import Path
 
-from .io import sha256_file
-from .permission_schema import digest
+from ...io import sha256_file
+from .schema import digest
 
 USER_AGENT = "OpenAI File Downloader, XaiImageApiFetch/1.0"
 

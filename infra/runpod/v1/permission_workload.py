@@ -9,8 +9,8 @@ import time
 from pathlib import Path
 
 from rlvr_safety.io import read_jsonl
-from rlvr_safety.permission_benchmark import run_benchmark
-from rlvr_safety.permission_generation import HFPermissionProvider, save_runtime
+from rlvr_safety.permission.v1.benchmark import run_benchmark
+from rlvr_safety.permission.v1.generation import HFPermissionProvider, save_runtime
 from rlvr_safety.provenance import verify_manifest
 
 

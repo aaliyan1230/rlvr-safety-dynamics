@@ -8,7 +8,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from rlvr_safety.permission_generation import HFPermissionProvider, classify_stop, verify_weights
+from rlvr_safety.permission.v1.generation import HFPermissionProvider, classify_stop, verify_weights
 
 
 class Inputs(dict):
@@ -135,9 +135,9 @@ class PermissionGenerationTests(unittest.TestCase):
                     "sys.modules",
                     {"torch": torch, "huggingface_hub": hub, "transformers": transformers},
                 ),
-                patch("rlvr_safety.permission_generation.configure_downloads"),
+                patch("rlvr_safety.permission.v1.generation.configure_downloads"),
                 patch(
-                    "rlvr_safety.permission_generation.importlib.metadata.version",
+                    "rlvr_safety.permission.v1.generation.importlib.metadata.version",
                     return_value="2.8.0",
                 ),
             ):

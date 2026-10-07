@@ -5,12 +5,12 @@ import unittest
 from copy import deepcopy
 from pathlib import Path
 
-from rlvr_safety.permission_environment import PermissionEnvironment, score_executable
-from rlvr_safety.permission_schema import parse_actions, validate_bank, validate_scenario
+from rlvr_safety.permission.v1.environment import PermissionEnvironment, score_executable
+from rlvr_safety.permission.v1.schema import parse_actions, validate_bank, validate_scenario
 
 
 def scenario() -> dict:
-    return json.loads((Path(__file__).parent / "fixtures/permission_scenario.json").read_text())
+    return json.loads((Path(__file__).parent / "permission_scenario.json").read_text())
 
 
 def response(actions: list[str], stop_status: str = "complete") -> dict:

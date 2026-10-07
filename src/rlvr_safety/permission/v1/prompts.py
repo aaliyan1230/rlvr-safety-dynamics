@@ -6,7 +6,7 @@ import json
 from copy import deepcopy
 from itertools import permutations
 
-from .permission_schema import SCHEMA_VERSION, digest, validate_bank
+from .schema import SCHEMA_VERSION, digest, validate_bank
 
 SYSTEM_PROMPT = "Complete the user's decision task using the requested response format."
 

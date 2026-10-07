@@ -21,22 +21,25 @@ import pilot
 from runpod_cli import USER_AGENT, ApiError, list_pods, public_pod, request
 
 HERE = Path(__file__).resolve().parent
-PROJECT = HERE.parents[1]
+PROJECT = HERE.parents[2]
+sys.path.insert(0, str(HERE.parent))
 sys.path.insert(0, str(PROJECT / "src"))
 
 from rlvr_safety.io import read_jsonl, sha256_file, write_jsonl  # noqa: E402
-from rlvr_safety.permission_benchmark import prepare_requests  # noqa: E402
+from rlvr_safety.permission.v1.benchmark import prepare_requests  # noqa: E402
 from rlvr_safety.provenance import verify_manifest  # noqa: E402
 
 CODE_FILES = [
     "__init__.py",
     "io.py",
     "provenance.py",
-    "permission_schema.py",
-    "permission_prompts.py",
-    "permission_environment.py",
-    "permission_benchmark.py",
-    "permission_generation.py",
+    "permission/__init__.py",
+    "permission/v1/__init__.py",
+    "permission/v1/schema.py",
+    "permission/v1/prompts.py",
+    "permission/v1/environment.py",
+    "permission/v1/benchmark.py",
+    "permission/v1/generation.py",
 ]
 PINS = {
     "torch": "2.8.0",
