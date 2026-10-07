@@ -13,6 +13,7 @@ from ..agent_tasks import core
 from ..agent_tasks.jobs import authoring, freeform_prelabel, mcq_judge
 from ..io import read_jsonl, write_jsonl
 from ..permission import analysis, labeling, review, sync
+from ..permission.bank import merge_reviewed
 from ..permission.benchmark import run_benchmark
 from ..permission.checks import check_bank
 from ..permission.experiment import build_workload, load_spec, write_bundle
@@ -161,6 +162,19 @@ def cmd_review(args) -> int:
                 "statuses": {k: v["status"] for k, v in audit["records"].items()},
             }
         )
+    return 0
+
+
+# ---- bank assembly -----------------------------------------------------------------------
+def cmd_bank(args) -> int:
+    kept, audit = merge_reviewed(
+        args.inputs, args.exclude or [], require_accepted=not args.allow_unreviewed
+    )
+    if args.out.exists():
+        raise FileExistsError(f"{args.out} already exists; choose a new file")
+    write_jsonl(args.out, kept)
+    args.out.with_suffix(".merge-audit.json").write_text(json.dumps(audit, indent=2) + "\n")
+    _print({"records": len(kept), "excluded": audit["excluded"], "families": audit["families"]})
     return 0
 
 
@@ -327,6 +341,15 @@ def build_parser() -> argparse.ArgumentParser:
     app.add_argument("--queues", type=Path, nargs="+", required=True)
     app.add_argument("--out", type=Path, required=True)
     rev.set_defaults(func=cmd_review)
+
+    bank = sub.add_parser("bank", help="assemble a bank from reviewed pieces")
+    bank_actions = bank.add_subparsers(dest="action", required=True)
+    merge = bank_actions.add_parser("merge", help="merge bank files, excluding superseded records")
+    merge.add_argument("--inputs", type=Path, nargs="+", required=True)
+    merge.add_argument("--exclude", nargs="*", help="source_ids superseded by an included record")
+    merge.add_argument("--out", type=Path, required=True)
+    merge.add_argument("--allow-unreviewed", action="store_true")
+    bank.set_defaults(func=cmd_bank)
 
     bundle = sub.add_parser("bundle", help="build a deterministic experiment bundle")
     bundle.add_argument("--spec", type=Path, required=True)
