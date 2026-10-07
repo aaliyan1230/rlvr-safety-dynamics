@@ -106,7 +106,13 @@ def build_conditions(
         neutral = neutral_id_map(scenario)
         identity = {a["action_id"]: a["action_id"] for a in scenario["actions"]}
         scenario_hash = digest(scenario)
-        for wording_index, (wording_id, wording) in enumerate(sorted(scenario["wordings"].items())):
+        selected = plan.get("wordings")
+        wordings = sorted(
+            (k, v) for k, v in scenario["wordings"].items() if selected is None or k in selected
+        )
+        if selected is not None and {k for k, _ in wordings} != set(selected):
+            raise ValueError(f"{scenario['source_id']} lacks wording(s) {sorted(selected)}")
+        for wording_index, (wording_id, wording) in enumerate(wordings):
             rotation = index + wording_index
             permissions = ("allowed",) if control else PERMISSIONS
             formats: list[tuple[str, tuple[int, ...] | None, str, dict[str, str]]] = []

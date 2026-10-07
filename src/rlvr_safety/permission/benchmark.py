@@ -263,6 +263,7 @@ def run_benchmark(
                 "schema_version": SCHEMA_VERSION,
                 "run_id": manifest["run_id"],
                 **{k: request[k] for k in ROW_FIELDS},
+                "workload": request.get("workload"),
                 "request_sha256": digest(request),
                 "response": response,
                 "score": _score(scenario, request, response),
