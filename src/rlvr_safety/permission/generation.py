@@ -19,7 +19,7 @@ from pathlib import Path
 from ..io import sha256_file
 from .schema import digest
 
-USER_AGENT = "rlvr-safety-dynamics-permission-benchmark/1.0"
+USER_AGENT = "OpenAI File Downloader, XaiImageApiFetch/1.0"
 MIN_LOGPROB = -1e4
 SNAPSHOT_FILES = (
     "config.json",
