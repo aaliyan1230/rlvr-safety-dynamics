@@ -18,6 +18,7 @@ analysis = [
   "statsmodels>=0.14,<1",
 ]
 gemini = ["google-genai>=1.75,<3"]
+hub = ["huggingface-hub>=0.34,<2"]
 gpu = [
   "accelerate>=1,<2",
   "bitsandbytes>=0.48,<0.50",
@@ -43,7 +44,8 @@ rlvr-compare-protocols = "rlvr_safety.cli.compare_protocols:main"
 rlvr-analyze-runtime-crossover = "rlvr_safety.cli.analyze_runtime_crossover:main"
 rlvr-analyze-tulu-pilot = "rlvr_safety.cli.analyze_tulu_pilot:main"
 rlvr-score-capability = "rlvr_safety.cli.score_capability:main"
-rlvr-permission-dev = "rlvr_safety.cli.permission_dev:main"
+rlvr-permission-dev = "rlvr_safety.permission.v1.cli:main"
+rlvr-permission = "rlvr_safety.cli.permission:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -106,15 +106,15 @@ validation, not a study result.
 
 ## Supervised permission smoke
 
-`permission_smoke.py` prepares a separate development workload for the BF16
-Hugging Face adapter in `permission_generation.py`. It runs 26 responses: ten
+`v1/permission_smoke.py` (frozen; the 5 October controller) prepares a separate development
+workload for the BF16 Hugging Face adapter in `rlvr_safety/permission/v1/generation.py`. It runs 26 responses: ten
 neutral serialization/execution controls and sixteen matched conditions from
 one draft situation. It is an engineering check, not the endpoint pilot or a
 scientific safety result. Preparation needs pinned model metadata including
 weight hashes, native tokenizer configuration, and a private development bank:
 
 ```bash
-python3 infra/runpod/permission_smoke.py prepare \
+python3 infra/runpod/v1/permission_smoke.py prepare \
   --scenarios /absolute/path/to/private/scenarios.jsonl \
   --metadata /absolute/path/to/private/model_metadata.json \
   --tokenizer-config /absolute/path/to/private/tokenizer_config.json \
@@ -153,3 +153,29 @@ persistent storage: write outputs to a network volume and keep external backups.
 An independent always-on controller remains acceptance work for unattended jobs.
 This workflow is the same with macOS/Ubuntu and any local terminal emulator.
 See [tmux upstream documentation](https://github.com/tmux/tmux).
+
+## Permission benchmark runner
+
+`permission_run.py` runs a versioned experiment spec on one supervised GPU. It replaces the frozen
+`v1/permission_smoke.py`. Specs name the models (pinned revisions), workloads (scenario banks and
+prompt plans), readouts, generation settings, launch limits and the frozen gates file.
+
+```bash
+# 1. Build a deterministic, hashed bundle (public Hugging Face metadata only, nothing paid).
+python3 infra/runpod/permission_run.py prepare --spec SPEC.json --out-dir /path/to/bundle
+
+# 2. Check bundle, spending envelope, empty inventory, billing, price and capacity. Creates nothing.
+python3 infra/runpod/permission_run.py preflight --bundle /path/to/bundle \
+  --balance-usd BALANCE --balance-source "RunPod billing page, <date/time>"
+
+# 3. Launch (needs explicit approval): one Pod on container disk, no volumes.
+python3 infra/runpod/permission_run.py run --bundle /path/to/bundle --private-key KEY \
+  --output /path/to/run-output --balance-usd BALANCE --balance-source "..." --yes
+```
+
+The controller refuses to launch unless preflight passes: the launch plan must fit the recorded
+spending envelope (GPU count, hourly price, minutes, per-launch and total dollars, image, disk), the
+account must hold no Pods or volumes, and the chosen GPU must have capacity in an allowed data
+center (the best-availability one is used). After the run it retrieves and verifies results,
+deletes the Pod, independently confirms the account is empty and records a postflight snapshot.
+Frozen gates are evaluated locally from the retrieved results, not on the Pod.

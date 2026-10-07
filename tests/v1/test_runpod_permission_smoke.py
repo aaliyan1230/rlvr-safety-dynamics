@@ -16,7 +16,8 @@ from unittest.mock import patch
 from rlvr_safety.io import sha256_file
 from rlvr_safety.provenance import verify_manifest
 
-HERE = Path(__file__).resolve().parents[1] / "infra/runpod"
+HERE = Path(__file__).resolve().parents[2] / "infra/runpod/v1"
+sys.path.insert(0, str(HERE.parent))
 sys.path.insert(0, str(HERE))
 try:
     spec = importlib.util.spec_from_file_location(
@@ -26,6 +27,7 @@ try:
     spec.loader.exec_module(smoke)
 finally:
     sys.path.remove(str(HERE))
+    sys.path.remove(str(HERE.parent))
 
 
 class RunPodPermissionSmokeTests(unittest.TestCase):
@@ -34,7 +36,7 @@ class RunPodPermissionSmokeTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         source = json.loads(
-            (Path(__file__).parent / "fixtures/permission_scenario.json").read_text()
+            (Path(__file__).parent / "permission_scenario.json").read_text()
         )
         source["source_id"] = "dev_resource_transfer"
         self.bank = self.root / "bank.jsonl"
@@ -65,7 +67,7 @@ class RunPodPermissionSmokeTests(unittest.TestCase):
         with tarfile.open(self.root / "bundle.tar.gz") as archive:
             names = archive.getnames()
             self.assertFalse(any(".env" in n or "private" in n for n in names))
-            self.assertIn("src/rlvr_safety/permission_generation.py", names)
+            self.assertIn("src/rlvr_safety/permission/v1/generation.py", names)
 
     def test_unexpected_resources_prevent_paid_mutations(self):
         with (

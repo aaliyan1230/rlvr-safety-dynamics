@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 from rlvr_safety.io import read_jsonl, write_jsonl
-from rlvr_safety.permission_benchmark import (
+from rlvr_safety.permission.v1.benchmark import (
     FixtureProvider,
     prepare_requests,
     run_benchmark,

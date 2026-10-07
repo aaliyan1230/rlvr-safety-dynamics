@@ -11,10 +11,10 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Protocol
 
-from .io import read_jsonl, sha256_file, write_jsonl
-from .permission_environment import score_executable
-from .permission_prompts import build_conditions, score_mcq
-from .permission_schema import SCHEMA_VERSION, digest, validate_response
+from ...io import read_jsonl, sha256_file, write_jsonl
+from .environment import score_executable
+from .prompts import build_conditions, score_mcq
+from .schema import SCHEMA_VERSION, digest, validate_response
 
 
 class ResponseProvider(Protocol):
@@ -120,17 +120,12 @@ def scripted_responses(scenarios: list[dict], requests: list[dict]) -> list[dict
 
 def _code_hashes() -> dict:
     base = Path(__file__).parent
-    return {
+    hashes = {
         name: sha256_file(base / name)
-        for name in (
-            "permission_schema.py",
-            "permission_prompts.py",
-            "permission_environment.py",
-            "permission_benchmark.py",
-            "permission_generation.py",
-            "io.py",
-        )
+        for name in ("schema.py", "prompts.py", "environment.py", "benchmark.py", "generation.py")
     }
+    hashes["io.py"] = sha256_file(base.parents[1] / "io.py")
+    return hashes
 
 
 def _score(scenario: dict, request: dict, response: dict) -> dict:
