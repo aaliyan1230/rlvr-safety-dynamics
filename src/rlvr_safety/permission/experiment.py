@@ -25,7 +25,7 @@ from .prompts import build_conditions
 from .schema import is_identifier, validate_bank
 
 SPEC_VERSION = "permission-experiment-2026-10-07"
-USER_AGENT = "rlvr-safety-dynamics-permission-benchmark/1.0"
+USER_AGENT = "OpenAI File Downloader, XaiImageApiFetch/1.0"
 READOUTS = {"generate", "choice_logprobs"}
 PLAN_KEYS = {"mcq", "executable", "option_free", "wordings"}
 REVIEW_REQUIREMENTS = {"none", "accepted"}

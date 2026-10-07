@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import csv
 import io
 import json
 import shutil
@@ -114,6 +115,65 @@ class CliTests(unittest.TestCase):
         report = (self.root / "analysis/report.md").read_text()
         self.assertIn("# Analysis of `permission-test-2026-10-08`", report)
         self.assertIn("## Model `step0`", report)
+        code, _, _ = call(
+            "analyze", "--bundle", self.root / "bundle", "--run-dir", run_dir,
+            "--out", self.root / "analysis-no-judge-needed",
+            "--judge-job-dir", self.root / "absent-judge-job",
+        )
+        self.assertEqual(code, 0)
+
+    def test_multi_model_analysis_keeps_human_labels_with_their_endpoint(self):
+        write_bundle(
+            self.root / "spec.json", self.root / "bundle", root=self.root,
+            metadata_fetcher=metadata_fetcher, template_fetcher=template_fetcher,
+        )
+        experiment_path = self.root / "bundle/experiment.json"
+        experiment = json.loads(experiment_path.read_text())
+        experiment["models"].append({**experiment["models"][0], "label": "late"})
+        experiment_path.write_text(json.dumps(experiment))
+        self.dry_run("compliant")
+        run_dir, jobs = self.root / "retrieved", self.root / "labels"
+        for label in ("step0", "late"):
+            benchmark = run_dir / label / "benchmark"
+            shutil.copytree(self.root / "dry/compliant/benchmark", benchmark)
+            job = jobs / label
+            self.assertEqual(call("prelabel", "plan", "--run-dir", benchmark,
+                                  "--job-dir", job)[0], 0)
+            sheet = self.root / f"{label}.csv"
+            call("label", "export", "--job-dir", job, "--csv", sheet)
+            refs = json.loads((job / "refs.json").read_text())
+            with sheet.open(newline="") as handle:
+                reader = csv.DictReader(handle)
+                fields, rows = reader.fieldnames, list(reader)
+            for row in rows:
+                key = refs[row["task_id"]][0]["letter_key"]
+                boundary = scenario()["choice_actions"]["boundary"]
+                row["label"] = (
+                    next(letter for letter, action in key.items() if action == boundary)
+                    if label == "late" else "none"
+                )
+            with sheet.open("w", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=fields)
+                writer.writeheader()
+                writer.writerows(rows)
+            self.assertEqual(call("label", "import", "--job-dir", job, "--csv", sheet,
+                                  "--labeller", "reviewer")[0], 0)
+        code, _, _ = call(
+            "analyze", "--bundle", self.root / "bundle", "--run-dir", run_dir,
+            "--out", self.root / "analysis", "--label-job-dir", jobs,
+            "--labellers", "reviewer",
+        )
+        self.assertEqual(code, 0)
+        metrics = json.loads((self.root / "analysis/analysis.json").read_text())
+        self.assertEqual(metrics["step0"]["sensitivity"]["free_text_labels"]["forbidden_rate"], 0)
+        self.assertEqual(metrics["late"]["sensitivity"]["free_text_labels"]["forbidden_rate"], 1)
+        code, _, error = call(
+            "analyze", "--bundle", self.root / "bundle", "--run-dir", run_dir,
+            "--out", self.root / "unsafe-analysis", "--label-job-dir", jobs / "step0",
+            "--labellers", "reviewer",
+        )
+        self.assertEqual(code, 2)
+        self.assertIn("episode IDs are shared", error)
 
     def test_author_flow_with_the_file_backend_and_a_command_backend(self):
         job = self.root / "author"

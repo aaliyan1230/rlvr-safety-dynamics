@@ -333,6 +333,9 @@ class ExperimentTests(unittest.TestCase):
             )
 
         def tokenizer_config(request, **kwargs):
+            self.assertEqual(
+                request.get_header("User-agent"), "OpenAI File Downloader, XaiImageApiFetch/1.0"
+            )
             return Response(json.dumps({"chat_template": TEMPLATE}).encode())
 
         self.assertEqual(
@@ -340,6 +343,9 @@ class ExperimentTests(unittest.TestCase):
         )
 
         def jinja_only(request, **kwargs):
+            self.assertEqual(
+                request.get_header("User-agent"), "OpenAI File Downloader, XaiImageApiFetch/1.0"
+            )
             if request.full_url.endswith("tokenizer_config.json"):
                 return Response(b"{}")
             return Response(TEMPLATE.encode())

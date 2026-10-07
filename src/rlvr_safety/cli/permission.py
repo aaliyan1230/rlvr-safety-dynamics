@@ -208,6 +208,18 @@ def cmd_dry_run(args) -> int:
     return 0
 
 
+def _model_job_dir(root: Path, label: str, multiple_models: bool) -> Path:
+    scoped = root / label
+    if (scoped / "manifest.json").is_file():
+        return scoped
+    if multiple_models:
+        raise ValueError(
+            f"multi-model analysis requires a separate job at {scoped}; "
+            "episode IDs are shared across checkpoints"
+        )
+    return root
+
+
 def cmd_analyze(args) -> int:
     bundle = args.bundle
     spec = _read_json(bundle / "experiment.json")
@@ -215,20 +227,27 @@ def cmd_analyze(args) -> int:
     requests = {r["episode_id"]: r for r in read_jsonl(bundle / "requests.jsonl")}
     gates = _read_json(bundle / "gates.json")
     gates["expected_rows"] = len(requests)
-    judge = None
-    if args.judge_job_dir:
-        refs = _read_json(args.judge_job_dir / "refs.json")
-        judge = mcq_judge.judge_scores(_read_ingested(args.judge_job_dir), refs, requests)
     all_metrics, sections = {}, []
     for model in spec["models"]:
         label = model["label"]
         rows = list(read_jsonl(args.run_dir / label / "benchmark/results.jsonl"))
+        judge = None
+        if args.judge_job_dir and any(
+            r["format"] == "mcq"
+            and r["response"]["stop_status"] == "complete"
+            and r["score"].get("needs_judge")
+            for r in rows
+        ):
+            job_dir = _model_job_dir(args.judge_job_dir, label, len(spec["models"]) > 1)
+            refs = _read_json(job_dir / "refs.json")
+            judge = mcq_judge.judge_scores(_read_ingested(job_dir), refs, requests)
         labels = None
         if args.label_job_dir and args.labellers:
-            task_labels = labeling.consensus(args.label_job_dir, args.labellers.split(","))
+            job_dir = _model_job_dir(args.label_job_dir, label, len(spec["models"]) > 1)
+            task_labels = labeling.consensus(job_dir, args.labellers.split(","))
             source_of = {r["episode_id"]: r["source_id"] for r in rows}
             labels = labeling.episode_role_labels(
-                args.label_job_dir, task_labels, scenarios, source_of
+                job_dir, task_labels, scenarios, source_of
             )
         metrics = analysis.analyze(
             rows, scenarios, requests, gates=gates, judge_scores=judge, labels=labels
@@ -373,8 +392,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="retrieved output folder holding <model label>/benchmark",
     )
     analyze.add_argument("--out", type=Path, required=True)
-    analyze.add_argument("--judge-job-dir", type=Path)
-    analyze.add_argument("--label-job-dir", type=Path)
+    analyze.add_argument(
+        "--judge-job-dir", type=Path,
+        help="job folder, or parent of per-model jobs for multi-model runs",
+    )
+    analyze.add_argument(
+        "--label-job-dir", type=Path,
+        help="job folder, or parent of per-model jobs for multi-model runs",
+    )
     analyze.add_argument("--labellers", help="comma-separated labellers whose consensus is used")
     analyze.set_defaults(func=cmd_analyze)
 
