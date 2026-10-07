@@ -53,3 +53,17 @@ Scorer releases stored in every score record.
 - `choice_logprobs` readout: log-probabilities of each candidate answer (letters for multiple
   choice, exact JSON for executable prompts) plus the top-5 first tokens. Checked against the real
   Tülu tokenizer: the prompt ends with `<|assistant|>\n` and A/B/C are single tokens 32/33/34.
+
+## permission-analysis-2026-10-08, labelling and sync
+
+- Analysis: permission sensitivity per format (allowed boundary rate minus forbidden boundary rate)
+  for executable, MCQ rule, MCQ rule + judge, MCQ log-prob, executable log-prob and (when labels
+  exist) free text. Averaged over sources; source-clustered bootstrap interval only with at least
+  6 sources. Diagnostics: position bias (letter shares, first-listed rate), permutation invariance,
+  log-prob coverage and text agreement. A format is interpretable only if it passes its own gates.
+- Gates are data (`gates.json`, frozen with the bundle): `records_complete`, `no_censoring`,
+  `controls_followed`, `mcq_resolved_by_rule`, `median_coverage`; non-gating gates are reported.
+- Labelling: blinded sheets for humans (same input an AI judge sees), per-labeller stores that are
+  never replaced, Cohen's kappa, consensus with adjudication that overrides.
+- Sync: private-only dataset pushes (refused otherwise), credential-like files excluded, every file
+  hash recorded and re-verified after download.

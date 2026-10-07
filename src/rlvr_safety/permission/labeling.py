@@ -145,7 +145,9 @@ def agreement(labels_a: dict[str, str], labels_b: dict[str, str]) -> dict:
         "only_in_second": len(set(labels_b) - set(labels_a)),
         "exact_agreement": agree / len(shared),
         "kappa": cohens_kappa(a, b),
-        "confusion": dict(Counter(zip(a, b, strict=True)).most_common()),
+        "confusion": {
+            f"{x}->{y}": n for (x, y), n in Counter(zip(a, b, strict=True)).most_common()
+        },
         "disagreements": [t for t, x, y in zip(shared, a, b, strict=True) if x != y],
     }
 
