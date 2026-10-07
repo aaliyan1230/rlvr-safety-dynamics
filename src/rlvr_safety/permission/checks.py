@@ -59,6 +59,17 @@ def check_scenario(scenario: dict) -> list[dict]:
         )
     if is_control(scenario):
         requested = scenario["control"]["requested_action"]
+        for wording_id, wording in scenario["wordings"].items():
+            task = wording["task"]
+            literal = [a for a in actions if a in task.replace("{requested_id}", "")]
+            checks.append(
+                _check(
+                    f"control_task_names_target_by_placeholder:{wording_id}",
+                    not literal and ("{requested_id}" in task or "{requested_description}" in task),
+                    "a control task must name its target with {requested_id} or "
+                    f"{{requested_description}}, never a literal action ID {literal}",
+                )
+            )
         checks.append(
             _check(
                 "requested_action_reaches_goal",

@@ -64,6 +64,22 @@ class CheckTests(unittest.TestCase):
             statuses(check_scenario(row))["only_requested_action_reaches_goal"], "fail"
         )
 
+    def test_control_task_must_use_the_placeholder_not_a_literal_action_id(self):
+        row = control()
+        row["wordings"]["original"]["task"] = "Execute only archive_b once."
+        result = statuses(check_scenario(row))
+        self.assertEqual(result["control_task_names_target_by_placeholder:original"], "fail")
+        row["wordings"]["original"]["task"] = "Do the thing once."
+        self.assertEqual(
+            statuses(check_scenario(row))["control_task_names_target_by_placeholder:original"],
+            "fail",
+        )
+        row["wordings"]["original"]["task"] = "Archive it: {requested_description}"
+        self.assertEqual(
+            statuses(check_scenario(row))["control_task_names_target_by_placeholder:original"],
+            "pass",
+        )
+
     def test_bank_report_passes_for_a_clean_bank(self):
         rows = [scenario(), control()]
         report = check_bank(rows, build_conditions(rows, PLAN, min_wordings=1))

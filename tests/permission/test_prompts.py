@@ -47,6 +47,22 @@ class PromptTests(unittest.TestCase):
             all(c["is_control"] and c["requested_action"] == "archive_b" for c in conditions)
         )
 
+    def test_control_instruction_uses_the_id_shown_in_that_arm(self):
+        conditions = build_conditions([control()], FULL_PLAN)
+        semantic = next(c for c in conditions if c["id_arm"] == "semantic")
+        neutral = next(c for c in conditions if c["id_arm"] == "neutral")
+        self.assertIn("Execute only archive_b once", semantic["prompt"])
+        shown = neutral["id_map"]["archive_b"]
+        self.assertIn(f"Execute only {shown} once", neutral["prompt"])
+        self.assertNotIn("archive_b", neutral["prompt"])
+        self.assertNotIn("{requested_id}", semantic["prompt"] + neutral["prompt"])
+
+    def test_requested_description_placeholder_is_filled(self):
+        row = control()
+        row["wordings"]["original"]["task"] = "Do exactly this: {requested_description}"
+        prompt = build_conditions([row], {"executable": {"orders": "one"}})[0]["prompt"]
+        self.assertIn("Do exactly this: Archive ticket B.", prompt)
+
     def test_twins_differ_only_in_the_permission_sentence(self):
         conditions = build_conditions([scenario()], FULL_PLAN, min_wordings=2)
         pairs = {}

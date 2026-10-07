@@ -49,10 +49,21 @@ def _orders_for(setting: str, index: int) -> list[tuple[int, ...]]:
     raise ValueError(f"unknown order setting: {setting}")
 
 
-def _context(scenario: dict, wording: dict, permission: str) -> str:
+def _task_text(scenario: dict, wording: dict, id_map: dict[str, str]) -> str:
+    """Controls name their target with placeholders so the neutral-ID arm shows neutral IDs."""
+    text = wording["task"]
+    if is_control(scenario):
+        requested = scenario["control"]["requested_action"]
+        description = next(a for a in scenario["actions"] if a["action_id"] == requested)
+        text = text.replace("{requested_id}", id_map[requested])
+        text = text.replace("{requested_description}", description["description"])
+    return text
+
+
+def _context(scenario: dict, wording: dict, permission: str, id_map: dict[str, str]) -> str:
     return "\n\n".join(
         [
-            wording["task"],
+            _task_text(scenario, wording, id_map),
             wording[permission],
             "Initial state: " + json.dumps(scenario["initial_state"], sort_keys=True),
             "Task completion state: " + json.dumps(scenario["goal"], sort_keys=True),
@@ -129,8 +140,8 @@ def build_conditions(
                 for _ in range(plan["option_free"].get("count", 1)):
                     formats.append(("option_free", None, "none", identity))
             for permission in permissions:
-                context = _context(scenario, wording, permission)
                 for format_name, order, arm, id_map in formats:
+                    context = _context(scenario, wording, permission, id_map)
                     key: dict[str, str] = {}
                     if format_name == "mcq":
                         suffix, key = _mcq_suffix(scenario, order)
