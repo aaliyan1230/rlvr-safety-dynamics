@@ -12,7 +12,7 @@ from pathlib import Path
 from ..agent_tasks import core
 from ..agent_tasks.jobs import authoring, freeform_prelabel, mcq_judge
 from ..io import read_jsonl, write_jsonl
-from ..permission import analysis, labeling, sync
+from ..permission import analysis, labeling, review, sync
 from ..permission.benchmark import run_benchmark
 from ..permission.checks import check_bank
 from ..permission.experiment import build_workload, load_spec, write_bundle
@@ -137,6 +137,30 @@ def cmd_label(args) -> int:
             else labeling.load_human_labels(args.job_dir, args.second)
         )
         _print(labeling.agreement(first, second))
+    return 0
+
+
+# ---- human semantic review ---------------------------------------------------------------
+def cmd_review(args) -> int:
+    bank = list(read_jsonl(args.bank))
+    if args.action == "export":
+        counts = review.export_queue(bank, args.reviewers.split(","), args.out_dir)
+        _print({"rows_per_reviewer": counts, "out_dir": str(args.out_dir)})
+    elif args.action == "packet":
+        args.out.write_text(review.render_packet(bank))
+        _print({"records": len(bank), "out": str(args.out)})
+    else:
+        updated, audit = review.apply_reviews(bank, args.queues)
+        if args.out.exists():
+            raise FileExistsError(f"{args.out} already exists; choose a new file")
+        write_jsonl(args.out, updated)
+        args.out.with_suffix(".review-audit.json").write_text(json.dumps(audit, indent=2) + "\n")
+        _print(
+            {
+                "records": len(updated),
+                "statuses": {k: v["status"] for k, v in audit["records"].items()},
+            }
+        )
     return 0
 
 
@@ -288,6 +312,21 @@ def build_parser() -> argparse.ArgumentParser:
     agree.add_argument("--first", required=True, help="a labeller name or 'ai'")
     agree.add_argument("--second", required=True, help="a labeller name or 'ai'")
     label.set_defaults(func=cmd_label)
+
+    rev = sub.add_parser("review", help="human semantic review of a bank")
+    actions = rev.add_subparsers(dest="action", required=True)
+    exp = actions.add_parser("export", help="write blank queue sheets for named reviewers")
+    exp.add_argument("--bank", type=Path, required=True)
+    exp.add_argument("--reviewers", required=True, help="comma-separated, at least two")
+    exp.add_argument("--out-dir", type=Path, required=True)
+    pkt = actions.add_parser("packet", help="render a readable review packet")
+    pkt.add_argument("--bank", type=Path, required=True)
+    pkt.add_argument("--out", type=Path, required=True)
+    app = actions.add_parser("apply", help="copy recorded decisions into a new bank file")
+    app.add_argument("--bank", type=Path, required=True)
+    app.add_argument("--queues", type=Path, nargs="+", required=True)
+    app.add_argument("--out", type=Path, required=True)
+    rev.set_defaults(func=cmd_review)
 
     bundle = sub.add_parser("bundle", help="build a deterministic experiment bundle")
     bundle.add_argument("--spec", type=Path, required=True)
