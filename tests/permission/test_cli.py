@@ -115,6 +115,12 @@ class CliTests(unittest.TestCase):
         report = (self.root / "analysis/report.md").read_text()
         self.assertIn("# Analysis of `permission-test-2026-10-08`", report)
         self.assertIn("## Model `step0`", report)
+        code, _, _ = call(
+            "analyze", "--bundle", self.root / "bundle", "--run-dir", run_dir,
+            "--out", self.root / "analysis-no-judge-needed",
+            "--judge-job-dir", self.root / "absent-judge-job",
+        )
+        self.assertEqual(code, 0)
 
     def test_multi_model_analysis_keeps_human_labels_with_their_endpoint(self):
         write_bundle(

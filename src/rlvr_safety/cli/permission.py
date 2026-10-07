@@ -232,7 +232,12 @@ def cmd_analyze(args) -> int:
         label = model["label"]
         rows = list(read_jsonl(args.run_dir / label / "benchmark/results.jsonl"))
         judge = None
-        if args.judge_job_dir:
+        if args.judge_job_dir and any(
+            r["format"] == "mcq"
+            and r["response"]["stop_status"] == "complete"
+            and r["score"].get("needs_judge")
+            for r in rows
+        ):
             job_dir = _model_job_dir(args.judge_job_dir, label, len(spec["models"]) > 1)
             refs = _read_json(job_dir / "refs.json")
             judge = mcq_judge.judge_scores(_read_ingested(job_dir), refs, requests)
