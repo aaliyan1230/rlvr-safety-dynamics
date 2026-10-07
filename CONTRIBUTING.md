@@ -1,8 +1,9 @@
 # Working on RLVR safety dynamics
 
 The main repository contains the completed study, code, datasets, and compact
-result artifacts. The SPAR permission-following benchmark is planned work;
-its proposed modules are not implemented yet. Current plans, team assignments,
+result artifacts. The SPAR permission-following benchmark is under development:
+its pipeline code is in `src/rlvr_safety/permission/` (see its `CHANGELOG.md`), and no benchmark
+results have been released. Current plans, team assignments,
 and manuscript materials live in the separate private
 [docs repository](https://github.com/aaliyan1230/rlvr-safety-dynamics-docs).
 
