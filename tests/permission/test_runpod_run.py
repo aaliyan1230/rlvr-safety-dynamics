@@ -20,7 +20,15 @@ from rlvr_safety.permission.experiment import write_bundle
 from rlvr_safety.provenance import verify_manifest
 
 from .helpers import control, scenario
-from .test_experiment import envelope, metadata_fetcher, spec, template_fetcher
+from .test_experiment import (
+    DIGEST,
+    digest_fetcher,
+    envelope,
+    metadata_fetcher,
+    spec,
+    template_fetcher,
+    write_lock,
+)
 
 HERE = Path(__file__).resolve().parents[2] / "infra/runpod"
 sys.path.insert(0, str(HERE))
@@ -62,12 +70,14 @@ class RunnerTests(unittest.TestCase):
         test_spec = spec()
         test_spec["launch"]["gpu"] = GPU_ID
         (self.root / "spec.json").write_text(json.dumps(test_spec))
+        write_lock(self.root, "torch==2.8.0", "transformers==4.57.1")
         write_bundle(
             self.root / "spec.json",
             self.root / "bundle",
             root=self.root,
             metadata_fetcher=metadata_fetcher,
             template_fetcher=template_fetcher,
+            digest_fetcher=digest_fetcher,
         )
         self.bundle = self.root / "bundle"
         self.key = self.root / "key"
@@ -123,6 +133,20 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(report["placement"]["datacenter"], "US-KS-2")
         self.assertAlmostEqual(report["usage_spent_under_envelope_usd"], 2.5)
         self.assertEqual(report["inventory"], {"pods": [], "volumes": []})
+        self.assertEqual(
+            report["image"],
+            {
+                "ref": "runpod/pytorch:test",
+                "digest": DIGEST,
+                "immutable_ref": "runpod/pytorch@" + DIGEST,
+            },
+        )
+        self.assertEqual(
+            set(report["controller_sha256"]),
+            {"permission_run.py", "pilot.py", "runpod_cli.py"},
+        )
+        for name, value in report["controller_sha256"].items():
+            self.assertEqual(value, sha256_file(HERE / name))
 
     def test_preflight_reports_each_blocking_problem_without_creating_anything(self):
         cases = {
@@ -152,6 +176,17 @@ class RunnerTests(unittest.TestCase):
         a, b = self.patched(self.api())
         with a, b, self.assertRaisesRegex(ValueError, "checksum mismatch"):
             runner.preflight(self.args)
+
+    def test_preflight_rejects_controller_drift_before_contacting_runpod(self):
+        with (
+            patch.object(
+                runner, "controller_hashes", return_value={"permission_run.py": "changed"}
+            ),
+            patch.object(runner, "request") as api,
+            self.assertRaisesRegex(ValueError, "controller changed"),
+        ):
+            runner.preflight(self.args)
+        api.assert_not_called()
 
     def test_choose_datacenter_prefers_best_availability_among_allowed(self):
         launch = {
@@ -246,6 +281,7 @@ class RunnerTests(unittest.TestCase):
         cleanup.assert_called_once()
         body = created[0]
         self.assertNotIn("mounts", body)
+        self.assertEqual(body["image"], "runpod/pytorch@" + DIGEST)
         self.assertEqual(body["disk"], 50)
         self.assertEqual(body["dataCenterIds"], ["US-KS-2"])
         self.assertEqual(body["gpu"]["count"], 1)
@@ -412,6 +448,7 @@ class RunnerTests(unittest.TestCase):
     def test_bootstrap_installs_pinned_packages_and_runs_the_workload(self):
         script = runner.bootstrap("/workspace/x")
         self.assertIn("runtime-pins.txt", script)
+        self.assertIn("'-c', 'runtime-lock.txt'", script)
         self.assertIn("permission_workload.py --bundle /workspace/x", script)
         self.assertNotIn("HF_TOKEN", script)
         self.assertNotIn("RUNPOD_API_KEY", script)

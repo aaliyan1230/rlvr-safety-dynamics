@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Prepare, preflight and run a permission experiment bundle on one supervised RunPod GPU.
 
-- ``prepare``   build a deterministic bundle from an experiment spec (no network except the
-                public Hugging Face metadata API; no paid resources).
+- ``prepare``   build a deterministic bundle from public model and image metadata;
+                no paid resources.
 - ``preflight`` check bundle, spending envelope, empty inventory, billing, price and capacity.
                 Creates nothing.
 - ``run``       preflight, launch one Pod (container disk only, no volumes), run the bundle,
@@ -34,11 +34,21 @@ PROJECT = HERE.parents[1]
 sys.path.insert(0, str(PROJECT / "src"))
 
 from rlvr_safety.io import sha256_file  # noqa: E402
-from rlvr_safety.permission.experiment import check_envelope, write_bundle  # noqa: E402
+from rlvr_safety.permission.experiment import (  # noqa: E402
+    CONTROLLER_FILES,
+    check_envelope,
+    immutable_image,
+    write_bundle,
+)
 from rlvr_safety.provenance import verify_manifest  # noqa: E402
 
 AVAILABILITY_RANK = {"HIGH": 3, "MEDIUM": 2, "LOW": 1}
 SETUP_AND_RETRIEVAL_SECONDS = 900
+
+
+def controller_hashes() -> dict:
+    """SHA-256 of each local controller file so a record names the exact controller used."""
+    return {name: sha256_file(HERE / name) for name in CONTROLLER_FILES}
 
 
 def ssh(connection, args, command, *, data=None, timeout=45, check=True):
@@ -119,7 +129,8 @@ def send(self, request, **kwargs):
     return original(self, request, **kwargs)
 requests.Session.send = send
 from pip._internal.cli.main import main
-raise SystemExit(main(['install', '--disable-pip-version-check', '-r', 'runtime-pins.txt']))
+raise SystemExit(main(['install', '--disable-pip-version-check',
+                       '-c', 'runtime-lock.txt', '-r', 'runtime-pins.txt']))
 INSTALL
 venv/bin/python permission_workload.py --bundle {q}
 """
@@ -200,6 +211,10 @@ def preflight(args) -> dict:
     verify_archive(archive, bundle)
     spec = json.loads((bundle / "experiment.json").read_text())
     launch = spec["launch"]
+    image_ref = immutable_image(launch)
+    hashes = controller_hashes()
+    if spec.get("controller_sha256") != hashes:
+        raise ValueError("controller changed since bundle preparation; prepare a new bundle")
     envelope = json.loads((args.root / spec["envelope"]).read_text())
     today = date.today()
     spent = spent_under_envelope(envelope, today)
@@ -218,6 +233,12 @@ def preflight(args) -> dict:
     return {
         "experiment_id": spec["experiment_id"],
         "bundle_sha256": expected,
+        "controller_sha256": hashes,
+        "image": {
+            "ref": launch["image"],
+            "digest": launch["image_digest"],
+            "immutable_ref": image_ref,
+        },
         "checked_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "balance_usd": args.balance_usd,
         "balance_source": args.balance_source,
@@ -260,6 +281,7 @@ def run(args) -> None:
         "started_at": time.time(),
         "deadline": deadline,
         "bundle_sha256": expected,
+        "controller_sha256": controller_hashes(),
         "launch": launch,
         "placement": report["placement"],
         "supervised_only": True,
@@ -294,7 +316,7 @@ def run(args) -> None:
             body={
                 "name": state["name"] + "-1",
                 "cloud": launch["cloud"],
-                "image": launch["image"],
+                "image": immutable_image(launch),
                 "gpu": {
                     "id": launch["gpu"],
                     "count": launch["gpu_count"],
