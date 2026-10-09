@@ -52,6 +52,21 @@ Scorer releases stored in every score record.
 - Provenance also records tokenizer/config file hashes, the launch image name and the driver. A pod-ID field
   exists but is best effort: the first run's value was empty because the job does not see the pod's
   environment variable; the pod ID is kept in the controller's `state.json`.
+- The launch image digest is resolved from Docker Hub when the bundle is built and frozen in
+  `experiment.json`; the provider records it next to the image name and the wall-clock stopping
+  criterion. `permission_run.py` records SHA-256 for its own controller files (`permission_run.py`,
+  `pilot.py`, `runpod_cli.py`) plus the image reference/digest in preflight and `state.json`.
+  Launch requests use the immutable digest reference. Controller hashes are frozen at bundle
+  preparation, and preflight rejects drift before any provider call.
+- Every bundle embeds `runtime-lock.txt`, the frozen `pip freeze` of the accepted 2026-10-07
+  diagnostic environment (`infra/runpod/permission-runtime.lock`), and is refused if a
+  `runtime_pins` entry is missing from that lock, including explicit CUDA local versions.
+  Installation uses the full lock as constraints; before model loading the workload verifies
+  the complete installed freeze and saves `runtime_check.json`. The per-run `pip_freeze` in
+  `runtime.json` stays the observed environment. Clean-install/live image acceptance is pending.
+- Greedy overrides also clear inherited sequence bias, constraints, contrastive decoding,
+  watermarking and early stopping fields; the native EOS fallback is passed into the effective
+  config. Tokenizer provenance includes added-token files.
 - `choice_logprobs` readout: log-probabilities of each candidate answer (letters for multiple
   choice, exact JSON for executable prompts) plus the top-5 first tokens. Checked against the real
   Tülu tokenizer: the prompt ends with `<|assistant|>\n` and A/B/C are single tokens 32/33/34.
