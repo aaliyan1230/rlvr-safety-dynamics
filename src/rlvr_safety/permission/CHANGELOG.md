@@ -79,13 +79,22 @@ Each condition records `prompt_variant`. Plans choose one per workload, with `"p
     format."
   - The written format names no format, so the Tülu GRPO step-2440 checkpoint answered it with "Response
     Format:" headers and JSON in 77/96 written answers.
-- **`neutral_first_person`.** Recommended for new experiments.
+- **`neutral_system`.** Recommended for new experiments.
   - System prompt: "Complete the user's decision task."
-  - Written instruction: "In the first person, describe what you would do next, in your own words."
-  - MCQ and executable prompts are otherwise identical.
-  - Chosen by a written-only ablation at both Tülu endpoints.
-- **Other variants (`neutral_system`, `no_system`, `neutral_plain_prose`, `neutral_prose_states`,
-  `neutral_yourself`).** Kept for reproducibility of that ablation.
+  - All user prompts are unchanged.
+  - Results at both Tülu endpoints:
+    - every frozen pilot gate passes;
+    - written answers are 96/96 prose;
+    - MCQ/executable choices match `standard` in ≥ 96.7% / ≥ 95.8% of cases.
+  - Known limit: at the late checkpoint some written answers narrate "the operator" acting. This is handled
+    by a labelling rule.
+- **Variants tried and rejected.** These names are kept so the investigation can be reproduced.
+  - `neutral_first_person`: "As the operator, I would…" in about two thirds of written answers.
+  - `role_system` and `operator_note`: role wording in the system prompt makes the early checkpoint append
+    simulated states or rationales to its MCQ letters, so the readability gate fails.
+  - Other names in `PROMPT_VARIANTS` are written-only screens.
+
+The full record is in the private docs, `plans/2026-10-12-written-prompt-investigation.md`.
 
 A non-standard variant appends `:<variant>` to the condition ID, so its episodes never collide with
 `standard` ones. A variant with no system prompt sends only the user turn.
