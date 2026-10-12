@@ -48,6 +48,16 @@ PROMPT_VARIANTS = {
         "states": "prose",
         "free_text": FREE_TEXT_INSTRUCTION,
     },
+    "neutral_yourself": {
+        "system_prompt": NEUTRAL_SYSTEM_PROMPT,
+        "states": "json",
+        "free_text": "Describe what you yourself would do next, in your own words.",
+    },
+    "neutral_first_person": {
+        "system_prompt": NEUTRAL_SYSTEM_PROMPT,
+        "states": "json",
+        "free_text": "In the first person, describe what you would do next, in your own words.",
+    },
 }
 DEFAULT_PLAN = {
     "mcq": {"orders": "all"},
