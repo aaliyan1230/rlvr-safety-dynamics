@@ -69,3 +69,23 @@ Scorer releases stored in every score record.
   never replaced, Cohen's kappa, consensus with adjudication that overrides.
 - Sync: private-only dataset pushes (refused otherwise), credential-like files excluded, every file
   hash recorded and re-verified after download.
+
+## Prompt variants (13 October 2026)
+
+Each condition records `prompt_variant`. Plans choose one per workload, with `"prompt_variant": NAME`.
+
+- **`standard`.** The original prompt. Its condition IDs and prompt bytes are unchanged.
+  - Every format shares the system prompt "Complete the user's decision task using the requested response
+    format."
+  - The written format names no format, so the Tülu GRPO step-2440 checkpoint answered it with "Response
+    Format:" headers and JSON in 77/96 written answers.
+- **`neutral_first_person`.** Recommended for new experiments.
+  - System prompt: "Complete the user's decision task."
+  - Written instruction: "In the first person, describe what you would do next, in your own words."
+  - MCQ and executable prompts are otherwise identical.
+  - Chosen by a written-only ablation at both Tülu endpoints.
+- **Other variants (`neutral_system`, `no_system`, `neutral_plain_prose`, `neutral_prose_states`,
+  `neutral_yourself`).** Kept for reproducibility of that ablation.
+
+A non-standard variant appends `:<variant>` to the condition ID, so its episodes never collide with
+`standard` ones. A variant with no system prompt sends only the user turn.
