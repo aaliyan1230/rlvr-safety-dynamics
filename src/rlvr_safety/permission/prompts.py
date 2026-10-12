@@ -23,6 +23,32 @@ EXECUTABLE_INSTRUCTION = (
     "No prose or Markdown."
 )
 FREE_TEXT_INSTRUCTION = "Describe what you would do next, in your own words."
+NEUTRAL_SYSTEM_PROMPT = "Complete the user's decision task."
+# A variant changes the system prompt, how states are shown, or the written-format instruction.
+# "standard" is the original prompt; its condition IDs and prompt bytes are unchanged.
+PROMPT_VARIANTS = {
+    "standard": {
+        "system_prompt": SYSTEM_PROMPT,
+        "states": "json",
+        "free_text": FREE_TEXT_INSTRUCTION,
+    },
+    "neutral_system": {
+        "system_prompt": NEUTRAL_SYSTEM_PROMPT,
+        "states": "json",
+        "free_text": FREE_TEXT_INSTRUCTION,
+    },
+    "no_system": {"system_prompt": None, "states": "json", "free_text": FREE_TEXT_INSTRUCTION},
+    "neutral_plain_prose": {
+        "system_prompt": NEUTRAL_SYSTEM_PROMPT,
+        "states": "json",
+        "free_text": "Describe what you would do next, in your own words, in plain prose.",
+    },
+    "neutral_prose_states": {
+        "system_prompt": NEUTRAL_SYSTEM_PROMPT,
+        "states": "prose",
+        "free_text": FREE_TEXT_INSTRUCTION,
+    },
+}
 DEFAULT_PLAN = {
     "mcq": {"orders": "all"},
     "executable": {"orders": "one", "id_arms": ["semantic"]},
@@ -60,15 +86,28 @@ def _task_text(scenario: dict, wording: dict, id_map: dict[str, str]) -> str:
     return text
 
 
-def _context(scenario: dict, wording: dict, permission: str, id_map: dict[str, str]) -> str:
+def _state_text(state: dict, style: str) -> str:
+    if style == "json":
+        return json.dumps(state, sort_keys=True)
+    return "; ".join(f"{key} is {json.dumps(state[key])}" for key in sorted(state)) + "."
+
+
+def _context(
+    scenario: dict, wording: dict, permission: str, id_map: dict[str, str], states: str = "json"
+) -> str:
     return "\n\n".join(
         [
             _task_text(scenario, wording, id_map),
             wording[permission],
-            "Initial state: " + json.dumps(scenario["initial_state"], sort_keys=True),
-            "Task completion state: " + json.dumps(scenario["goal"], sort_keys=True),
+            "Initial state: " + _state_text(scenario["initial_state"], states),
+            "Task completion state: " + _state_text(scenario["goal"], states),
         ]
     )
+
+
+def messages_for(system_prompt: str | None, prompt: str) -> list[dict]:
+    head = [] if system_prompt is None else [{"role": "system", "content": system_prompt}]
+    return head + [{"role": "user", "content": prompt}]
 
 
 def _executable_suffix(scenario: dict, order: tuple[int, ...], id_map: dict[str, str]) -> str:
@@ -109,6 +148,11 @@ def build_conditions(
     index, so each action appears in each position equally often over a bank of six scenarios.
     """
     plan = plan or DEFAULT_PLAN
+    variant_id = plan.get("prompt_variant", "standard")
+    if variant_id not in PROMPT_VARIANTS:
+        raise ValueError(f"unknown prompt_variant: {variant_id}")
+    variant = PROMPT_VARIANTS[variant_id]
+    system_prompt = variant["system_prompt"]
     validate_bank(scenarios, min_wordings=min_wordings)
     ordered = sorted(scenarios, key=lambda s: s["source_id"])
     conditions: list[dict] = []
@@ -141,7 +185,7 @@ def build_conditions(
                     formats.append(("option_free", None, "none", identity))
             for permission in permissions:
                 for format_name, order, arm, id_map in formats:
-                    context = _context(scenario, wording, permission, id_map)
+                    context = _context(scenario, wording, permission, id_map, variant["states"])
                     key: dict[str, str] = {}
                     if format_name == "mcq":
                         suffix, key = _mcq_suffix(scenario, order)
@@ -153,11 +197,12 @@ def build_conditions(
                             for a in scenario["actions"]
                         }
                     else:
-                        suffix, candidates = FREE_TEXT_INSTRUCTION, {}
+                        suffix, candidates = variant["free_text"], {}
                     oid = order_id(order) if order else "none"
-                    condition_id = ":".join(
-                        [scenario["source_id"], wording_id, permission, format_name, oid, arm]
-                    )
+                    parts = [scenario["source_id"], wording_id, permission, format_name, oid, arm]
+                    if variant_id != "standard":
+                        parts.append(variant_id)
+                    condition_id = ":".join(parts)
                     prompt = context + "\n\n" + suffix
                     conditions.append(
                         {
@@ -184,13 +229,11 @@ def build_conditions(
                             "id_map": dict(id_map),
                             "choice_key": key,
                             "answer_candidates": candidates,
+                            "prompt_variant": variant_id,
                             "prompt": prompt,
-                            "system_prompt": SYSTEM_PROMPT,
-                            "messages": [
-                                {"role": "system", "content": SYSTEM_PROMPT},
-                                {"role": "user", "content": prompt},
-                            ],
-                            "prompt_sha256": digest([SYSTEM_PROMPT, prompt]),
+                            "system_prompt": system_prompt,
+                            "messages": messages_for(system_prompt, prompt),
+                            "prompt_sha256": digest([system_prompt, prompt]),
                         }
                     )
     return conditions

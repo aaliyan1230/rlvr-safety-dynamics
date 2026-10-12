@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Protocol
 
 from ..io import read_jsonl, sha256_file, write_jsonl
+from .prompts import messages_for
 from .schema import SCHEMA_VERSION, digest, validate_response
 from .scoring import (
     EXECUTABLE_SCORER_ID,
@@ -86,10 +87,7 @@ def validate_requests(scenarios: list[dict], requests: list[dict]) -> None:
         expected_prompt = digest([request.get("system_prompt"), request.get("prompt")])
         if request.get("prompt_sha256") != expected_prompt:
             raise ValueError("request prompt does not match its hash")
-        if request.get("messages") != [
-            {"role": "system", "content": request["system_prompt"]},
-            {"role": "user", "content": request["prompt"]},
-        ]:
+        if request.get("messages") != messages_for(request["system_prompt"], request["prompt"]):
             raise ValueError("request messages do not match its prompt")
         sample_id = request.get("sample_id")
         if not isinstance(sample_id, str) or not sample_id:
@@ -264,6 +262,7 @@ def run_benchmark(
                 "run_id": manifest["run_id"],
                 **{k: request[k] for k in ROW_FIELDS},
                 "workload": request.get("workload"),
+                "prompt_variant": request.get("prompt_variant", "standard"),
                 "request_sha256": digest(request),
                 "response": response,
                 "score": _score(scenario, request, response),

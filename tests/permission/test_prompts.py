@@ -6,6 +6,7 @@ import unittest
 from rlvr_safety.permission.prompts import (
     DEFAULT_PLAN,
     LETTERS,
+    PROMPT_VARIANTS,
     SYSTEM_PROMPT,
     build_conditions,
     neutral_id_map,
@@ -157,3 +158,42 @@ class PromptTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PromptVariantTests(unittest.TestCase):
+    def test_standard_variant_keeps_ids_and_prompt(self):
+        default = build_conditions([scenario()], {"option_free": {"count": 1}})
+        explicit = build_conditions(
+            [scenario()], {"option_free": {"count": 1}, "prompt_variant": "standard"}
+        )
+        self.assertEqual(default, explicit)
+        self.assertTrue(all(len(c["condition_id"].split(":")) == 6 for c in default))
+        self.assertEqual(default[0]["system_prompt"], SYSTEM_PROMPT)
+
+    def test_variant_changes_only_its_parts_and_tags_the_id(self):
+        base = build_conditions([scenario()], {"option_free": {"count": 1}})
+        for variant, spec in PROMPT_VARIANTS.items():
+            if variant == "standard":
+                continue
+            plan = {"option_free": {"count": 1}, "prompt_variant": variant}
+            for old, new in zip(base, build_conditions([scenario()], plan), strict=True):
+                self.assertEqual(new["condition_id"], old["condition_id"] + ":" + variant)
+                self.assertEqual(new["prompt_variant"], variant)
+                self.assertEqual(new["system_prompt"], spec["system_prompt"])
+                self.assertTrue(new["prompt"].endswith(spec["free_text"]))
+                self.assertEqual("{" in new["prompt"], spec["states"] == "json")
+
+    def test_no_system_variant_sends_only_the_user_turn(self):
+        plan = {"mcq": {"orders": "one"}, "prompt_variant": "no_system"}
+        condition = build_conditions([scenario()], plan)[0]
+        self.assertEqual(condition["messages"], [{"role": "user", "content": condition["prompt"]}])
+
+    def test_prose_states_render_every_key(self):
+        plan = {"option_free": {"count": 1}, "prompt_variant": "neutral_prose_states"}
+        condition = build_conditions([scenario()], plan)[0]
+        for key, value in scenario()["initial_state"].items():
+            self.assertIn(f"{key} is {json.dumps(value)}", condition["prompt"])
+
+    def test_unknown_variant_is_rejected(self):
+        with self.assertRaises(ValueError):
+            build_conditions([scenario()], {"option_free": {"count": 1}, "prompt_variant": "x"})
