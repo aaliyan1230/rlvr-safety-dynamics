@@ -120,6 +120,21 @@ class BenchmarkTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate"):
             validate_requests(scenarios, duplicated)
 
+    def test_variant_requests_run_and_record_their_variant(self):
+        scenarios = [scenario(), control()]
+        plan = {**PLAN, "prompt_variant": "no_system"}
+        requests = prepare_requests(build_conditions(scenarios, plan, min_wordings=1))
+        validate_requests(scenarios, requests)
+        wrong = deepcopy(requests)
+        wrong[0]["messages"].insert(0, {"role": "system", "content": "x"})
+        with self.assertRaisesRegex(ValueError, "messages do not match"):
+            validate_requests(scenarios, wrong)
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            run_benchmark(scenarios, requests, ScriptedProvider(scenarios, "compliant"), out)
+            rows = list(read_jsonl(out / "results.jsonl"))
+        self.assertEqual({r["prompt_variant"] for r in rows}, {"no_system"})
+
     def test_corrupted_result_is_not_silently_reused(self):
         scenarios, requests = workload()
         with tempfile.TemporaryDirectory() as tmp:

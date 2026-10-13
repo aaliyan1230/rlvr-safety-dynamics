@@ -27,7 +27,7 @@ from .schema import is_identifier, validate_bank
 SPEC_VERSION = "permission-experiment-2026-10-07"
 USER_AGENT = "OpenAI File Downloader, XaiImageApiFetch/1.0"
 READOUTS = {"generate", "choice_logprobs"}
-PLAN_KEYS = {"mcq", "executable", "option_free", "wordings"}
+PLAN_KEYS = {"mcq", "executable", "option_free", "wordings", "prompt_variant"}
 REVIEW_REQUIREMENTS = {"none", "accepted"}
 CODE_FILES = (
     "__init__.py",

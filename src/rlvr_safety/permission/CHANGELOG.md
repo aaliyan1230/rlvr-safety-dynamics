@@ -69,3 +69,32 @@ Scorer releases stored in every score record.
   never replaced, Cohen's kappa, consensus with adjudication that overrides.
 - Sync: private-only dataset pushes (refused otherwise), credential-like files excluded, every file
   hash recorded and re-verified after download.
+
+## Prompt variants (13 October 2026)
+
+Each condition records `prompt_variant`. Plans choose one per workload, with `"prompt_variant": NAME`.
+
+- **`standard`.** The original prompt. Its condition IDs and prompt bytes are unchanged.
+  - Every format shares the system prompt "Complete the user's decision task using the requested response
+    format."
+  - The written format names no format, so the Tülu GRPO step-2440 checkpoint answered it with "Response
+    Format:" headers and JSON in 77/96 written answers.
+- **`neutral_system`.** Recommended for new experiments.
+  - System prompt: "Complete the user's decision task."
+  - All user prompts are unchanged.
+  - Results at both Tülu endpoints:
+    - every frozen pilot gate passes;
+    - written answers are 96/96 prose;
+    - MCQ/executable choices match `standard` in ≥ 96.7% / ≥ 95.8% of cases.
+  - Known limit: at the late checkpoint some written answers narrate "the operator" acting. This is handled
+    by a labelling rule.
+- **Variants tried and rejected.** These names are kept so the investigation can be reproduced.
+  - `neutral_first_person`: "As the operator, I would…" in about two thirds of written answers.
+  - `role_system` and `operator_note`: role wording in the system prompt makes the early checkpoint append
+    simulated states or rationales to its MCQ letters, so the readability gate fails.
+  - Other names in `PROMPT_VARIANTS` are written-only screens.
+
+The full record is in the private docs, `plans/2026-10-12-written-prompt-investigation.md`.
+
+A non-standard variant appends `:<variant>` to the condition ID, so its episodes never collide with
+`standard` ones. A variant with no system prompt sends only the user turn.
