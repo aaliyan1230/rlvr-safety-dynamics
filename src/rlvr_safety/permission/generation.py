@@ -124,6 +124,49 @@ def build_effective_config(inherited, max_new_tokens: int, pad_token_id: int):
     return effective, as_dict, sorted(unused) if unused else []
 
 
+def build_sampling_config(inherited, max_new_tokens: int, pad_token_id: int,
+                          temperature: float, top_p: float):
+    """Plain ancestral sampling at a pinned temperature/top-p; every other transform is off."""
+    effective = copy.deepcopy(inherited)
+    unused = effective.update(
+        **{**GREEDY_OVERRIDES, "do_sample": True, "temperature": temperature, "top_p": top_p,
+           "top_k": None},
+        max_new_tokens=max_new_tokens,
+        pad_token_id=pad_token_id,
+    )
+    as_dict = effective.to_dict()
+    expected = {**GREEDY_REQUIRED, "do_sample": True, "temperature": temperature, "top_p": top_p}
+    wrong = {k: as_dict.get(k) for k, v in expected.items() if as_dict.get(k) != v}
+    if as_dict.get("top_k") not in (None, 0):
+        wrong["top_k"] = as_dict.get("top_k")
+    if wrong:
+        raise ValueError(f"effective sampling config differs from the pinned settings: {wrong}")
+    return effective, as_dict, sorted(unused) if unused else []
+
+
+def condition_seed(base: int, condition_id: str) -> int:
+    """Per-condition seed so draws differ across conditions yet reproduce exactly on rerun."""
+    return base + int(hashlib.sha256(condition_id.encode()).hexdigest()[:12], 16)
+
+
+def split_sequences(
+    rows: list[list[int]], eos_ids: list[int], pad_id: int | None
+) -> list[list[int]]:
+    """Trim each sequence of a batched ``generate`` call after its first EOS (inclusive)."""
+    trimmed = []
+    for row in rows:
+        out = []
+        for token in row:
+            out.append(token)
+            if token in eos_ids:
+                break
+        else:
+            while out and pad_id is not None and out[-1] == pad_id and pad_id not in eos_ids:
+                out.pop()
+        trimmed.append(out)
+    return trimmed
+
+
 def sequence_logprob(rows: list[list[float]], token_ids: list[int]) -> float:
     """Sum of log P(token_i given prefix); ``rows[i]`` is the log-prob vector for token i."""
     if len(rows) != len(token_ids) or not token_ids:
@@ -227,9 +270,17 @@ class HFPermissionProvider:
         if not self.eos_ids or any(type(i) is not int for i in self.eos_ids):
             raise ValueError("explicit native EOS token IDs required")
         inherited = self.model.generation_config
-        self.effective, effective_dict, unused = build_effective_config(
-            inherited, self.generation["max_new_tokens"], self.tokenizer.eos_token_id
-        )
+        self.sampling = bool(self.generation.get("do_sample"))
+        if self.sampling:
+            self.effective, effective_dict, unused = build_sampling_config(
+                inherited, self.generation["max_new_tokens"], self.tokenizer.eos_token_id,
+                self.generation["temperature"], self.generation["top_p"],
+            )
+        else:
+            self.effective, effective_dict, unused = build_effective_config(
+                inherited, self.generation["max_new_tokens"], self.tokenizer.eos_token_id
+            )
+        self._batch: tuple[str, list[dict]] | None = None
         self.readouts = list(config.get("readouts", ["generate"]))
         launch = config.get("launch", {})
         self._provenance = {
@@ -247,6 +298,9 @@ class HFPermissionProvider:
             "inherited_generation_config": inherited.to_dict(),
             "effective_generation_config": effective_dict,
             "unused_generation_overrides": unused,
+            **({"sampling_seed_rule": "seed + int(sha256(condition_id)[:12], 16); all draws of "
+                "a condition come from one num_return_sequences=sample_count call"}
+               if self.sampling else {}),
             "eos_token_ids": self.eos_ids,
             "readouts": self.readouts,
             "packages": packages,
@@ -312,11 +366,21 @@ class HFPermissionProvider:
         return result, top5
 
     def respond(self, request: dict) -> dict:
+        if not self.sampling:
+            return self._generate(request, [request["sample_id"]])[0]
+        if self._batch is None or self._batch[0] != request["condition_id"]:
+            count = int(request["sample_count"])
+            draws = self._generate(request, [str(i) for i in range(count)])
+            self._batch = (request["condition_id"], draws)
+        response = dict(self._batch[1][int(request["sample_id"])])
+        return response
+
+    def _generate(self, request: dict, sample_ids: list[str]) -> list[dict]:
         import torch
         from transformers import StoppingCriteria, StoppingCriteriaList
 
         started = time.monotonic()
-        limit = self.generation["per_response_seconds"]
+        limit = self.generation["per_response_seconds"] * len(sample_ids)
 
         class Deadline(StoppingCriteria):
             triggered = False
@@ -326,8 +390,11 @@ class HFPermissionProvider:
                 return self.triggered
 
         deadline = Deadline()
-        torch.manual_seed(self.generation["seed"])
-        torch.cuda.manual_seed_all(self.generation["seed"])
+        seed = self.generation["seed"]
+        if self.sampling:
+            seed = condition_seed(seed, request["condition_id"])
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
         rendered = self.tokenizer.apply_chat_template(
             request["messages"], tokenize=False, add_generation_prompt=True
         )
@@ -338,36 +405,49 @@ class HFPermissionProvider:
         if prompt_tokens + cap > self.model.config.max_position_embeddings:
             raise ValueError("prompt plus generation cap exceeds model context")
         torch.cuda.reset_peak_memory_stats()
+        extra = {"num_return_sequences": len(sample_ids)} if self.sampling else {}
         with torch.inference_mode():
             generated = self.model.generate(
                 **inputs,
                 generation_config=self.effective,
                 stopping_criteria=StoppingCriteriaList([deadline]),
+                **extra,
             )
         torch.cuda.synchronize()
-        token_ids = generated[0, prompt_tokens:].tolist()
-        raw = self.tokenizer.decode(token_ids, skip_special_tokens=False)
-        final = self.tokenizer.decode(token_ids, skip_special_tokens=True)
-        response = {
-            "condition_id": request["condition_id"],
-            "sample_id": request["sample_id"],
-            "raw_response": final,
-            "raw_response_with_special_tokens": raw,
-            "generated_token_ids": token_ids,
-            "generated_tokens": len(token_ids),
-            "stop_status": classify_stop(token_ids, self.eos_ids, deadline.triggered, cap),
-            "rendered_prompt": rendered,
-            "rendered_prompt_sha256": hashlib.sha256(rendered.encode()).hexdigest(),
-            "prompt_tokens": prompt_tokens,
-        }
+        rows = [generated[i, prompt_tokens:].tolist() for i in range(len(sample_ids))]
+        if self.sampling:
+            rows = split_sequences(rows, self.eos_ids, self.tokenizer.pad_token_id)
         candidates = request.get("answer_candidates") or {}
-        if candidates and "choice_logprobs" in self.readouts:
+        readout = {}
+        if candidates and "choice_logprobs" in self.readouts and not self.sampling:
             logprobs, top5 = self._answer_logprobs(inputs["input_ids"], candidates)
-            response["answer_logprobs"] = logprobs
-            response["first_token_top5"] = top5
-        response["inference_seconds"] = time.monotonic() - started
-        response["peak_gpu_bytes"] = torch.cuda.max_memory_allocated()
-        return response
+            readout = {"answer_logprobs": logprobs, "first_token_top5": top5}
+        elapsed = time.monotonic() - started
+        peak = torch.cuda.max_memory_allocated()
+        responses = []
+        for sample_id, token_ids in zip(sample_ids, rows, strict=True):
+            response = {
+                "condition_id": request["condition_id"],
+                "sample_id": sample_id,
+                "raw_response": self.tokenizer.decode(token_ids, skip_special_tokens=True),
+                "raw_response_with_special_tokens": self.tokenizer.decode(
+                    token_ids, skip_special_tokens=False
+                ),
+                "generated_token_ids": token_ids,
+                "generated_tokens": len(token_ids),
+                "stop_status": classify_stop(token_ids, self.eos_ids, deadline.triggered, cap),
+                "rendered_prompt": rendered,
+                "rendered_prompt_sha256": hashlib.sha256(rendered.encode()).hexdigest(),
+                "prompt_tokens": prompt_tokens,
+                **readout,
+                "inference_seconds": elapsed / len(sample_ids),
+                "peak_gpu_bytes": peak,
+            }
+            if self.sampling:
+                response.update(sampling_seed=seed, batch_size=len(sample_ids),
+                                batch_inference_seconds=elapsed)
+            responses.append(response)
+        return responses
 
 
 def save_runtime(path: Path, provider: HFPermissionProvider) -> None:
