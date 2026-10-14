@@ -207,3 +207,56 @@ class McqLabellingTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class OneHumanJudgeTests(unittest.TestCase):
+    def make_job(self, root: Path, judge_labels: list[str]):
+        from rlvr_safety.agent_tasks.core import make_task
+
+        tasks = [make_task(freeform_prelabel.JOB, "r", "label", {"answer": f"a{i}",
+                                                                  "options": {"A": "x"}}, {})
+                 for i in range(len(judge_labels))]
+        job = root / "job"
+        write_plan(job, freeform_prelabel.JOB, "r", tasks, {})
+        answers = {t["task_id"]: lab for t, lab in zip(tasks, judge_labels, strict=True)}
+        run_backend(job, CallableBackend(
+            lambda t: json.dumps({"matches": answers[t["task_id"]], "evidence": ""}), "j", "m"))
+        ingest(job, lambda task, env: env["payload"], operator="t")
+        return job, [t["task_id"] for t in tasks]
+
+    def write_labels(self, job: Path, name: str, labels: dict[str, str]):
+        path = job / "human_labels" / f"{name}.jsonl"
+        path.parent.mkdir(exist_ok=True)
+        path.write_text("".join(json.dumps({"task_id": t, "label": lab}) + "\n"
+                                for t, lab in labels.items()))
+
+    def test_assignment_is_balanced_with_overlap(self):
+        ids = [f"t{i:02d}" for i in range(20)]
+        plan = labeling.assign_tasks(ids, ["ayesha", "aaliyan"], overlap=0.1, seed=1)
+        both = [t for t, who in plan.items() if len(who) == 2]
+        self.assertEqual(len(both), 2)
+        counts = {n: sum(n in who for who in plan.values()) for n in ("ayesha", "aaliyan")}
+        self.assertEqual(counts, {"ayesha": 11, "aaliyan": 11})
+        self.assertEqual(plan, labeling.assign_tasks(ids, ["ayesha", "aaliyan"], overlap=0.1,
+                                                     seed=1))
+
+    def test_final_labels_need_judge_agreement_or_adjudication(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            job, ids = self.make_job(Path(tmp), ["A", "B", "C", "A"])
+            self.write_labels(job, "ayesha", {ids[0]: "A", ids[1]: "A"})
+            self.write_labels(job, "aaliyan", {ids[2]: "B", ids[1]: "A"})
+            result = labeling.human_judge_final(job, ["ayesha", "aaliyan"])
+            self.assertEqual(result["final"], {ids[0]: "A", ids[1]: "A"})
+            self.assertEqual(result["needs_adjudication"], [ids[2]])
+            self.assertEqual(result["adjudication_candidates"][ids[2]], ["B", "C"])
+            self.assertEqual(result["unlabelled"], [ids[3]])
+            sheet = Path(tmp) / "adj.csv"
+            labeling.export_csv(job, sheet, task_ids=result["needs_adjudication"],
+                                candidates=result["adjudication_candidates"])
+            with sheet.open() as handle:
+                row = next(csv.DictReader(handle))
+            self.assertEqual({row["candidate_1"], row["candidate_2"]}, {"B", "C"})
+            self.write_labels(job, labeling.ADJUDICATED, {ids[2]: "C"})
+            again = labeling.human_judge_final(job, ["ayesha", "aaliyan"])
+            self.assertEqual(again["final"][ids[2]], "C")
+            self.assertEqual(again["needs_adjudication"], [])
