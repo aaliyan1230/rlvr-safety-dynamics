@@ -328,3 +328,19 @@ class GateTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DistinctDrawsGateTests(unittest.TestCase):
+    def test_counts_conditions_whose_draws_differ(self):
+        from rlvr_safety.permission.analysis import evaluate_gate
+
+        def row(condition, text):
+            return {"format": "option_free", "is_control": False, "condition_id": condition,
+                    "response": {"raw_response": text}}
+
+        rows = [row("a", "x"), row("a", "y"), row("b", "z"), row("b", "z")]
+        gate = {"id": "G6", "kind": "distinct_draws", "gating": False,
+                "params": {"format": "option_free", "min_fraction": 0.9}}
+        result = evaluate_gate(gate, rows, 4, {})
+        self.assertEqual(result["observed"]["with_distinct_draws"], 1)
+        self.assertEqual(result["status"], "reported_below_target")

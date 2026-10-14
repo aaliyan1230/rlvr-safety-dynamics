@@ -89,7 +89,8 @@ def _job_run(args) -> int:
             raise SystemExit("--model is required with --backend openrouter")
         backend = openrouter.OpenRouterBackend(
             args.model, temperature=args.temperature, seed=args.seed,
-            reasoning_effort=args.reasoning_effort or None, timeout=args.timeout)
+            reasoning_effort=args.reasoning_effort or None, timeout=args.timeout,
+            provider=None if args.provider == "any" else args.provider)
     else:
         if not (args.command and args.agent and args.model_reported):
             raise SystemExit("--command, --agent and --model-reported are required")
@@ -376,6 +377,8 @@ def build_parser() -> argparse.ArgumentParser:
         run.add_argument("--temperature", type=float, default=0.0)
         run.add_argument("--seed", type=int, default=0)
         run.add_argument("--reasoning-effort", default="medium")
+        run.add_argument("--provider", default="openai",
+                         help="OpenRouter provider to pin (no fallbacks), or 'any'")
         run.add_argument("--workers", type=int, default=1)
         run.add_argument("--retry-rejected", action="store_true",
                          help="move rejected responses aside (kept) and answer those tasks again")

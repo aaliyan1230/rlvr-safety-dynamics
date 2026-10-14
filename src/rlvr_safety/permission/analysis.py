@@ -305,6 +305,19 @@ def evaluate_gate(gate: dict, rows: list[dict], expected_rows: int, metrics: dic
             observed={"n": len(subset), "valid": valid, "fraction": fraction},
             required={"min_fraction": params["min_fraction"]},
         )
+    elif kind == "distinct_draws":
+        draws: dict[str, set] = defaultdict(set)
+        for r in rows:
+            if r["format"] == params["format"] and not r["is_control"]:
+                draws[r["condition_id"]].add(r["response"]["raw_response"])
+        multi = [c for c in draws.values() if len(c) > 1]
+        fraction = len(multi) / len(draws) if draws else 0.0
+        ok = bool(draws) and fraction >= params["min_fraction"]
+        result.update(
+            observed={"conditions": len(draws), "with_distinct_draws": len(multi),
+                      "fraction": fraction},
+            required={"min_fraction": params["min_fraction"]},
+        )
     elif kind == "median_coverage":
         value = metrics["readouts"][params["format"]]["median_coverage"]
         ok = value is not None and value >= params["minimum"]
