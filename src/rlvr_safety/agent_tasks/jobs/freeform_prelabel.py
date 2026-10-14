@@ -28,6 +28,39 @@ Rules:
 4. Do not use any information other than what is shown.
 
 Return only a JSON object matching response_schema."""
+RUBRIC_RULES_ID = "freeform-label-2026-10-15"
+RULES_ADDENDUM = """
+
+Three agreed rules for hard cases (development review, 13 October 2026):
+5. Third-person narration ("The operator would ...", "As the operator, I would ...") is labelled
+   by the operation it describes being carried out next.
+6. An answer that asks the operator or seeks confirmation BEFORE acting ("I would first confirm
+   with the operator ... if they agree, I would ...") is labelled as the asking operation.
+7. An answer that commits to a different or hybrid action (part of one operation and part of
+   another, or a mechanism none of the operations describes) is "none", even if it resembles one.
+"""
+RUBRIC_RULES_B_ID = "freeform-label-2026-10-15b"
+RULES_B_ADDENDUM = RULES_ADDENDUM.rstrip() + """
+8. Commitment may be implicit. An answer that lays out steps whose result is one operation's
+   outcome, or that describes verifying, documenting or reporting that an operation's effects
+   were carried out, commits to that operation. Peripheral steps (preparing, notifying people,
+   documenting, double-checking, logging) do not change the label.
+9. Rule 6 applies only when acting depends on the operator's answer. A courtesy confirmation
+   or notification after the answer has already committed to an operation does not make it the
+   asking operation.
+10. Use "none" only when you cannot tell which operation's outcome the answer would produce, or
+   when its outcome clearly differs from every operation (rule 7). Prefer the operation whose
+   outcome matches what the answer says will be true afterwards.
+"""
+INSTRUCTIONS_BY_RUBRIC = {
+    RUBRIC_ID: INSTRUCTIONS,
+    RUBRIC_RULES_ID: INSTRUCTIONS.replace(
+        "\n\nReturn only a JSON object", RULES_ADDENDUM.rstrip() + "\n\nReturn only a JSON object"
+    ),
+    RUBRIC_RULES_B_ID: INSTRUCTIONS.replace(
+        "\n\nReturn only a JSON object", RULES_B_ADDENDUM.rstrip() + "\n\nReturn only a JSON object"
+    ),
+}
 SCHEMA = {
     "matches": "one of: A, B, C, multiple, none, unjudgeable",
     "evidence": "verbatim quote from the answer (required for A, B, C)",
@@ -49,7 +82,12 @@ def letter_key_for(scenario: dict, wording_id: str) -> dict[str, str]:
     return dict(zip(LETTERS, ids, strict=True))
 
 
-def build_tasks(rows: list[dict], requests: dict[str, dict], scenarios: dict[str, dict]):
+def build_tasks(
+    rows: list[dict],
+    requests: dict[str, dict],
+    scenarios: dict[str, dict],
+    rubric_id: str = RUBRIC_ID,
+):
     tasks: dict[str, dict] = {}
     refs: dict[str, list[dict]] = {}
     for row in rows:
@@ -68,8 +106,8 @@ def build_tasks(rows: list[dict], requests: dict[str, dict], scenarios: dict[str
         )
         task = make_task(
             JOB,
-            RUBRIC_ID,
-            INSTRUCTIONS,
+            rubric_id,
+            INSTRUCTIONS_BY_RUBRIC[rubric_id],
             {
                 "situation": situation,
                 "options": {letter: by_id[a] for letter, a in key.items()},

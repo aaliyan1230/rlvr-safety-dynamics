@@ -68,11 +68,14 @@ def _job_plan(args) -> int:
         rows = list(read_jsonl(args.run_dir / "results.jsonl"))
         requests = {r["episode_id"]: r for r in read_jsonl(args.run_dir / "requests.jsonl")}
         scenarios = {s["source_id"]: s for s in read_jsonl(args.run_dir / "scenarios.jsonl")}
-        tasks, refs = module.build_tasks(rows, requests, scenarios)
+        if args.job == "prelabel":
+            tasks, refs = module.build_tasks(rows, requests, scenarios, args.rubric)
+        else:
+            tasks, refs = module.build_tasks(rows, requests, scenarios)
     if not tasks:
         _print({"tasks": 0, "note": "nothing to do"})
         return 0
-    manifest = core.write_plan(args.job_dir, module.JOB, module.RUBRIC_ID, tasks, refs)
+    manifest = core.write_plan(args.job_dir, module.JOB, tasks[0]["rubric_id"], tasks, refs)
     _print({"job": module.JOB, "tasks": len(manifest["tasks"]), "job_dir": str(args.job_dir)})
     return 0
 
@@ -346,6 +349,9 @@ def build_parser() -> argparse.ArgumentParser:
         elif name == "critique":
             plan.add_argument("--bank", type=Path, required=True)
         else:
+            if name == "prelabel":
+                plan.add_argument("--rubric", default=freeform_prelabel.RUBRIC_ID,
+                                  choices=sorted(freeform_prelabel.INSTRUCTIONS_BY_RUBRIC))
             plan.add_argument(
                 "--run-dir",
                 type=Path,
