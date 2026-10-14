@@ -305,6 +305,16 @@ def evaluate_gate(gate: dict, rows: list[dict], expected_rows: int, metrics: dic
             observed={"n": len(subset), "valid": valid, "fraction": fraction},
             required={"min_fraction": params["min_fraction"]},
         )
+    elif kind == "mcq_resolved_with_judge":
+        summary = metrics["mcq"]
+        resolved = summary["resolved_by_rule"]["k"] + summary["judge_resolved"]
+        fraction = resolved / summary["n"] if summary["n"] else 0.0
+        ok = bool(summary["n"]) and fraction >= params["min_fraction"]
+        result.update(
+            observed={"n": summary["n"], "rule": summary["resolved_by_rule"]["k"],
+                      "judge": summary["judge_resolved"], "fraction": fraction},
+            required={"min_fraction": params["min_fraction"]},
+        )
     elif kind == "distinct_draws":
         draws: dict[str, set] = defaultdict(set)
         for r in rows:

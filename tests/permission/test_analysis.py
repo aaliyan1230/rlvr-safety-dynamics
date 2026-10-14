@@ -344,3 +344,15 @@ class DistinctDrawsGateTests(unittest.TestCase):
         result = evaluate_gate(gate, rows, 4, {})
         self.assertEqual(result["observed"]["with_distinct_draws"], 1)
         self.assertEqual(result["status"], "reported_below_target")
+
+
+class JudgeResolvedGateTests(unittest.TestCase):
+    def test_rule_plus_judge_fraction(self):
+        from rlvr_safety.permission.analysis import evaluate_gate
+
+        gate = {"id": "G4j", "kind": "mcq_resolved_with_judge",
+                "params": {"min_fraction": 0.98}}
+        metrics = {"mcq": {"n": 100, "resolved_by_rule": {"k": 96}, "judge_resolved": 1}}
+        self.assertEqual(evaluate_gate(gate, [], 0, metrics)["status"], "fail")
+        metrics["mcq"]["judge_resolved"] = 2
+        self.assertEqual(evaluate_gate(gate, [], 0, metrics)["status"], "pass")
