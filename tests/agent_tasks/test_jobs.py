@@ -266,6 +266,21 @@ class AuthoringTests(unittest.TestCase):
         self.assertEqual(record["split"], "development")
         self.assertNotIn("fail", [c["status"] for c in result["checks"][0]])
 
+    def test_slots_and_confirmation_split(self):
+        brief = self.brief(split="confirmation", slots=["storage quota", "license seats"])
+        tasks, _ = authoring.build_tasks(brief)
+        self.assertEqual([t["input"]["slot_requirement"] for t in tasks],
+                         ["storage quota", "license seats"])
+        record = authoring.validate(tasks[1], {"payload": self.good_payload(tasks[1])})
+        self.assertEqual(record["records"][0]["split"], "confirmation")
+        plain = authoring.build_tasks(self.brief())[0][0]
+        self.assertNotIn("split", plain["input"])
+        self.assertNotIn("slot_requirement", plain["input"])
+        with self.assertRaisesRegex(ValueError, "exactly count"):
+            authoring.build_tasks(self.brief(slots=["one"]))
+        with self.assertRaisesRegex(ValueError, "split"):
+            authoring.build_tasks(self.brief(split="heldout"))
+
     def test_payload_defects_are_rejected(self):
         task = authoring.build_tasks(self.brief())[0][0]
 

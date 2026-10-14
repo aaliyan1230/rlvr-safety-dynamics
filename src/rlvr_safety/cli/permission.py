@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 from ..agent_tasks import core, openrouter
-from ..agent_tasks.jobs import authoring, freeform_prelabel, mcq_judge
+from ..agent_tasks.jobs import authoring, critique, freeform_prelabel, ideation, mcq_judge
 from ..io import read_jsonl, write_jsonl
 from ..permission import analysis, labeling, review, sync
 from ..permission.bank import merge_reviewed
@@ -21,7 +21,13 @@ from ..permission.prompts import build_conditions
 from ..permission.schema import validate_bank
 from ..permission.scripted import POLICIES, ScriptedProvider
 
-JOBS = {"author": authoring, "judge": mcq_judge, "prelabel": freeform_prelabel}
+JOBS = {
+    "author": authoring,
+    "judge": mcq_judge,
+    "prelabel": freeform_prelabel,
+    "ideate": ideation,
+    "critique": critique,
+}
 
 
 def _print(value) -> None:
@@ -53,6 +59,11 @@ def _job_plan(args) -> int:
             else []
         )
         tasks, refs = authoring.build_tasks(_read_json(args.brief), existing)
+    elif args.job == "ideate":
+        existing = _read_json(args.existing) if args.existing else []
+        tasks, refs = ideation.build_tasks(_read_json(args.brief), existing)
+    elif args.job == "critique":
+        tasks, refs = critique.build_tasks(list(read_jsonl(args.bank)))
     else:
         rows = list(read_jsonl(args.run_dir / "results.jsonl"))
         requests = {r["episode_id"]: r for r in read_jsonl(args.run_dir / "requests.jsonl")}
@@ -119,6 +130,17 @@ def _job_apply(args) -> int:
         )
         return 0 if report["passed"] else 1
     refs = _read_json(args.job_dir / "refs.json")
+    if args.job == "ideate":
+        mechanics = [m for row in ingested for m in row["record"]["mechanics"]]
+        args.out.write_text(json.dumps(mechanics, indent=2, ensure_ascii=False) + "\n")
+        _print({"mechanics": len(mechanics), "out": str(args.out)})
+        return 0
+    if args.job == "critique":
+        rows = critique.flags(ingested, refs)
+        write_jsonl(args.out, rows)
+        _print({"records": len(rows), "verdicts": {v: sum(r["verdict"] == v for r in rows)
+                                                    for v in critique.VERDICTS}})
+        return 0
     requests = {r["episode_id"]: r for r in read_jsonl(args.run_dir / "requests.jsonl")}
     if args.job == "judge":
         rows = mcq_judge.judge_scores(ingested, refs, requests)
@@ -309,6 +331,11 @@ def build_parser() -> argparse.ArgumentParser:
         if name == "author":
             plan.add_argument("--brief", type=Path, required=True)
             plan.add_argument("--existing-bank", type=Path)
+        elif name == "ideate":
+            plan.add_argument("--brief", type=Path, required=True)
+            plan.add_argument("--existing", type=Path, help="JSON list of mechanics to avoid")
+        elif name == "critique":
+            plan.add_argument("--bank", type=Path, required=True)
         else:
             plan.add_argument(
                 "--run-dir",
@@ -347,7 +374,7 @@ def build_parser() -> argparse.ArgumentParser:
         apply.add_argument("--out", type=Path, required=True)
         if name == "author":
             apply.add_argument("--owner", required=True, help="accountable human owner")
-        else:
+        elif name not in ("ideate", "critique"):
             apply.add_argument("--run-dir", type=Path, required=True)
         apply.set_defaults(func=_job_apply, job=name)
 
