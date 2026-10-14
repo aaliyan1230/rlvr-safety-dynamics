@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import subprocess
 import sys
 import tempfile
 import unittest
@@ -15,6 +14,7 @@ from rlvr_safety.agent_tasks.core import (
     load_manifest,
     make_task,
     pending_tasks,
+    retry_rejected,
     run_backend,
     verify_task,
     write_plan,
@@ -72,7 +72,7 @@ class CoreTests(unittest.TestCase):
         write_plan(self.dir, "demo", "demo-rubric-1", tasks())
         backend = CallableBackend(solver, agent="unit-test", model_reported="none")
         done = run_backend(self.dir, backend, limit=2)
-        self.assertEqual(len(done), 2)
+        self.assertEqual(len(done["answered"]), 2)
         counts = ingest(self.dir, validate, operator="tester", now="2026-10-07T00:00:00+00:00")
         self.assertEqual(counts, {"accepted": 2, "rejected": 0, "unchanged": 0, "missing": 1})
         run_backend(self.dir, backend)
@@ -176,9 +176,24 @@ class CoreTests(unittest.TestCase):
     def test_failing_command_does_not_write_a_response(self):
         write_plan(self.dir, "demo", "demo-rubric-1", tasks(1))
         backend = CommandBackend([sys.executable, "-c", "raise SystemExit(3)"], "bad", "none")
-        with self.assertRaises(subprocess.CalledProcessError):
-            run_backend(self.dir, backend)
+        result = run_backend(self.dir, backend)
+        self.assertEqual(len(result["failed"]), 1)
         self.assertEqual(len(pending_tasks(self.dir)), 1)
+        log = (self.dir / "backend_failures.jsonl").read_text()
+        self.assertIn("CalledProcessError", log)
+
+    def test_rejected_response_is_kept_and_retried(self):
+        write_plan(self.dir, "demo", "demo-rubric-1", tasks(1))
+        bad = CallableBackend(lambda t: json.dumps({"answer": -1}), "unit", "none")
+        run_backend(self.dir, bad)
+        self.assertEqual(ingest(self.dir, validate, operator="t")["rejected"], 1)
+        self.assertEqual(pending_tasks(self.dir), [])
+        moved = retry_rejected(self.dir)
+        self.assertEqual(len(moved), 1)
+        self.assertEqual(len(list((self.dir / "responses" / "rejected").glob("*.json"))), 1)
+        run_backend(self.dir, CallableBackend(solver, "unit", "none"))
+        self.assertEqual(ingest(self.dir, validate, operator="t")["accepted"], 1)
+        self.assertTrue(audit(self.dir)["ok"])
 
 
 if __name__ == "__main__":

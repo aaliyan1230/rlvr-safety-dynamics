@@ -20,6 +20,7 @@ agent, model, response hash, time, operator) to `ingested.jsonl`. Rejected respo
 |---|---|---|
 | File (default) | A coding agent (Claude Code, Codex, opencode) or a person answers | Read `tasks/<id>.json`, write `responses/<id>.json` with the envelope above |
 | `CommandBackend` | Any CLI can answer | Task JSON on stdin, payload JSON on stdout: `CommandBackend(["codex", "exec", "..."], agent="codex", model_reported="...")` |
+| `OpenRouterBackend` | Any model on OpenRouter (GPT, Gemini, Claude, open models) | `rlvr-permission author run --backend openrouter --model openai/gpt-6.1-sol --workers 4`; key from `OPENROUTER_API_KEY` (env or owner-only `.env`); settings, returned model, generation ID, provider and usage are recorded in the envelope, never the key |
 | `CallableBackend` | An LLM API (Gemini, OpenAI, Anthropic, local model) | Wrap `fn(task) -> JSON text`; see the template below |
 
 ```python
@@ -43,3 +44,5 @@ run_backend(job_dir, CallableBackend(answer, agent="my-api", model_reported="mod
 
 AI judgments never replace human decisions: judge scores are stored separately from the rule
 score, and humans label every judged reply in the diagnostic before the judge is trusted.
+
+A backend failure is logged to `backend_failures.jsonl` and the task stays pending. `run --retry-rejected` moves rejected responses to `responses/rejected/` (kept, never deleted) so those tasks are answered again.

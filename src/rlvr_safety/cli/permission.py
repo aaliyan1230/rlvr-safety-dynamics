@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from ..agent_tasks import core
+from ..agent_tasks import core, openrouter
 from ..agent_tasks.jobs import authoring, freeform_prelabel, mcq_judge
 from ..io import read_jsonl, write_jsonl
 from ..permission import analysis, labeling, review, sync
@@ -67,10 +67,23 @@ def _job_plan(args) -> int:
 
 
 def _job_run(args) -> int:
-    command = shlex.split(args.command)
-    backend = core.CommandBackend(command, args.agent, args.model_reported, timeout=args.timeout)
-    _print({"answered": core.run_backend(args.job_dir, backend, limit=args.limit)})
-    return 0
+    if args.backend == "openrouter":
+        if not args.model:
+            raise SystemExit("--model is required with --backend openrouter")
+        backend = openrouter.OpenRouterBackend(
+            args.model, temperature=args.temperature, seed=args.seed,
+            reasoning_effort=args.reasoning_effort or None, timeout=args.timeout)
+    else:
+        if not (args.command and args.agent and args.model_reported):
+            raise SystemExit("--command, --agent and --model-reported are required")
+        command = shlex.split(args.command)
+        backend = core.CommandBackend(command, args.agent, args.model_reported,
+                                      timeout=args.timeout)
+    if args.retry_rejected:
+        core.retry_rejected(args.job_dir)
+    result = core.run_backend(args.job_dir, backend, limit=args.limit, workers=args.workers)
+    _print(result)
+    return 0 if not result["failed"] else 1
 
 
 def _job_ingest(args) -> int:
@@ -305,13 +318,21 @@ def build_parser() -> argparse.ArgumentParser:
             )
         plan.set_defaults(func=_job_plan, job=name)
         run = actions.add_parser(
-            "run", help="answer pending tasks with any command (stdin->stdout)"
+            "run", help="answer pending tasks with a command (stdin->stdout) or OpenRouter"
         )
         run.add_argument("--job-dir", type=Path, required=True)
-        run.add_argument("--command", required=True, help="e.g. 'codex exec --json'")
-        run.add_argument("--agent", required=True)
-        run.add_argument("--model-reported", required=True)
-        run.add_argument("--timeout", type=int, default=300)
+        run.add_argument("--backend", choices=("command", "openrouter"), default="command")
+        run.add_argument("--command", help="e.g. 'codex exec --json'")
+        run.add_argument("--agent")
+        run.add_argument("--model-reported")
+        run.add_argument("--model", help="OpenRouter model ID, e.g. openai/gpt-6.1-sol")
+        run.add_argument("--temperature", type=float, default=0.0)
+        run.add_argument("--seed", type=int, default=0)
+        run.add_argument("--reasoning-effort", default="medium")
+        run.add_argument("--workers", type=int, default=1)
+        run.add_argument("--retry-rejected", action="store_true",
+                         help="move rejected responses aside (kept) and answer those tasks again")
+        run.add_argument("--timeout", type=int, default=600)
         run.add_argument("--limit", type=int)
         run.set_defaults(func=_job_run, job=name)
         ingest = actions.add_parser("ingest")
