@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from rlvr_safety.permission.checks import check_bank, check_scenario
+from rlvr_safety.permission.checks import check_bank, check_scenario, near_duplicates
 from rlvr_safety.permission.prompts import build_conditions
 
 from .helpers import control, scenario
@@ -104,3 +104,24 @@ class CheckTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NearDuplicateTests(unittest.TestCase):
+    def test_copies_are_flagged_within_and_against_reference(self):
+        first = scenario()
+        copy = dict(scenario(), source_id="copy")
+        report = check_bank([first], reference=[copy])
+        found = next(c for c in report["bank"] if c["check"] == "near_duplicates")
+        self.assertEqual(found["status"], "warn")
+        self.assertEqual(found["pairs"][0]["b"], "copy")
+        self.assertTrue(report["passed"])
+        self.assertEqual(near_duplicates([first, copy])[0]["ratio"], 1.0)
+
+    def test_distinct_records_pass(self):
+        other = scenario()
+        other["source_id"] = "other"
+        other["wordings"] = {"original": dict(other["wordings"]["original"],
+                                              task="Completely unrelated words about lighthouses.")}
+        for action in other["actions"]:
+            action["description"] = "Zebra " * 3
+        self.assertEqual(near_duplicates([scenario(), other]), [])

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import difflib
 import re
 from collections import Counter
 
@@ -146,7 +147,34 @@ def _twin_differences(conditions: list[dict]) -> list[str]:
     return problems
 
 
-def check_bank(scenarios: list[dict], conditions: list[dict] | None = None) -> dict:
+NEAR_DUPLICATE_RATIO = 0.6
+
+
+def _signature(record: dict) -> str:
+    wording = record["wordings"][sorted(record["wordings"])[0]]
+    descriptions = " ".join(a["description"] for a in record["actions"])
+    return re.sub(r"\s+", " ", f"{wording['task']} {descriptions}").casefold()
+
+
+def near_duplicates(scenarios: list[dict], reference: list[dict] | None = None,
+                    threshold: float = NEAR_DUPLICATE_RATIO) -> list[dict]:
+    """Pairs whose first-wording task text and action descriptions look alike (difflib ratio)."""
+    pairs = []
+    mine = [(r["source_id"], _signature(r)) for r in scenarios]
+    others = [(r["source_id"], _signature(r)) for r in (reference or [])]
+    for i, (a, text_a) in enumerate(mine):
+        for b, text_b in mine[i + 1 :] + others:
+            ratio = difflib.SequenceMatcher(None, text_a, text_b, autojunk=False).ratio()
+            if ratio >= threshold:
+                pairs.append({"a": a, "b": b, "ratio": round(ratio, 3)})
+    return sorted(pairs, key=lambda p: -p["ratio"])
+
+
+def check_bank(
+    scenarios: list[dict],
+    conditions: list[dict] | None = None,
+    reference: list[dict] | None = None,
+) -> dict:
     report: dict = {"scenarios": {}, "bank": []}
     for scenario in scenarios:
         report["scenarios"][scenario["source_id"]] = check_scenario(scenario)
@@ -157,6 +185,16 @@ def check_bank(scenarios: list[dict], conditions: list[dict] | None = None) -> d
             "status": "pass",
             "detail": f"{len(skeletons)} skeletons over {len(scenarios)} records",
             "counts": dict(skeletons),
+        }
+    )
+    duplicates = near_duplicates(scenarios, reference)
+    report["bank"].append(
+        {
+            "check": "near_duplicates",
+            "status": "warn" if duplicates else "pass",
+            "detail": f"{len(duplicates)} pair(s) at difflib ratio >= {NEAR_DUPLICATE_RATIO}"
+            + (f" against {len(reference)} reference record(s)" if reference else ""),
+            "pairs": duplicates,
         }
     )
     if conditions is not None:

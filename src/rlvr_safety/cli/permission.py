@@ -44,7 +44,10 @@ def cmd_check_bank(args) -> int:
     validate_bank(bank, min_wordings=args.min_wordings)
     plan = _read_json(args.plan) if args.plan else None
     conditions = build_conditions(bank, plan, min_wordings=args.min_wordings) if plan else None
-    report = check_bank(bank, conditions)
+    reference = list(read_jsonl(args.reference)) if args.reference else None
+    report = check_bank(bank, conditions, reference)
+    if args.out:
+        args.out.write_text(json.dumps(report, indent=2) + "\n")
     _print({k: report[k] for k in ("passed", "failures", "warnings")})
     return 0 if report["passed"] else 1
 
@@ -333,6 +336,8 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("--bank", type=Path, required=True)
     check.add_argument("--plan", type=Path, help="prompt plan JSON; adds prompt-level checks")
     check.add_argument("--min-wordings", type=int, default=1)
+    check.add_argument("--reference", type=Path, help="bank to compare against for near-duplicates")
+    check.add_argument("--out", type=Path, help="write the full report as JSON")
     check.set_defaults(func=cmd_check_bank)
 
     for name, job in JOBS.items():
