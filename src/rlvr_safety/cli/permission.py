@@ -12,7 +12,7 @@ from pathlib import Path
 from ..agent_tasks import core, openrouter
 from ..agent_tasks.jobs import authoring, critique, freeform_prelabel, ideation, mcq_judge
 from ..io import read_jsonl, write_jsonl
-from ..permission import analysis, labeling, review, sync
+from ..permission import analysis, contrasts, labeling, review, sync
 from ..permission.bank import merge_reviewed
 from ..permission.benchmark import run_benchmark
 from ..permission.checks import check_bank
@@ -262,7 +262,7 @@ def cmd_analyze(args) -> int:
     requests = {r["episode_id"]: r for r in read_jsonl(bundle / "requests.jsonl")}
     gates = _read_json(bundle / "gates.json")
     gates["expected_rows"] = len(requests)
-    all_metrics, sections = {}, []
+    all_metrics, sections, per_model = {}, [], {}
     for model in spec["models"]:
         label = model["label"]
         rows = list(read_jsonl(args.run_dir / label / "benchmark/results.jsonl"))
@@ -277,7 +277,9 @@ def cmd_analyze(args) -> int:
             refs = _read_json(job_dir / "refs.json")
             judge = mcq_judge.judge_scores(_read_ingested(job_dir), refs, requests)
         labels = None
-        if args.label_job_dir and args.labellers:
+        if args.episode_labels:
+            labels = _read_json(args.episode_labels / f"{label}.json")
+        elif args.label_job_dir and args.labellers:
             job_dir = _model_job_dir(args.label_job_dir, label, len(spec["models"]) > 1)
             task_labels = labeling.consensus(job_dir, args.labellers.split(","))
             source_of = {r["episode_id"]: r["source_id"] for r in rows}
@@ -289,6 +291,9 @@ def cmd_analyze(args) -> int:
         )
         all_metrics[label] = metrics
         sections.append(analysis.render_markdown(label, metrics))
+        if labels is not None:
+            judge_map = {x["episode_id"]: x for x in judge} if judge else None
+            per_model[label] = contrasts.model_contrasts(rows, scenarios, labels, judge_map)
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "analysis.json").write_text(json.dumps(all_metrics, indent=2) + "\n")
     header = (
@@ -296,6 +301,10 @@ def cmd_analyze(args) -> int:
         f"Analysis version `{analysis.ANALYSIS_VERSION}`.\n\n"
     )
     (args.out / "report.md").write_text(header + "\n".join(sections))
+    if per_model:
+        labels_order = [m["label"] for m in spec["models"]]
+        combined = contrasts.report(per_model, early=labels_order[0], late=labels_order[-1])
+        (args.out / "contrasts.json").write_text(json.dumps(combined, indent=2) + "\n")
     _print({label: {"gates_passed": m.get("gates_passed")} for label, m in all_metrics.items()})
     return 0
 
@@ -449,6 +458,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="job folder, or parent of per-model jobs for multi-model runs",
     )
     analyze.add_argument("--labellers", help="comma-separated labellers whose consensus is used")
+    analyze.add_argument(
+        "--episode-labels", type=Path,
+        help="folder of <model label>.json files mapping episode_id to a final role label; "
+        "enables the pre-registered contrasts (contrasts.json)",
+    )
     analyze.set_defaults(func=cmd_analyze)
 
     syncp = sub.add_parser("sync", help="private Hugging Face dataset sync")
