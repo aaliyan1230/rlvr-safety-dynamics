@@ -16,6 +16,7 @@ from pathlib import Path
 from rlvr_safety.io import read_jsonl
 from rlvr_safety.permission.benchmark import run_benchmark
 from rlvr_safety.permission.generation import HFPermissionProvider, save_runtime
+from rlvr_safety.permission.runtime import verify_runtime_lock
 from rlvr_safety.provenance import verify_manifest
 
 
@@ -30,6 +31,7 @@ def main() -> None:
     requests = list(read_jsonl(root / "requests.jsonl"))
     output = root / "out"
     output.mkdir(exist_ok=True)
+    runtime_check = verify_runtime_lock(root / "runtime-lock.txt", output / "runtime_check.json")
     phase = {"stage": "starting", "model": None, "completed": 0, "total": len(requests)}
     done = threading.Event()
 
@@ -54,6 +56,7 @@ def main() -> None:
                 "runtime_pins": spec["runtime_pins"],
                 "launch": spec["launch"],
                 "readouts": spec["readouts"],
+                "runtime_lock_sha256": runtime_check["lock_sha256"],
             }
             metadata = json.loads((root / "model_metadata" / f"{label}.json").read_text())
             provider = HFPermissionProvider(config, metadata, root.parent / "hf_cache")

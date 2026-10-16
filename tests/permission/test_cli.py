@@ -15,7 +15,7 @@ from rlvr_safety.io import write_jsonl
 from rlvr_safety.permission.experiment import write_bundle
 
 from .helpers import control, scenario
-from .test_experiment import metadata_fetcher, spec, template_fetcher
+from .test_experiment import digest_fetcher, metadata_fetcher, spec, template_fetcher, write_lock
 
 GATES = {
     "gate_set_id": "cli-test",
@@ -55,6 +55,7 @@ class CliTests(unittest.TestCase):
         (self.root / "gates.json").write_text(json.dumps(GATES))
         (self.root / "envelope.json").write_text("{}")
         (self.root / "spec.json").write_text(json.dumps(spec()))
+        write_lock(self.root, "torch==2.8.0", "transformers==4.57.1")
 
     def dry_run(self, policy):
         return call(
@@ -98,6 +99,7 @@ class CliTests(unittest.TestCase):
             root=self.root,
             metadata_fetcher=metadata_fetcher,
             template_fetcher=template_fetcher,
+            digest_fetcher=digest_fetcher,
         )
         self.dry_run("compliant")
         run_dir = self.root / "retrieved"
@@ -126,6 +128,7 @@ class CliTests(unittest.TestCase):
         write_bundle(
             self.root / "spec.json", self.root / "bundle", root=self.root,
             metadata_fetcher=metadata_fetcher, template_fetcher=template_fetcher,
+            digest_fetcher=digest_fetcher,
         )
         experiment_path = self.root / "bundle/experiment.json"
         experiment = json.loads(experiment_path.read_text())

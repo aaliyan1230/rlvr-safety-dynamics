@@ -17,7 +17,10 @@ from rlvr_safety.permission.experiment import (
     build_workload,
     check_envelope,
     fetch_chat_template_sha,
+    fetch_image_digest,
     fetch_model_metadata,
+    immutable_image,
+    lock_versions,
     validate_spec,
     write_bundle,
 )
@@ -28,6 +31,18 @@ from .helpers import control, scenario
 REVISION = "a" * 40
 TEMPLATE = "native template"
 TEMPLATE_SHA = hashlib.sha256(TEMPLATE.encode()).hexdigest()
+DIGEST = "sha256:" + "d" * 64
+LOCK_PATH = Path("infra/runpod/permission-runtime.lock")
+
+
+def write_lock(root: Path, *lines: str) -> None:
+    path = root / LOCK_PATH
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n")
+
+
+def digest_fetcher(image):
+    return DIGEST
 
 
 def spec() -> dict:
@@ -135,6 +150,13 @@ class ExperimentTests(unittest.TestCase):
         (self.root / "gates.json").write_text('{"gates": []}\n')
         (self.root / "envelope.json").write_text(json.dumps(envelope()))
         (self.root / "spec.json").write_text(json.dumps(spec()))
+        write_lock(
+            self.root,
+            "# frozen test environment",
+            "torch==2.8.0+cu128",
+            "transformers==4.57.1",
+            "accelerate==1.10.1",
+        )
 
     def test_valid_spec_and_each_defect(self):
         validate_spec(spec())
@@ -150,6 +172,7 @@ class ExperimentTests(unittest.TestCase):
             "no gates": lambda s: s.pop("gates"),
             "duplicate workload": lambda s: s["workloads"].append(deepcopy(s["workloads"][0])),
             "bad template hash": lambda s: s["models"][0].update(chat_template_sha256="xyz"),
+            "bad image digest": lambda s: s["launch"].update(image_digest="sha256:xyz"),
         }
         for name, fn in defects.items():
             candidate = spec()
@@ -235,6 +258,7 @@ class ExperimentTests(unittest.TestCase):
             root=self.root,
             metadata_fetcher=metadata_fetcher,
             template_fetcher=template_fetcher,
+            digest_fetcher=digest_fetcher,
         )
         second = write_bundle(
             self.root / "spec.json",
@@ -242,6 +266,7 @@ class ExperimentTests(unittest.TestCase):
             root=self.root,
             metadata_fetcher=metadata_fetcher,
             template_fetcher=template_fetcher,
+            digest_fetcher=digest_fetcher,
         )
         self.assertEqual(first["sha256"], second["sha256"])
         verify_manifest(self.root / "b1/bundle_manifest.json")
@@ -280,6 +305,7 @@ class ExperimentTests(unittest.TestCase):
             root=self.root,
             metadata_fetcher=metadata_fetcher,
             template_fetcher=template_fetcher,
+            digest_fetcher=digest_fetcher,
         )
         changed = scenario()
         changed["wordings"]["original"]["task"] += " One more detail."
@@ -290,6 +316,7 @@ class ExperimentTests(unittest.TestCase):
             root=self.root,
             metadata_fetcher=metadata_fetcher,
             template_fetcher=template_fetcher,
+            digest_fetcher=digest_fetcher,
         )
         self.assertNotEqual(first["sha256"], second["sha256"])
 
@@ -304,10 +331,117 @@ class ExperimentTests(unittest.TestCase):
                 root=self.root,
                 metadata_fetcher=metadata_fetcher,
                 template_fetcher=template_fetcher,
+                digest_fetcher=digest_fetcher,
             )
 
+    def test_image_digest_is_resolved_and_frozen_in_the_bundle(self):
+        write_bundle(
+            self.root / "spec.json",
+            self.root / "b1",
+            root=self.root,
+            metadata_fetcher=metadata_fetcher,
+            template_fetcher=template_fetcher,
+            digest_fetcher=digest_fetcher,
+        )
+        resolved = json.loads((self.root / "b1/experiment.json").read_text())
+        self.assertEqual(resolved["launch"]["image_digest"], DIGEST)
+        self.assertEqual(resolved["launch"]["image_ref"], "runpod/pytorch@" + DIGEST)
+        self.assertEqual(
+            set(resolved["controller_sha256"]), {"permission_run.py", "pilot.py", "runpod_cli.py"}
+        )
+        manifest = json.loads((self.root / "b1/bundle_manifest.json").read_text())
+        self.assertIn("runtime-lock.txt", manifest["files"])
+        self.assertEqual(
+            (self.root / "b1/runtime-lock.txt").read_bytes(),
+            (self.root / LOCK_PATH).read_bytes(),
+        )
+
+    def test_pinned_image_digest_must_match_the_registry(self):
+        pinned = spec()
+        pinned["launch"]["image_digest"] = "sha256:" + "e" * 64
+        (self.root / "spec.json").write_text(json.dumps(pinned))
+        with self.assertRaisesRegex(ValueError, "image digest differs"):
+            write_bundle(
+                self.root / "spec.json",
+                self.root / "b1",
+                root=self.root,
+                metadata_fetcher=metadata_fetcher,
+                template_fetcher=template_fetcher,
+                digest_fetcher=digest_fetcher,
+            )
+
+    def test_immutable_image_references_and_other_registry_pins_do_not_resolve_tags(self):
+        for index, image in enumerate(("quay.io/example/image:1", "runpod/pytorch@" + DIGEST)):
+            pinned = spec()
+            pinned["launch"].update(image=image, image_digest=DIGEST)
+            (self.root / "spec.json").write_text(json.dumps(pinned))
+
+            def no_network(image):
+                self.fail("an explicitly pinned image must not resolve a mutable tag")
+
+            bundle = write_bundle(
+                self.root / "spec.json",
+                self.root / f"pinned-{index}",
+                root=self.root,
+                metadata_fetcher=metadata_fetcher,
+                template_fetcher=template_fetcher,
+                digest_fetcher=no_network,
+            )
+            expected = ("quay.io/example/image" if index == 0 else "runpod/pytorch") + "@" + DIGEST
+            self.assertEqual(bundle["launch"]["image_ref"], expected)
+
+    def test_immutable_image_rejects_missing_or_conflicting_digests(self):
+        for launch in (
+            {"image": "runpod/pytorch:test"},
+            {"image": "runpod/pytorch@" + DIGEST, "image_digest": "sha256:" + "e" * 64},
+        ):
+            with self.subTest(launch), self.assertRaises(ValueError):
+                immutable_image(launch)
+        self.assertEqual(
+            immutable_image({"image": "registry.example:5000/image:test", "image_digest": DIGEST}),
+            "registry.example:5000/image@" + DIGEST,
+        )
+
+    def test_cuda_local_version_pin_is_checked_exactly(self):
+        pinned = spec()
+        pinned["runtime_pins"]["torch"] = "2.8.0+cu128"
+        (self.root / "spec.json").write_text(json.dumps(pinned))
+        kwargs = dict(
+            root=self.root,
+            metadata_fetcher=metadata_fetcher,
+            template_fetcher=template_fetcher,
+            digest_fetcher=digest_fetcher,
+        )
+        write_bundle(self.root / "spec.json", self.root / "cuda", **kwargs)
+        write_lock(self.root, "torch==2.8.0+cu126", "transformers==4.57.1")
+        with self.assertRaisesRegex(ValueError, "runtime pins missing"):
+            write_bundle(self.root / "spec.json", self.root / "wrong-cuda", **kwargs)
+        self.assertFalse((self.root / "wrong-cuda").exists())
+
+    def test_bundle_refuses_pins_missing_from_the_lock(self):
+        write_lock(self.root, "# incomplete", "torch==2.8.0")
+        with self.assertRaisesRegex(ValueError, "runtime pins missing"):
+            write_bundle(
+                self.root / "spec.json",
+                self.root / "b1",
+                root=self.root,
+                metadata_fetcher=metadata_fetcher,
+                template_fetcher=template_fetcher,
+                digest_fetcher=digest_fetcher,
+            )
+
+    def test_lock_versions_parses_comments_and_rejects_defects(self):
+        self.assertEqual(lock_versions("# note\ntorch==2.8.0\n"), {"torch": "2.8.0"})
+        for bad in ("torch=2.8.0", "torch==2.8.0\ntorch==2.8.0", "# comment only", "broken"):
+            with self.subTest(bad), self.assertRaises(ValueError):
+                lock_versions(bad)
+
     def test_bundle_directory_is_never_overwritten(self):
-        kwargs = dict(metadata_fetcher=metadata_fetcher, template_fetcher=template_fetcher)
+        kwargs = dict(
+            metadata_fetcher=metadata_fetcher,
+            template_fetcher=template_fetcher,
+            digest_fetcher=digest_fetcher,
+        )
         write_bundle(self.root / "spec.json", self.root / "b1", root=self.root, **kwargs)
         with self.assertRaises(FileExistsError):
             write_bundle(self.root / "spec.json", self.root / "b1", root=self.root, **kwargs)
@@ -341,6 +475,20 @@ class ExperimentTests(unittest.TestCase):
         self.assertEqual(
             fetch_chat_template_sha("example/model", REVISION, tokenizer_config), TEMPLATE_SHA
         )
+
+        def docker_hub(request, **kwargs):
+            self.assertEqual(
+                request.full_url,
+                "https://hub.docker.com/v2/repositories/runpod/pytorch/tags/1.0.2",
+            )
+            return Response(json.dumps({"digest": DIGEST}).encode())
+
+        self.assertEqual(fetch_image_digest("runpod/pytorch:1.0.2", docker_hub), DIGEST)
+        self.assertEqual(fetch_image_digest("docker.io/runpod/pytorch:1.0.2", docker_hub), DIGEST)
+        with self.assertRaisesRegex(ValueError, "non-Docker-Hub"):
+            fetch_image_digest("quay.io/example/image:1", docker_hub)
+        with self.assertRaisesRegex(ValueError, "no immutable digest"):
+            fetch_image_digest("runpod/pytorch:1.0.2", lambda *a, **k: Response(b"{}"))
 
         def jinja_only(request, **kwargs):
             self.assertEqual(

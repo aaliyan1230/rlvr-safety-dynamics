@@ -27,6 +27,7 @@ SNAPSHOT_FILES = (
     "tokenizer.json",
     "tokenizer_config.json",
     "special_tokens_map.json",
+    "added_tokens.json",
     "tokenizer.model",
     "chat_template.jinja",
 )
@@ -55,17 +56,21 @@ GREEDY_OVERRIDES = {
     "forced_eos_token_id": None,
     "renormalize_logits": False,
     "use_cache": True,
+    "num_return_sequences": 1,
+    "encoder_repetition_penalty": 1.0,
+    "sequence_bias": None,
+    "penalty_alpha": None,
+    "guidance_scale": None,
+    "constraints": None,
+    "force_words_ids": None,
+    "max_time": None,
+    "stop_strings": None,
+    "exponential_decay_length_penalty": None,
+    "watermarking_config": None,
+    "token_healing": False,
+    "dola_layers": None,
 }
-GREEDY_REQUIRED = {
-    "do_sample": False,
-    "num_beams": 1,
-    "num_beam_groups": 1,
-    "repetition_penalty": 1.0,
-    "no_repeat_ngram_size": 0,
-    "length_penalty": 1.0,
-    "diversity_penalty": 0.0,
-    "renormalize_logits": False,
-}
+GREEDY_REQUIRED = GREEDY_OVERRIDES
 
 
 def verify_weights(snapshot: Path, metadata: dict) -> dict:
@@ -107,16 +112,19 @@ def greedy_violations(effective: dict) -> dict:
     }
 
 
-def build_effective_config(inherited, max_new_tokens: int, pad_token_id: int):
+def build_effective_config(
+    inherited, max_new_tokens: int, pad_token_id: int, *, eos_token_ids: list[int] | None = None
+):
     """Merge our explicit greedy overrides into the inherited config and verify the result.
 
     Returns ``(config, config_as_dict, unused_override_names)``. Raises if the merged
     configuration is not plain greedy decoding.
     """
     effective = copy.deepcopy(inherited)
-    unused = effective.update(
-        **GREEDY_OVERRIDES, max_new_tokens=max_new_tokens, pad_token_id=pad_token_id
-    )
+    overrides = {**GREEDY_OVERRIDES, "max_new_tokens": max_new_tokens, "pad_token_id": pad_token_id}
+    if eos_token_ids is not None:
+        overrides["eos_token_id"] = eos_token_ids
+    unused = effective.update(**overrides)
     as_dict = effective.to_dict()
     violations = greedy_violations(as_dict)
     if violations:
@@ -186,7 +194,10 @@ class HFPermissionProvider:
             )
         }
         for name, expected in config["runtime_pins"].items():
-            if packages.get(name, "").split("+")[0] != expected:
+            observed = importlib.metadata.version(name)
+            if observed.split("+")[0] != expected.split("+")[0] or (
+                "+" in expected and observed != expected
+            ):
                 raise ValueError(f"runtime pin mismatch: {name}")
         configure_downloads()
         started = time.monotonic()
@@ -228,7 +239,12 @@ class HFPermissionProvider:
             raise ValueError("explicit native EOS token IDs required")
         inherited = self.model.generation_config
         self.effective, effective_dict, unused = build_effective_config(
-            inherited, self.generation["max_new_tokens"], self.tokenizer.eos_token_id
+            inherited,
+            self.generation["max_new_tokens"],
+            self.tokenizer.eos_token_id
+            if self.tokenizer.eos_token_id is not None
+            else self.eos_ids[0],
+            eos_token_ids=self.eos_ids,
         )
         self.readouts = list(config.get("readouts", ["generate"]))
         launch = config.get("launch", {})
@@ -254,6 +270,13 @@ class HFPermissionProvider:
             "gpu": torch.cuda.get_device_name(0),
             "nvidia_driver": _driver_version(),
             "image": launch.get("image"),
+            "image_digest": launch.get("image_digest"),
+            "image_ref": launch.get("image_ref"),
+            "runtime_lock_sha256": config.get("runtime_lock_sha256"),
+            "stopping_criteria": {
+                "type": "wall_clock_deadline",
+                "seconds": self.generation["per_response_seconds"],
+            },
             "runpod_pod_id": os.environ.get("RUNPOD_POD_ID"),
             "attention_implementation": "eager",
             "precision": "bf16",

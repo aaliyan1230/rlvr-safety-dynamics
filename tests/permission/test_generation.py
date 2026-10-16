@@ -83,6 +83,44 @@ class PureFunctionTests(unittest.TestCase):
         self.assertTrue(inherited.do_sample)
         self.assertEqual(inherited.num_beams, 2)
 
+    def test_inherited_logit_modifiers_and_early_stops_are_cleared(self):
+        inherited = FakeGenerationConfig(
+            **SAMPLING,
+            sequence_bias={(7,): 10.0},
+            max_time=0.01,
+            stop_strings=["stop"],
+            encoder_repetition_penalty=1.4,
+            num_return_sequences=3,
+            guidance_scale=2.0,
+            constraints=["forced"],
+            force_words_ids=[[7]],
+            penalty_alpha=0.5,
+            token_healing=True,
+            watermarking_config={"bias": 2.0},
+        )
+        _, effective, _ = build_effective_config(inherited, 64, 2)
+        for name in (
+            "sequence_bias",
+            "max_time",
+            "stop_strings",
+            "guidance_scale",
+            "constraints",
+            "force_words_ids",
+            "penalty_alpha",
+            "watermarking_config",
+        ):
+            self.assertIsNone(effective[name], name)
+        self.assertEqual(effective["num_return_sequences"], 1)
+        self.assertEqual(effective["encoder_repetition_penalty"], 1.0)
+        self.assertFalse(effective["token_healing"])
+        self.assertEqual(inherited.max_time, 0.01)
+
+    def test_native_eos_fallback_is_present_in_the_config_passed_to_generate(self):
+        inherited = FakeGenerationConfig(**SAMPLING, eos_token_id=None)
+        _, effective, _ = build_effective_config(inherited, 64, 2, eos_token_ids=[2])
+        self.assertEqual(effective["eos_token_id"], [2])
+        self.assertIsNone(inherited.eos_token_id)
+
     def test_non_greedy_result_is_refused(self):
         class Stubborn(FakeGenerationConfig):
             def update(self, **kwargs):
@@ -91,6 +129,15 @@ class PureFunctionTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "not greedy"):
             build_effective_config(Stubborn(**SAMPLING), 2048, 2)
+
+    def test_stubborn_inherited_stopping_fields_are_refused(self):
+        class Stubborn(FakeGenerationConfig):
+            def update(self, **kwargs):
+                kwargs.pop("stop_strings")
+                return super().update(**kwargs)
+
+        with self.assertRaisesRegex(ValueError, "stop_strings"):
+            build_effective_config(Stubborn(**SAMPLING, stop_strings=["early"]), 64, 2)
 
     def test_greedy_violations_names_each_offender(self):
         self.assertEqual(
@@ -206,7 +253,10 @@ class ProviderWiringTests(unittest.TestCase):
                 },
                 "generation": {"max_new_tokens": 2048, "seed": 0, "per_response_seconds": 120},
                 "runtime_pins": {"torch": "2.8.0"},
-                "launch": {"image": "runpod/pytorch:test"},
+                "launch": {
+                    "image": "runpod/pytorch:test",
+                    "image_digest": "sha256:" + "d" * 64,
+                },
                 "readouts": ["generate"],
             }
             torch = SimpleNamespace(
@@ -260,6 +310,11 @@ class ProviderWiringTests(unittest.TestCase):
                 self.assertEqual(prov["effective_generation_config"]["num_beams"], 1)
                 self.assertEqual(prov["effective_generation_config"]["max_new_tokens"], 2048)
                 self.assertEqual(prov["image"], "runpod/pytorch:test")
+                self.assertEqual(prov["image_digest"], "sha256:" + "d" * 64)
+                self.assertEqual(
+                    prov["stopping_criteria"],
+                    {"type": "wall_clock_deadline", "seconds": 120},
+                )
                 self.assertEqual(prov["nvidia_driver"], "570.1")
                 self.assertEqual(prov["label"], "step0")
                 self.assertIn("generation_config.json", prov["snapshot_file_sha256"])

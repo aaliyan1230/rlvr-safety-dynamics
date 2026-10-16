@@ -22,6 +22,7 @@ from ..io import read_jsonl, sha256_file, write_jsonl
 from .benchmark import prepare_requests, validate_requests
 from .checks import check_bank
 from .prompts import build_conditions
+from .runtime import lock_versions, package_name
 from .schema import is_identifier, validate_bank
 
 SPEC_VERSION = "permission-experiment-2026-10-07"
@@ -40,8 +41,12 @@ CODE_FILES = (
     "permission/scoring.py",
     "permission/benchmark.py",
     "permission/generation.py",
+    "permission/runtime.py",
 )
+CONTROLLER_FILES = ("permission_run.py", "pilot.py", "runpod_cli.py")
 HEX40 = re.compile(r"^[0-9a-f]{40}$")
+IMAGE_DIGEST_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
+RUNTIME_LOCK = Path("infra/runpod/permission-runtime.lock")
 
 
 def _require(condition: bool, message: str) -> None:
@@ -93,6 +98,11 @@ def validate_spec(spec: dict) -> None:
     launch = spec.get("launch", {})
     for key in ("gpu", "image", "cloud", "min_cuda_version"):
         _require(isinstance(launch.get(key), str) and launch[key], f"launch.{key}")
+    digest = launch.get("image_digest", "auto")
+    _require(
+        digest == "auto" or IMAGE_DIGEST_RE.match(digest) is not None,
+        "launch.image_digest must be 'auto' or sha256:<64 hex>",
+    )
     _require(launch.get("gpu_count") == 1, "launch.gpu_count must be 1")
     _require(
         isinstance(launch.get("datacenters"), list) and launch["datacenters"], "launch.datacenters"
@@ -176,6 +186,46 @@ def fetch_chat_template_sha(repo: str, revision: str, opener: Callable = urllib.
     return hashlib.sha256(template.encode()).hexdigest()
 
 
+def fetch_image_digest(image: str, opener: Callable = urllib.request.urlopen) -> str:
+    """The registry digest that currently backs a Docker Hub image tag.
+
+    Only Docker Hub references are supported; other registries must pin
+    ``launch.image_digest`` explicitly because this project cannot resolve them.
+    """
+    reference, separator, pinned = image.partition("@")
+    if separator:
+        _require(IMAGE_DIGEST_RE.fullmatch(pinned) is not None, "invalid image reference digest")
+        return pinned
+    parts = reference.split("/")
+    if len(parts) > 1 and ("." in parts[0] or ":" in parts[0] or parts[0] == "localhost"):
+        if parts[0] != "docker.io":
+            raise ValueError(f"cannot resolve a digest for non-Docker-Hub image: {image}")
+        path = "/".join(parts[1:])
+    else:
+        path = reference
+    name, _, tag = path.rpartition(":")
+    if not name:
+        name, tag = path, "latest"
+    if "/" not in name:
+        name = "library/" + name
+    raw = _get_json(f"https://hub.docker.com/v2/repositories/{name}/tags/{tag}", opener)
+    digest = raw.get("digest")
+    if not isinstance(digest, str) or IMAGE_DIGEST_RE.match(digest) is None:
+        raise ValueError(f"registry returned no immutable digest for {image}")
+    return digest
+
+
+def immutable_image(launch: dict) -> str:
+    """Registry reference used in the launch request; a tag alone is never sufficient."""
+    image, separator, reference_digest = launch["image"].partition("@")
+    digest = launch.get("image_digest", "")
+    _require(IMAGE_DIGEST_RE.fullmatch(digest) is not None, "a frozen image digest is required")
+    _require(not separator or reference_digest == digest, "image reference and digest differ")
+    if ":" in image.rsplit("/", 1)[-1]:
+        image = image.rsplit(":", 1)[0]
+    return image + "@" + digest
+
+
 def build_workload(spec: dict, root: Path) -> tuple[list[dict], list[dict], dict]:
     """Scenarios, requests and a per-workload report. Banks must pass the mechanical checks."""
     scenarios: dict[str, dict] = {}
@@ -236,13 +286,46 @@ def write_bundle(
     code_root: Path | None = None,
     metadata_fetcher: Callable = fetch_model_metadata,
     template_fetcher: Callable = fetch_chat_template_sha,
+    digest_fetcher: Callable = fetch_image_digest,
 ) -> dict:
     """Write ``out_dir`` (a bundle) plus ``out_dir.tar.gz`` and its checksum; return a summary."""
     spec = load_spec(spec_path)
     code_root = code_root or Path(__file__).resolve().parents[1]
     scenarios, requests, report = build_workload(spec, root)
-    out_dir.mkdir(parents=True, exist_ok=False)
     resolved = json.loads(json.dumps(spec))
+    launch = resolved["launch"]
+    declared_digest = launch.get("image_digest", "auto")
+    first_component = launch["image"].split("/", 1)[0]
+    other_registry = (
+        "/" in launch["image"]
+        and ("." in first_component or ":" in first_component or first_component == "localhost")
+        and first_component != "docker.io"
+    )
+    if "@" in launch["image"]:
+        fetched_digest = fetch_image_digest(launch["image"])
+    elif other_registry and declared_digest != "auto":
+        fetched_digest = declared_digest
+    else:
+        fetched_digest = digest_fetcher(launch["image"])
+    _require(IMAGE_DIGEST_RE.fullmatch(fetched_digest) is not None, "invalid resolved image digest")
+    if declared_digest not in {"auto", fetched_digest}:
+        raise ValueError("pinned image digest differs from the registry")
+    launch["image_digest"] = fetched_digest
+    launch["image_ref"] = immutable_image(launch)
+    lock_path = root / RUNTIME_LOCK
+    locked = lock_versions(lock_path.read_text())
+    missing = {
+        name: version
+        for name, version in spec["runtime_pins"].items()
+        if locked.get(package_name(name), "").split("+")[0] != version.split("+")[0]
+        or ("+" in version and locked.get(package_name(name)) != version)
+    }
+    _require(not missing, f"runtime pins missing from {RUNTIME_LOCK}: {sorted(missing)}")
+    controller_root = code_root.parents[1] / "infra/runpod"
+    resolved["controller_sha256"] = {
+        name: sha256_file(controller_root / name) for name in CONTROLLER_FILES
+    }
+    out_dir.mkdir(parents=True, exist_ok=False)
     (out_dir / "model_metadata").mkdir()
     for model in resolved["models"]:
         metadata = metadata_fetcher(model["repo"], model["revision"])
@@ -262,6 +345,7 @@ def write_bundle(
         f"{name}=={version}" for name, version in spec["runtime_pins"].items() if name != "torch"
     ]
     (out_dir / "runtime-pins.txt").write_text("\n".join(pins) + "\n")
+    (out_dir / "runtime-lock.txt").write_bytes(lock_path.read_bytes())
     workload_script = code_root.parents[1] / "infra/runpod/permission_workload.py"
     (out_dir / "permission_workload.py").write_bytes(workload_script.read_bytes())
     for name in CODE_FILES:
@@ -297,5 +381,5 @@ def write_bundle(
         "sha256": digest,
         "requests": len(requests),
         "report": report,
-        "launch": spec["launch"],
+        "launch": resolved["launch"],
     }
