@@ -140,7 +140,8 @@ class ExperimentTests(unittest.TestCase):
         validate_spec(spec())
         defects = {
             "version": lambda s: s.update(spec_version="old"),
-            "sampling": lambda s: s["generation"].update(do_sample=True),
+            "sampling without settings": lambda s: s["generation"].update(do_sample=True),
+            "greedy with temperature": lambda s: s["generation"].update(temperature=0.6),
             "revision": lambda s: s["models"][0].update(revision="main"),
             "duplicate label": lambda s: s["models"].append(deepcopy(s["models"][0])),
             "plan key": lambda s: s["workloads"][0]["plan"].update(oops={}),
@@ -156,6 +157,35 @@ class ExperimentTests(unittest.TestCase):
             fn(candidate)
             with self.subTest(name), self.assertRaises(ValueError):
                 validate_spec(candidate)
+
+    def sampled(self):
+        sampled = spec()
+        sampled["generation"].update(do_sample=True, temperature=0.6, top_p=0.9,
+                                     samples={"option_free": 3})
+        sampled["readouts"] = ["generate"]
+        return sampled
+
+    def test_sampling_spec_is_pinned_and_expands_draws(self):
+        validate_spec(self.sampled())
+        with_readouts = self.sampled()
+        with_readouts["readouts"] = ["generate", "choice_logprobs"]
+        with self.assertRaisesRegex(ValueError, "readouts"):
+            validate_spec(with_readouts)
+        bad = self.sampled()
+        bad["generation"]["samples"] = {"option_free": 0}
+        with self.assertRaisesRegex(ValueError, "samples"):
+            validate_spec(bad)
+        _, greedy, _ = build_workload(spec(), self.root)
+        _, requests, _ = build_workload(self.sampled(), self.root)
+        free = [r for r in requests if r["format"] == "option_free"]
+        other = [r for r in requests if r["format"] != "option_free"]
+        n_free = sum(r["format"] == "option_free" for r in greedy)
+        self.assertEqual(len(free), 3 * n_free)
+        self.assertEqual(len(other), len(greedy) - n_free)
+        self.assertEqual({r["sample_count"] for r in free}, {3})
+        self.assertEqual({r["sample_id"] for r in free}, {"0", "1", "2"})
+        self.assertEqual(len({r["episode_id"] for r in requests}), len(requests))
+        self.assertTrue(all("sample_count" not in r for r in greedy))
 
     def test_workload_counts_and_tags(self):
         scenarios, requests, report = build_workload(spec(), self.root)

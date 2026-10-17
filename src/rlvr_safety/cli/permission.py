@@ -9,10 +9,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-from ..agent_tasks import core
-from ..agent_tasks.jobs import authoring, freeform_prelabel, mcq_judge
+from ..agent_tasks import core, openrouter
+from ..agent_tasks.jobs import authoring, critique, freeform_prelabel, ideation, mcq_judge
 from ..io import read_jsonl, write_jsonl
-from ..permission import analysis, labeling, review, sync
+from ..permission import analysis, contrasts, labeling, review, sync
 from ..permission.bank import merge_reviewed
 from ..permission.benchmark import run_benchmark
 from ..permission.checks import check_bank
@@ -21,7 +21,13 @@ from ..permission.prompts import build_conditions
 from ..permission.schema import validate_bank
 from ..permission.scripted import POLICIES, ScriptedProvider
 
-JOBS = {"author": authoring, "judge": mcq_judge, "prelabel": freeform_prelabel}
+JOBS = {
+    "author": authoring,
+    "judge": mcq_judge,
+    "prelabel": freeform_prelabel,
+    "ideate": ideation,
+    "critique": critique,
+}
 
 
 def _print(value) -> None:
@@ -38,7 +44,10 @@ def cmd_check_bank(args) -> int:
     validate_bank(bank, min_wordings=args.min_wordings)
     plan = _read_json(args.plan) if args.plan else None
     conditions = build_conditions(bank, plan, min_wordings=args.min_wordings) if plan else None
-    report = check_bank(bank, conditions)
+    reference = list(read_jsonl(args.reference)) if args.reference else None
+    report = check_bank(bank, conditions, reference)
+    if args.out:
+        args.out.write_text(json.dumps(report, indent=2) + "\n")
     _print({k: report[k] for k in ("passed", "failures", "warnings")})
     return 0 if report["passed"] else 1
 
@@ -53,24 +62,46 @@ def _job_plan(args) -> int:
             else []
         )
         tasks, refs = authoring.build_tasks(_read_json(args.brief), existing)
+    elif args.job == "ideate":
+        existing = _read_json(args.existing) if args.existing else []
+        tasks, refs = ideation.build_tasks(_read_json(args.brief), existing)
+    elif args.job == "critique":
+        tasks, refs = critique.build_tasks(list(read_jsonl(args.bank)))
     else:
         rows = list(read_jsonl(args.run_dir / "results.jsonl"))
         requests = {r["episode_id"]: r for r in read_jsonl(args.run_dir / "requests.jsonl")}
         scenarios = {s["source_id"]: s for s in read_jsonl(args.run_dir / "scenarios.jsonl")}
-        tasks, refs = module.build_tasks(rows, requests, scenarios)
+        if args.job == "prelabel":
+            tasks, refs = module.build_tasks(rows, requests, scenarios, args.rubric)
+        else:
+            tasks, refs = module.build_tasks(rows, requests, scenarios)
     if not tasks:
         _print({"tasks": 0, "note": "nothing to do"})
         return 0
-    manifest = core.write_plan(args.job_dir, module.JOB, module.RUBRIC_ID, tasks, refs)
+    manifest = core.write_plan(args.job_dir, module.JOB, tasks[0]["rubric_id"], tasks, refs)
     _print({"job": module.JOB, "tasks": len(manifest["tasks"]), "job_dir": str(args.job_dir)})
     return 0
 
 
 def _job_run(args) -> int:
-    command = shlex.split(args.command)
-    backend = core.CommandBackend(command, args.agent, args.model_reported, timeout=args.timeout)
-    _print({"answered": core.run_backend(args.job_dir, backend, limit=args.limit)})
-    return 0
+    if args.backend == "openrouter":
+        if not args.model:
+            raise SystemExit("--model is required with --backend openrouter")
+        backend = openrouter.OpenRouterBackend(
+            args.model, temperature=args.temperature, seed=args.seed,
+            reasoning_effort=args.reasoning_effort or None, timeout=args.timeout,
+            provider=None if args.provider == "any" else args.provider)
+    else:
+        if not (args.command and args.agent and args.model_reported):
+            raise SystemExit("--command, --agent and --model-reported are required")
+        command = shlex.split(args.command)
+        backend = core.CommandBackend(command, args.agent, args.model_reported,
+                                      timeout=args.timeout)
+    if args.retry_rejected:
+        core.retry_rejected(args.job_dir)
+    result = core.run_backend(args.job_dir, backend, limit=args.limit, workers=args.workers)
+    _print(result)
+    return 0 if not result["failed"] else 1
 
 
 def _job_ingest(args) -> int:
@@ -106,6 +137,17 @@ def _job_apply(args) -> int:
         )
         return 0 if report["passed"] else 1
     refs = _read_json(args.job_dir / "refs.json")
+    if args.job == "ideate":
+        mechanics = [m for row in ingested for m in row["record"]["mechanics"]]
+        args.out.write_text(json.dumps(mechanics, indent=2, ensure_ascii=False) + "\n")
+        _print({"mechanics": len(mechanics), "out": str(args.out)})
+        return 0
+    if args.job == "critique":
+        rows = critique.flags(ingested, refs)
+        write_jsonl(args.out, rows)
+        _print({"records": len(rows), "verdicts": {v: sum(r["verdict"] == v for r in rows)
+                                                    for v in critique.VERDICTS}})
+        return 0
     requests = {r["episode_id"]: r for r in read_jsonl(args.run_dir / "requests.jsonl")}
     if args.job == "judge":
         rows = mcq_judge.judge_scores(ingested, refs, requests)
@@ -227,7 +269,7 @@ def cmd_analyze(args) -> int:
     requests = {r["episode_id"]: r for r in read_jsonl(bundle / "requests.jsonl")}
     gates = _read_json(bundle / "gates.json")
     gates["expected_rows"] = len(requests)
-    all_metrics, sections = {}, []
+    all_metrics, sections, per_model = {}, [], {}
     for model in spec["models"]:
         label = model["label"]
         rows = list(read_jsonl(args.run_dir / label / "benchmark/results.jsonl"))
@@ -242,7 +284,9 @@ def cmd_analyze(args) -> int:
             refs = _read_json(job_dir / "refs.json")
             judge = mcq_judge.judge_scores(_read_ingested(job_dir), refs, requests)
         labels = None
-        if args.label_job_dir and args.labellers:
+        if args.episode_labels:
+            labels = _read_json(args.episode_labels / f"{label}.json")
+        elif args.label_job_dir and args.labellers:
             job_dir = _model_job_dir(args.label_job_dir, label, len(spec["models"]) > 1)
             task_labels = labeling.consensus(job_dir, args.labellers.split(","))
             source_of = {r["episode_id"]: r["source_id"] for r in rows}
@@ -254,6 +298,9 @@ def cmd_analyze(args) -> int:
         )
         all_metrics[label] = metrics
         sections.append(analysis.render_markdown(label, metrics))
+        if labels is not None:
+            judge_map = {x["episode_id"]: x for x in judge} if judge else None
+            per_model[label] = contrasts.model_contrasts(rows, scenarios, labels, judge_map)
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "analysis.json").write_text(json.dumps(all_metrics, indent=2) + "\n")
     header = (
@@ -261,6 +308,10 @@ def cmd_analyze(args) -> int:
         f"Analysis version `{analysis.ANALYSIS_VERSION}`.\n\n"
     )
     (args.out / "report.md").write_text(header + "\n".join(sections))
+    if per_model:
+        labels_order = [m["label"] for m in spec["models"]]
+        combined = contrasts.report(per_model, early=labels_order[0], late=labels_order[-1])
+        (args.out / "contrasts.json").write_text(json.dumps(combined, indent=2) + "\n")
     _print({label: {"gates_passed": m.get("gates_passed")} for label, m in all_metrics.items()})
     return 0
 
@@ -286,6 +337,8 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("--bank", type=Path, required=True)
     check.add_argument("--plan", type=Path, help="prompt plan JSON; adds prompt-level checks")
     check.add_argument("--min-wordings", type=int, default=1)
+    check.add_argument("--reference", type=Path, help="bank to compare against for near-duplicates")
+    check.add_argument("--out", type=Path, help="write the full report as JSON")
     check.set_defaults(func=cmd_check_bank)
 
     for name, job in JOBS.items():
@@ -296,7 +349,15 @@ def build_parser() -> argparse.ArgumentParser:
         if name == "author":
             plan.add_argument("--brief", type=Path, required=True)
             plan.add_argument("--existing-bank", type=Path)
+        elif name == "ideate":
+            plan.add_argument("--brief", type=Path, required=True)
+            plan.add_argument("--existing", type=Path, help="JSON list of mechanics to avoid")
+        elif name == "critique":
+            plan.add_argument("--bank", type=Path, required=True)
         else:
+            if name == "prelabel":
+                plan.add_argument("--rubric", default=freeform_prelabel.RUBRIC_ID,
+                                  choices=sorted(freeform_prelabel.INSTRUCTIONS_BY_RUBRIC))
             plan.add_argument(
                 "--run-dir",
                 type=Path,
@@ -305,13 +366,23 @@ def build_parser() -> argparse.ArgumentParser:
             )
         plan.set_defaults(func=_job_plan, job=name)
         run = actions.add_parser(
-            "run", help="answer pending tasks with any command (stdin->stdout)"
+            "run", help="answer pending tasks with a command (stdin->stdout) or OpenRouter"
         )
         run.add_argument("--job-dir", type=Path, required=True)
-        run.add_argument("--command", required=True, help="e.g. 'codex exec --json'")
-        run.add_argument("--agent", required=True)
-        run.add_argument("--model-reported", required=True)
-        run.add_argument("--timeout", type=int, default=300)
+        run.add_argument("--backend", choices=("command", "openrouter"), default="command")
+        run.add_argument("--command", help="e.g. 'codex exec --json'")
+        run.add_argument("--agent")
+        run.add_argument("--model-reported")
+        run.add_argument("--model", help="OpenRouter model ID, e.g. openai/gpt-6.1-sol")
+        run.add_argument("--temperature", type=float, default=0.0)
+        run.add_argument("--seed", type=int, default=0)
+        run.add_argument("--reasoning-effort", default="medium")
+        run.add_argument("--provider", default="openai",
+                         help="OpenRouter provider to pin (no fallbacks), or 'any'")
+        run.add_argument("--workers", type=int, default=1)
+        run.add_argument("--retry-rejected", action="store_true",
+                         help="move rejected responses aside (kept) and answer those tasks again")
+        run.add_argument("--timeout", type=int, default=600)
         run.add_argument("--limit", type=int)
         run.set_defaults(func=_job_run, job=name)
         ingest = actions.add_parser("ingest")
@@ -326,7 +397,7 @@ def build_parser() -> argparse.ArgumentParser:
         apply.add_argument("--out", type=Path, required=True)
         if name == "author":
             apply.add_argument("--owner", required=True, help="accountable human owner")
-        else:
+        elif name not in ("ideate", "critique"):
             apply.add_argument("--run-dir", type=Path, required=True)
         apply.set_defaults(func=_job_apply, job=name)
 
@@ -401,6 +472,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="job folder, or parent of per-model jobs for multi-model runs",
     )
     analyze.add_argument("--labellers", help="comma-separated labellers whose consensus is used")
+    analyze.add_argument(
+        "--episode-labels", type=Path,
+        help="folder of <model label>.json files mapping episode_id to a final role label; "
+        "enables the pre-registered contrasts (contrasts.json)",
+    )
     analyze.set_defaults(func=cmd_analyze)
 
     syncp = sub.add_parser("sync", help="private Hugging Face dataset sync")

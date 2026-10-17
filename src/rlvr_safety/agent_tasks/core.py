@@ -285,12 +285,51 @@ class CommandBackend:
         }
 
 
-def run_backend(job_dir: Path, backend, *, limit: int | None = None) -> list[str]:
-    """Answer pending tasks with a callable/command backend (the file backend needs no runner)."""
-    done = []
-    for task_id in pending_tasks(job_dir)[: limit or None]:
-        envelope = backend.answer(load_task(job_dir, task_id))
+def run_backend(job_dir: Path, backend, *, limit: int | None = None,
+                workers: int = 1) -> dict:
+    """Answer pending tasks with a callable/command/API backend (the file backend needs no runner).
+
+    A task whose backend call fails is logged to ``backend_failures.jsonl`` and left pending.
+    """
+    from concurrent.futures import ThreadPoolExecutor
+
+    pending = pending_tasks(job_dir)[: limit or None]
+
+    def one(task_id: str):
+        try:
+            return task_id, backend.answer(load_task(job_dir, task_id)), None
+        except Exception as error:  # noqa: BLE001 - every failure is logged, none stops the batch
+            return task_id, None, f"{type(error).__name__}: {str(error)[:300]}"
+
+    done, failed = [], []
+    with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+        for task_id, envelope, error in pool.map(one, pending):
+            if error:
+                failed.append(task_id)
+                with (job_dir / "backend_failures.jsonl").open("a") as log:
+                    log.write(json.dumps({"task_id": task_id, "error": error,
+                                          "at": datetime.now(UTC).isoformat()}) + "\n")
+                continue
+            path = job_dir / "responses" / f"{task_id}.json"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(envelope, indent=2, ensure_ascii=False) + "\n")
+            done.append(task_id)
+    return {"answered": done, "failed": failed}
+
+
+def retry_rejected(job_dir: Path) -> list[str]:
+    """Move responses that were only ever rejected aside (kept, never deleted) so they re-run."""
+    accepted = {r["task_id"] for r in _read_jsonl(job_dir / "ingested.jsonl")}
+    rejected = {r["task_id"] for r in _read_jsonl(job_dir / "rejections.jsonl")} - accepted
+    moved = []
+    for task_id in sorted(rejected):
         path = job_dir / "responses" / f"{task_id}.json"
-        path.write_text(json.dumps(envelope, indent=2, ensure_ascii=False) + "\n")
-        done.append(task_id)
-    return done
+        if not path.exists():
+            continue
+        target_dir = job_dir / "responses" / "rejected"
+        target_dir.mkdir(parents=True, exist_ok=True)
+        n = len(list(target_dir.glob(f"{task_id}-*.json")))
+        path.rename(target_dir / f"{task_id}-{n}.json")
+        moved.append(task_id)
+    return moved
+
