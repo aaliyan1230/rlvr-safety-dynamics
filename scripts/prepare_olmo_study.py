@@ -11,6 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
+from rlvr_safety.checkpoint_protocol import format_controls  # noqa: E402
 from rlvr_safety.checkpoint_study import (  # noqa: E402
     THINK_STEPS,
     atomic_json,
@@ -87,7 +88,8 @@ def main():
         context = config['max_position_embeddings']
         cap = 32768  # Validate the permitted repair allowance too.
         rendered_hashes, input_lengths = {}, []
-        for row in matrix:
+        rendered_inputs = [*matrix, *format_controls(matrix[0]), *format_controls(matrix[-1])]
+        for row in rendered_inputs:
             messages = [{'role': 'system', 'content': row['system_prompt']},
                         {'role': 'user', 'content': row['prompt']}]
             rendered = tokenizer.apply_chat_template(messages, tokenize=False,
@@ -107,6 +109,24 @@ def main():
         _, effective, unused = build_effective_config(inherited, 8192, pad)
         if effective.get('forced_eos_token_id') is not None or effective['do_sample']:
             raise ValueError('generation overrides failed')
+        generation_reports = []
+        for model in models:
+            url = (f"https://huggingface.co/{model['repo']}/resolve/{model['revision']}/"
+                   'generation_config.json')
+            inherited_model = GenerationConfig.from_dict(json.loads(fetch(url)))
+            _, resolved, _ = build_effective_config(inherited_model, 8192, pad)
+            additional_expected = {'sequence_bias': None, 'forced_decoder_ids': None,
+                'force_words_ids': None, 'constraints': None, 'stop_strings': None,
+                'max_time': None, 'encoder_repetition_penalty': 1.0, 'num_return_sequences': 1}
+            if any(resolved.get(k, default) != default
+                   for k, default in additional_expected.items()):
+                raise ValueError('inherited transforms/stops differ from the intended generation')
+            native_eos = resolved.get('eos_token_id') or tokenizer.eos_token_id
+            if native_eos != eos:
+                raise ValueError('native EOS changes across checkpoints; investigate before GPU')
+            generation_reports.append({'step': model['step'], 'revision': model['revision'],
+                                       'effective_config_hash': digest(resolved),
+                                       'eos': native_eos})
         release = json.loads(fetch('https://huggingface.co/api/models/allenai/Olmo-3-7B-Think?blobs=true'))
         release_weights = {s['rfilename']: s['lfs']['sha256'] for s in release['siblings']
                            if s['rfilename'].endswith('.safetensors')}
@@ -124,6 +144,8 @@ def main():
                       written_rows=sum(r['panel'] == 'written' for r in matrix),
                       context_tokens=context, max_input_tokens=max(input_lengths),
                       repair_output_allowance=cap, effective_generation=effective,
+                      control_prompts_tokenized=12,
+                      checkpoint_generation_configs=generation_reports,
                       unused_overrides=unused, dtype='bfloat16_required_at_runtime',
                       runtime_verified=False, template_sha256=sha256_file(
                           template_dir / 'chat_template.jinja'),

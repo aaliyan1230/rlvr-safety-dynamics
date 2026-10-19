@@ -9,10 +9,21 @@ from .permission.generation import HFPermissionProvider
 
 class HFCheckpointProvider:
     def __init__(self, config: dict, metadata: dict, cache: Path):
+        import torch
+        expected_gpu = config.get('launch', {}).get('gpu')
+        if expected_gpu and torch.cuda.is_available():
+            actual = torch.cuda.get_device_name(0)
+            family = 'H100' if 'H100' in expected_gpu else 'A100'
+            if family not in actual or torch.cuda.get_device_properties(0).total_memory < 75e9:
+                raise ValueError('actual GPU differs from the frozen 80GB hardware choice')
         self.provider = HFPermissionProvider(config, metadata, cache)
         self.revision = config['model']['revision']
         self.config = config
-        import torch
+        actual_files = self.provider.provenance['snapshot_file_sha256']
+        if any(actual_files.get(k) != value
+               for k, value in config.get('tokenizer_sha256', {}).items()):
+            self.provider.close()
+            raise ValueError('actual tokenizer files differ from the pinned common tokenizer')
         if any(p.dtype != torch.bfloat16 for p in self.provider.model.parameters()
                if p.is_floating_point()):
             self.provider.close()

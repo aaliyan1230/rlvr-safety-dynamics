@@ -316,33 +316,44 @@ def execute_questions(questions: list[dict], protocol: dict, provider, directory
     """Shared real/simulated generation path; provider receives one declared input at a time."""
     store = ResponseStore(directory, protocol, questions)
     generated = 0
+    coverage = [q['id'] for q in questions[:24]]
+
+    def coverage_gate():
+        saved_coverage = [store.records[key] for key in coverage if key in store.records]
+        if len(saved_coverage) == len(coverage) and not checkpoint_health(
+            saved_coverage, minimum_parse_rate=.95
+        )['passed']:
+            raise ValueError('saved coverage gate failed; resume cannot bypass it')
+
     try:
         if enforce_health and store.records:
             saved = list(store.records.values())
             if any(r['final_status'] != 'complete' for r in saved):
                 raise ValueError('saved extraction/censoring fault; resume cannot bypass a gate')
-            if len(saved) >= 24 and not checkpoint_health(
-                saved[:24], minimum_parse_rate=.95
-            )['passed']:
-                raise ValueError('saved coverage gate failed; resume cannot bypass it')
+            coverage_gate()
         for question in questions:
             if question['id'] in store.records:
                 continue
             if time.time() >= deadline:
                 raise TimeoutError('workload deadline expired before next response')
+            if enforce_health and question['id'] not in coverage:
+                if not set(coverage) <= store.records.keys():
+                    raise ValueError('coverage must complete before releasing the remaining cells')
+                coverage_gate()
             output = provider(question, store.protocol_hash)
             record = store.append(output)
             generated += 1
-            if enforce_health and record['final_status'] != 'complete':
+            if record['final_status'] != 'complete':
                 raise ValueError('extraction/censoring fault; stop and preserve evidence')
+            if record.get('engineering_control') and record['choice'] != record['expected_choice']:
+                raise ValueError('format control failed; stop and preserve evidence')
             if len(store.records) % 24 == 0:
                 chunk = seal_chunk(store)
                 verify_chunk(chunk)
                 if enforce_health:
                     health = checkpoint_health(list(store.records.values()), minimum_parse_rate=.95)
                     atomic_json(directory / 'health.json', health)
-                    if len(store.records) == 24 and not health['passed']:
-                        raise ValueError('checkpoint coverage gate failed; evidence retained')
+                    coverage_gate()
             if interrupt_after is not None and generated >= interrupt_after:
                 raise InterruptedError('controlled interruption between durable responses')
         store.require_complete()

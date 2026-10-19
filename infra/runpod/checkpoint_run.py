@@ -36,7 +36,8 @@ with tarfile.open(fileobj=stream, mode='w:gz') as archive:
                 continue
             relative = path.relative_to(root)
             sealed = path.parent.name.isdigit() and (path.parent / 'manifest.json').is_file()
-            evidence = path.name in ('runtime.json', 'run_summary.json', 'health.json')
+            evidence = path.name in ('runtime.json', 'run_summary.json', 'health.json',
+                                     'readiness_generation.json', 'recovery-proof.json')
             if sealed or evidence:
                 archive.add(path, arcname=str(relative), recursive=False)
 import sys
@@ -74,6 +75,8 @@ def verify_retrieved(args) -> int:
     validator = ResponseStore(args.output / 'verified', protocol, questions)
     for manifest in sorted((args.output / 'retrieved').glob('*/chunks/*/manifest.json')):
         for record in verify_chunk(manifest.parent):
+            if record.get('simulation'):
+                raise ValueError('simulated answers cannot count as paid inference evidence')
             validator._validate(record)
             validator.records[record['id']] = record
     validator.require_complete()
@@ -97,6 +100,8 @@ def run_batch(args, report: dict, *, backup) -> dict:
     archive = args.bundle.with_suffix('.tar.gz')
     permission_run.verify_archive(archive, args.bundle)
     archive_hash = sha256_file(archive)
+    if report.get('bundle_sha256') != archive_hash:
+        raise ValueError('preflight did not accept this exact bundle archive')
     args.output.mkdir(parents=True, exist_ok=False)
     args.output.chmod(0o700)
     state_path = args.output / 'state.json'
@@ -174,6 +179,9 @@ def run_batch(args, report: dict, *, backup) -> dict:
                 if not summary.get('completed'):
                     raise RuntimeError('workload reported incomplete data')
                 state['verified_responses'] = verify_retrieved(args)
+                provenance = args.output / 'retrieved/provenance'
+                provenance.mkdir(exist_ok=True)
+                (provenance / 'bundle.tar.gz').write_bytes(archive.read_bytes())
                 backup(args.output / 'retrieved')
                 state['backup_verified'] = True
                 state['passed'] = True

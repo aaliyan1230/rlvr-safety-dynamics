@@ -34,7 +34,8 @@ class CheckpointCloudTests(unittest.TestCase):
         key.with_suffix('.pub').write_text('test-public-key')
         self.args = SimpleNamespace(bundle=bundle, private_key=key,
                                     output=self.root / 'run', deadline=time.time() + 4000)
-        self.report = {'ok': True, 'checked_epoch': time.time(), 'launch': {
+        self.report = {'ok': True, 'checked_epoch': time.time(),
+                       'bundle_sha256': runner.sha256_file(self.root / 'bundle.tar.gz'), 'launch': {
             'max_seconds': 1800, 'image': 'pinned-image', 'gpu': 'A100',
             'datacenter': 'US-KS-2', 'disk_gb': 80, 'hourly_ceiling': 2}}
         self.creates = []

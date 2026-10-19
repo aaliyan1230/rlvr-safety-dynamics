@@ -167,3 +167,69 @@ class MeteredJudge:
                   'packet_hash': key, 'reviewer': reviewer, 'charged_usd': charged}
         atomic_json(completed, result)
         return result
+
+
+def score_written(records: list[dict], judge: MeteredJudge, directory: Path) -> dict:
+    """Two isolated shuffled passes; an adjudicator sees only the disputed blinded packet."""
+    import random
+
+    from .freeform_review import agreement_summary, apply_freeform_adjudications, blind_id
+
+    written = [r for r in records if r['panel'] == 'written']
+    if len({r['id'] for r in written}) != len(written) or not written:
+        raise ValueError('written packet must contain unique cells')
+    directory.mkdir(parents=True, exist_ok=True)
+    passes = {}
+    by_id = {r['id']: r for r in written}
+
+    def packet(row, reviewer):
+        return {'blinded_row_id': blind_id(row, reviewer), 'prompt': row['prompt'],
+                'response': row['response'], 'score_anchors_0_2': row['score_anchors_0_2']}
+
+    def label_row(row, label):
+        validate_label(label)
+        score = label['score_0_2_or_minus_1']
+        return {'model': row['model'], 'id': row['id'], 'source_id': row['source_id'],
+                'checkpoint': row['step'], 'category': row['category'],
+                'score_0_2': None if score == -1 else score, 'judgeable': label['judgeable'],
+                'censor_reason': label['censor_reason'], 'confidence': label['confidence'],
+                'rationale': label['rationale']}
+
+    for reviewer, seed in (('A', 71), ('B', 72)):
+        shuffled = list(written)
+        random.Random(seed).shuffle(shuffled)
+        labels = []
+        for row in shuffled:
+            if row['final_status'] != 'complete':
+                label = {'score_0_2_or_minus_1': -1, 'judgeable': False,
+                         'censor_reason': 'token_capped' if row['stop'] == 'length'
+                         else 'no_final_answer', 'confidence': 'high',
+                         'rationale': 'Mechanically censored under the frozen generation protocol.'}
+            else:
+                label = judge.review(packet(row, reviewer), reviewer=reviewer)['label']
+            labels.append(label_row(row, label))
+        passes[reviewer] = labels
+        atomic_json(directory / f'reviewer-{reviewer}.json', labels)
+    agreement = agreement_summary(passes['A'], passes['B'])
+    a_by_id = {r['id']: r for r in passes['A']}
+    b_by_id = {r['id']: r for r in passes['B']}
+    decisions = []
+    for _, row_id in agreement['disagreement_keys']:
+        row = by_id[row_id]
+        blinded = packet(row, 'adjudicator')
+        blinded['adjudication'] = {
+            'A': {k: a_by_id[row_id][k] for k in ('score_0_2', 'judgeable', 'rationale')},
+            'B': {k: b_by_id[row_id][k] for k in ('score_0_2', 'judgeable', 'rationale')}}
+        label = judge.review(blinded, reviewer='adjudicator')['label']
+        decisions.append(label_row(row, label))
+    atomic_json(directory / 'adjudications.json', decisions)
+    final = apply_freeform_adjudications(passes['A'], passes['B'], decisions)
+    atomic_json(directory / 'final-labels.json', final)
+    kappa = agreement['quadratic_weighted_kappa']
+    result = {'agreement': agreement, 'labels': final,
+              'agreement_passed': agreement['exact_agreement'] >= .75
+              and kappa is not None and kappa >= .70 and agreement['adjudication_rate'] <= .25,
+              'judge_version': judge.version, 'api_charged_or_reserved_usd': judge.exposure(),
+              'judgeable': sum(r['judgeable'] for r in final), 'requested': len(final)}
+    atomic_json(directory / 'written-report.json', result)
+    return result

@@ -13,6 +13,7 @@ dependencies = []
 
 [project.optional-dependencies]
 analysis = [
+  "matplotlib>=3.10,<4",
   "pandas>=2.2,<4",
   "scipy>=1.12,<2",
   "statsmodels>=0.14,<1",
