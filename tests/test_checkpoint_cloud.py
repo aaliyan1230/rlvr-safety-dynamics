@@ -165,6 +165,23 @@ class CheckpointCloudTests(unittest.TestCase):
             self.assertFalse(saved['passed'])
             self.assertFalse(saved['cleanup_verified'])
 
+    def test_native_create_rejection_records_sanitized_reason_and_still_checks_cleanup(self):
+        with ExitStack() as stack:
+            mocks = self.patches(stack)
+            def rejected(path, *args, **kwargs):
+                if path == '/pods':
+                    raise runner.ApiError('native rejection', 400,
+                                          {'detail': 'Synthetic capacity rejection'})
+                return self.api(path, *args, **kwargs)
+            mocks['request'].side_effect = rejected
+            with self.assertRaises(runner.ApiError):
+                runner.run_batch(self.args, self.report, backup=Mock())
+            state = json.loads((self.args.output / 'state.json').read_text())
+            self.assertEqual(state['api_error']['status'], 400)
+            self.assertIn('Synthetic capacity', state['api_error']['problem']['detail'])
+            self.assertTrue(state['cleanup_verified'])
+            self.assertEqual(state['pod_ids'], [])
+
     def test_quote_rejection_and_ambiguous_create_record_identity_before_cleanup(self):
         for fault in ('quote', 'ambiguous'):
             with self.subTest(fault=fault), ExitStack() as stack:

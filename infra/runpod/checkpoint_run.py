@@ -12,7 +12,7 @@ from pathlib import Path
 
 import permission_run
 import pilot
-from runpod_cli import list_pods, public_pod, request
+from runpod_cli import ApiError, list_pods, public_pod, request
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'src'))
 from rlvr_safety.checkpoint_study import ResponseStore, atomic_json, verify_chunk  # noqa: E402
@@ -189,8 +189,10 @@ def run_batch(args, report: dict, *, backup) -> dict:
             time.sleep(15)
         else:
             raise TimeoutError('batch deadline; stop generation and preserve completed chunks')
-    except BaseException:
+    except BaseException as error:
         state['passed'] = False
+        if isinstance(error, ApiError):
+            state['api_error'] = {'status': error.status, 'problem': error.problem}
         raise
     finally:
         try:
