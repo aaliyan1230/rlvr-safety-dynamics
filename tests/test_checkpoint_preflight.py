@@ -112,6 +112,17 @@ class NativePreflightTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'unverified cleanup'):
                 self.check()
 
+    def test_auto_placement_is_selected_in_read_only_preflight_and_never_changes_gpu(self):
+        self.launch['datacenter'] = 'auto'
+        with patch.object(guard, 'request', side_effect=self.request), \
+                patch.object(guard, 'list_pods', return_value=[]):
+            report = self.check()
+            self.assertEqual(report['launch']['datacenter'], 'test-dc')
+            self.assertEqual(report['launch']['gpu'], self.protocol['gpu'])
+            self.catalog['gpus'][0]['dataCenters'][0]['availability'] = 'NONE'
+            with self.assertRaises(guard.CapacityUnavailable):
+                self.check()
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -16,6 +16,10 @@ from rlvr_safety.io import sha256_file
 GPU_CHOICES = (('NVIDIA H100 80GB HBM3', 4.50), ('NVIDIA A100-SXM4-80GB', 2.00))
 
 
+class CapacityUnavailable(ValueError):
+    """Read-only preflight found no slot; no create request has occurred."""
+
+
 def readiness_fingerprint(protocol: dict) -> str:
     return digest({k: v for k, v in protocol.items() if k != 'generation'} | {
         'generation': {k: v for k, v in protocol['generation'].items() if k != 'max_new_tokens'}})
@@ -71,9 +75,16 @@ def native_preflight(bundle: Path, campaign: Path, *, balance: dict,
         raise ValueError('GPU/rate is outside the agreed hardware choices')
     if not 0 < gpu['price']['secure'] <= launch['hourly_ceiling']:
         raise ValueError('catalog quote exceeds the approved ceiling')
+    if launch['datacenter'] == 'auto':
+        options = [d for d in gpu.get('dataCenters', []) if d['availability'] != 'NONE']
+        if not options:
+            raise CapacityUnavailable('selected GPU has no current native capacity')
+        best = max(options, key=lambda d: {'LOW': 1, 'MEDIUM': 2, 'HIGH': 3}.get(
+            d['availability'], 0))
+        launch = {**launch, 'datacenter': best['id']}
     if not any(d['id'] == launch['datacenter'] and d['availability'] != 'NONE'
                for d in gpu.get('dataCenters', [])):
-        raise ValueError('selected GPU has no native capacity in the selected data center')
+        raise CapacityUnavailable('selected GPU has no native capacity in the selected data center')
     pods, volumes = list_pods(), request('/network-volumes')['networkVolumes']
     if pods or volumes:
         raise ValueError('unexpected account resources: inspect before launching')

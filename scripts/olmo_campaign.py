@@ -193,7 +193,6 @@ def launch(args):
         if freeze.get("protocol_hash") != digest(protocol):
             raise ValueError("main freeze does not pin the exact execution protocol")
         verify_stage_evidence(campaign, freeze, protocol)
-    balance = json.loads((campaign / "native-balance.json").read_text())
     launch_plan = {
         "stage": stage,
         "gpu": protocol["gpu"],
@@ -203,9 +202,28 @@ def launch(args):
         "max_seconds": args.minutes * 60,
         "datacenter": args.datacenter,
     }
-    report = checkpoint_preflight.native_preflight(
-        bundle, campaign, balance=balance, launch=launch_plan
-    )
+    campaign_deadline = datetime.fromisoformat(
+        json.loads((campaign / "campaign.json").read_text())["deadline"]
+    ).timestamp()
+    while True:
+        try:
+            balance = json.loads((campaign / "native-balance.json").read_text())
+            report = checkpoint_preflight.native_preflight(
+                bundle, campaign, balance=balance, launch=launch_plan
+            )
+        except checkpoint_preflight.CapacityUnavailable as error:
+            if not args.wait_for_capacity:
+                raise
+            remaining = campaign_deadline - time.time() - launch_plan["max_seconds"]
+            if remaining <= 0:
+                raise TimeoutError("no capacity before the last safe batch start") from error
+            print(json.dumps({"event": "waiting_for_capacity", "checked_epoch": time.time(),
+                              "resource_creation_performed": False}), flush=True)
+            time.sleep(min(60, remaining))
+        else:
+            break
+    print(json.dumps({"event": "accepted_native_launch_quote", "launch": report["launch"],
+                      "maximum_exposure_usd": report["maximum_launch_exposure_usd"]}), flush=True)
     args.bundle, args.output = bundle, args.output.resolve()
     args.deadline = datetime.fromisoformat(
         json.loads((campaign / "campaign.json").read_text())["deadline"]
@@ -432,6 +450,7 @@ def main():
     command.add_argument("--private-key", type=Path, required=True)
     command.add_argument("--minutes", type=int, required=True)
     command.add_argument("--datacenter", required=True)
+    command.add_argument("--wait-for-capacity", action="store_true")
     commands.add_parser("check-judge")
     args = parser.parse_args()
     result = {
