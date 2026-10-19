@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import os
 import subprocess
 import sys
@@ -172,6 +173,40 @@ def verify_stage_evidence(campaign, accepted, protocol):
             raise ValueError("previous stage evidence is missing, outside the campaign, or changed")
 
 
+def enforce_remaining_main_forecast(campaign, protocol, deadline, *, now=None, native=None):
+    """Capacity waiting cannot consume the time reserved for the remaining study."""
+    path = campaign / "main-live-forecast.json"
+    if not path.exists():
+        path = campaign / "main-freeze.json"
+    forecast = json.loads(path.read_text())
+    if forecast.get("protocol_hash") != digest(protocol):
+        raise ValueError("remaining forecast differs from the frozen protocol")
+    verify_stage_evidence(campaign, forecast, protocol)
+    names = ("created_epoch", "gpu_seconds_with_50_percent_contingency",
+             "reserved_finalization_seconds", "gpu_forecast_with_50_percent_contingency_usd",
+             "api_charged_or_reserved_so_far_usd", "api_remaining_with_50_percent_contingency_usd")
+    if any(type(forecast.get(k)) not in (int, float) or not math.isfinite(forecast[k])
+           or forecast[k] < 0 for k in names):
+        raise ValueError("remaining forecast has invalid time or cost fields")
+    now = time.time() if now is None else now
+    if forecast["created_epoch"] > now + 60:
+        raise ValueError("remaining forecast is from the future")
+    if not forecast.get("forecast_fits_with_50_percent_contingency"):
+        raise ValueError("remaining study forecast does not pass")
+    required = (forecast["gpu_seconds_with_50_percent_contingency"]
+                + forecast["reserved_finalization_seconds"])
+    if deadline - now < required:
+        raise TimeoutError("capacity wait exhausted the remaining full-study forecast; no launch")
+    if native is not None:
+        limits = json.loads((campaign / "campaign.json").read_text())
+        gpu = (native["conservative_elapsed_projection_usd"]
+               + forecast["gpu_forecast_with_50_percent_contingency_usd"])
+        api = (forecast["api_charged_or_reserved_so_far_usd"]
+               + forecast["api_remaining_with_50_percent_contingency_usd"])
+        if gpu > limits["gpu_ceiling_usd"] or api > limits["api_ceiling_usd"]:
+            raise ValueError("remaining full-study forecast exceeds campaign spending limits")
+
+
 def launch(args):
     campaign = args.campaign.resolve()
     bundle = args.bundle.resolve()
@@ -206,6 +241,8 @@ def launch(args):
         json.loads((campaign / "campaign.json").read_text())["deadline"]
     ).timestamp()
     while True:
+        if stage == "main":
+            enforce_remaining_main_forecast(campaign, protocol, campaign_deadline)
         try:
             balance = json.loads((campaign / "native-balance.json").read_text())
             report = checkpoint_preflight.native_preflight(
@@ -221,6 +258,10 @@ def launch(args):
                               "resource_creation_performed": False}), flush=True)
             time.sleep(min(60, remaining))
         else:
+            if stage == "main":
+                enforce_remaining_main_forecast(
+                    campaign, protocol, campaign_deadline, native=report
+                )
             break
     print(json.dumps({"event": "accepted_native_launch_quote", "launch": report["launch"],
                       "maximum_exposure_usd": report["maximum_launch_exposure_usd"]}), flush=True)
