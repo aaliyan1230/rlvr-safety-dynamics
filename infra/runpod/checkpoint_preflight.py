@@ -20,6 +20,27 @@ class CapacityUnavailable(ValueError):
     """Read-only preflight found no slot; no create request has occurred."""
 
 
+def campaign_state_paths(campaign: Path) -> list[Path]:
+    """A predeclared fallback shares its parent's clock, billing baseline and caps."""
+    campaign = campaign.resolve()
+    limits = json.loads((campaign / 'campaign.json').read_text())
+    roots = [campaign]
+    for name in limits.get('prior_campaigns', []):
+        prior = (campaign / name).resolve()
+        if prior in roots:
+            raise ValueError('duplicate or cyclic campaign budget roots')
+        previous = json.loads((prior / 'campaign.json').read_text())
+        shared = ('started_at', 'deadline', 'gpu_ceiling_usd', 'api_ceiling_usd')
+        if previous.get('prior_campaigns') or any(
+                previous.get(key) != limits.get(key) for key in shared):
+            raise ValueError('fallback must retain the original campaign clock and caps')
+        if sha256_file(prior / 'billing-before.json') != sha256_file(
+                campaign / 'billing-before.json'):
+            raise ValueError('fallback must retain the original native billing baseline')
+        roots.append(prior)
+    return sorted(path for root in roots for path in root.glob('cloud/*/state.json'))
+
+
 def readiness_fingerprint(protocol: dict) -> str:
     return digest({k: v for k, v in protocol.items() if k != 'generation'} | {
         'generation': {k: v for k, v in protocol['generation'].items() if k != 'max_new_tokens'}})
@@ -97,7 +118,7 @@ def native_preflight(bundle: Path, campaign: Path, *, balance: dict,
     if native_delta < -.001:
         raise ValueError('native usage decreased; reconcile account adjustments before launch')
     projections, readiness_projections, canary_projections = [], [], []
-    for path in campaign.glob('cloud/*/state.json'):
+    for path in campaign_state_paths(campaign):
         prior = json.loads(path.read_text())
         if not prior.get('cleanup_verified'):
             raise ValueError('previous batch has unverified cleanup')

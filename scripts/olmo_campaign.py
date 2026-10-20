@@ -277,7 +277,7 @@ def launch(args):
         return backup_private(
             directory,
             repository=repository,
-            prefix=f"olmo-checkpoints-2026-10-19/{args.output.name}",
+            prefix=f"{campaign.name}/{args.output.name}",
             receipt=args.output / "backup-receipt.json",
         )
 

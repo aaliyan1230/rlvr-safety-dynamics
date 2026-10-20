@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from rlvr_safety.checkpoint_study import (  # noqa: E402
+    INSTRUCT_STEPS,
     THINK_STEPS,
     atomic_json,
     build_matrix,
@@ -79,17 +80,19 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--bootstrap', type=int, default=5000)
+    parser.add_argument('--lineage', choices=('think', 'instruct'), default='think')
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     report = {'status': 'FAIL', 'synthetic_only': True, 'paid_inference': False,
               'bootstrap_repetitions': args.bootstrap}
     try:
-        matrix = build_matrix(ROOT)
-        model_steps = {f'think_{s:04d}': s for s in THINK_STEPS}
+        matrix = build_matrix(ROOT, args.lineage)
+        steps = THINK_STEPS if args.lineage == 'think' else INSTRUCT_STEPS
+        model_steps = {f'{args.lineage}_{s:04d}': s for s in steps}
         protocol = {'synthetic': True, 'matrix_hash': digest(matrix)}
         for mode in ('behavior', 'order'):
             all_rows = []
-            for step in THINK_STEPS:
+            for step in steps:
                 questions = [r for r in matrix if r['step'] == step]
                 directory = args.out / mode / f'{step:04d}'
                 if step == 0 and not (directory / 'manifest.json').exists():

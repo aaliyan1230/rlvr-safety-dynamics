@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 import tempfile
 import time
@@ -122,6 +123,27 @@ class NativePreflightTests(unittest.TestCase):
             self.catalog['gpus'][0]['dataCenters'][0]['availability'] = 'NONE'
             with self.assertRaises(guard.CapacityUnavailable):
                 self.check()
+
+    def test_fallback_counts_prior_readiness_and_refuses_clock_or_baseline_resets(self):
+        parent = self.root / 'prior'
+        parent.mkdir()
+        limits = json.loads((self.root / 'campaign.json').read_text())
+        atomic_json(parent / 'campaign.json', limits)
+        atomic_json(parent / 'billing-before.json', self.billing)
+        atomic_json(self.root / 'campaign.json', {**limits,'prior_campaigns':['prior']})
+        atomic_json(parent / 'cloud/canary/state.json', {
+            'cleanup_verified':True,'started_at':0,'finished_at':3600,'launch':self.launch})
+        with patch.object(guard, 'request', side_effect=self.request), \
+                patch.object(guard, 'list_pods', return_value=[]):
+            with self.assertRaisesRegex(ValueError, 'canary GPU exposure'):
+                self.check()
+        atomic_json(parent / 'campaign.json', {**limits,'deadline':'changed'})
+        with self.assertRaisesRegex(ValueError, 'original campaign clock'):
+            guard.campaign_state_paths(self.root)
+        atomic_json(parent / 'campaign.json', limits)
+        atomic_json(parent / 'billing-before.json', {'different':'baseline'})
+        with self.assertRaisesRegex(ValueError, 'original native billing baseline'):
+            guard.campaign_state_paths(self.root)
 
 
 if __name__ == '__main__':

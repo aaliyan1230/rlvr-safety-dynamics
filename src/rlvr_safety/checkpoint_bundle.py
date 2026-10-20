@@ -54,6 +54,10 @@ def build_bundle(root: Path, prepared: Path, destination: Path, *, stage: str,
     if destination.exists():
         raise ValueError('bundle destination already exists; do not overwrite provenance')
     matrix = list(read_jsonl(prepared / 'matrix.jsonl'))
+    lineages = {r['model'].split('_', 1)[0] for r in matrix}
+    if len(lineages) != 1 or not lineages <= {'think', 'instruct'}:
+        raise ValueError('prepared matrix needs exactly one supported model lineage')
+    lineage = lineages.pop()
     selected = select_questions(matrix, stage, steps)
     metadata = json.loads((prepared / 'model_metadata.json').read_text())
     by_step = {m['step']: m for m in metadata}
@@ -67,7 +71,7 @@ def build_bundle(root: Path, prepared: Path, destination: Path, *, stage: str,
     source_hashes = {str(p.relative_to(root)): sha256_file(p) for p in source_files}
     source_hashes['infra/runpod/checkpoint_workload.py'] = sha256_file(
         root / 'infra/runpod/checkpoint_workload.py')
-    protocol = {'schema_version': 1, 'lineage': 'olmo-3-7b-think', 'precision': 'bf16',
+    protocol = {'schema_version': 1, 'lineage': f'olmo-3-7b-{lineage}', 'precision': 'bf16',
                 'attention_implementation': 'eager', 'trust_remote_code': False,
                 'generation': {'max_new_tokens': cap, 'seed': 0, 'do_sample': False,
                                'per_response_seconds': per_response_seconds},

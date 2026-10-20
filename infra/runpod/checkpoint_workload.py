@@ -85,9 +85,11 @@ def run_workload(root: Path, *, simulated: bool = False, interrupt_after: int | 
             directory.mkdir(exist_ok=True)
             config = {'model': {'repo': model['repo'], 'revision': model['revision'],
                                 'label': label,
-                                'chat_template_sha256': protocol['native_template_sha256']},
+                                'chat_template_sha256': model.get(
+                                    'native_template_sha256', protocol['native_template_sha256'])},
                       'generation': protocol['generation'],
-                      'tokenizer_sha256': protocol['tokenizer_sha256'],
+                      'tokenizer_sha256': model.get(
+                          'tokenizer_sha256', protocol['tokenizer_sha256']),
                       'runtime_pins': {k: v for k, v in protocol['runtime_pins'].items()
                                        if k in ('torch', 'transformers', 'huggingface-hub',
                                                 'accelerate', 'safetensors', 'tokenizers',

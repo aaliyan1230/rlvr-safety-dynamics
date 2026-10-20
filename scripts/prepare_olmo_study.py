@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import hashlib
 import json
 import sys
 import urllib.request
@@ -13,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from rlvr_safety.checkpoint_protocol import format_controls  # noqa: E402
 from rlvr_safety.checkpoint_study import (  # noqa: E402
+    INSTRUCT_STEPS,
     THINK_STEPS,
     atomic_json,
     build_matrix,
@@ -32,9 +34,10 @@ def fetch(url):
         return response.read()
 
 
-def metadata(step):
-    repo = 'allenai/Olmo-3-7B-Think' + ('-DPO' if step == 0 else '')
-    branch = 'main' if step == 0 else f'step_{step:04d}'
+def metadata(step, lineage='think'):
+    repo = f'allenai/Olmo-3-7B-{lineage.title()}' + ('-DPO' if step == 0 else '')
+    width = 4 if lineage == 'think' else 3
+    branch = 'main' if step == 0 else f'step_{step:0{width}d}'
     info = json.loads(fetch(f'https://huggingface.co/api/models/{repo}/revision/{branch}?blobs=true'))
     weights = {s['rfilename']: s['lfs']['sha256'] for s in info['siblings']
                if s['rfilename'].endswith('.safetensors')}
@@ -48,23 +51,44 @@ def metadata(step):
             'available_files': sorted(names)}
 
 
+def verify_native_rendering(tokenizer, messages, rendered, ids, templates):
+    for template in templates:
+        native_text = tokenizer.apply_chat_template(
+            messages, chat_template=template, tokenize=False, add_generation_prompt=True)
+        native_ids = tokenizer.apply_chat_template(
+            messages, chat_template=template, tokenize=True, add_generation_prompt=True)
+        if native_text != rendered or native_ids != ids:
+            raise ValueError('native templates render different inputs; cannot hold prompts fixed')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', required=True, type=Path)
+    parser.add_argument('--lineage', choices=('think', 'instruct'), default='think')
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     report = {'status': 'FAIL', 'paid_inference': False}
     try:
-        matrix = build_matrix(ROOT)
+        matrix = build_matrix(ROOT, args.lineage)
+        steps = THINK_STEPS if args.lineage == 'think' else INSTRUCT_STEPS
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-            models = list(pool.map(metadata, THINK_STEPS))
-        if len({digest(m['weights']) for m in models}) != 12:
+            models = list(pool.map(lambda step: metadata(step, args.lineage), steps))
+        if len({digest(m['weights']) for m in models}) != len(steps):
             raise ValueError('checkpoint weights are not distinct')
-        for name in ('tokenizer.json', 'tokenizer_config.json', 'chat_template.jinja'):
+        for name in ('tokenizer.json', 'tokenizer_config.json'):
             if len({m['tokenizer_blobs'].get(name) for m in models}) != 1:
                 raise ValueError(f'{name} differs across checkpoints')
             if name not in models[0]['tokenizer_blobs']:
                 raise ValueError(f'missing native {name}')
+        templates = {}
+        for model in models:
+            template = fetch(f"https://huggingface.co/{model['repo']}/resolve/"
+                             f"{model['revision']}/chat_template.jinja").decode()
+            model['native_template_sha256'] = hashlib.sha256(template.encode()).hexdigest()
+            templates[model['step']] = template
+        unique_templates = set(templates.values())
+        if args.lineage == 'think' and len(unique_templates) != 1:
+            raise ValueError('Think native templates differ; original protocol forbids this')
         by_step = {m['step']: m for m in models}
         for row in matrix:
             row['revision'] = by_step[row['step']]['revision']
@@ -84,6 +108,13 @@ def main():
                                                   trust_remote_code=False)
         if not tokenizer.chat_template:
             raise ValueError('no native chat template; generic fallback forbidden')
+        if tokenizer.chat_template != templates[models[0]['step']]:
+            raise ValueError('loaded tokenizer does not use its pinned native template')
+        common_hashes = {name:sha256_file(template_dir / name)
+                         for name in ('tokenizer.json','tokenizer_config.json')}
+        for model in models:
+            model['tokenizer_sha256'] = {
+                **common_hashes,'chat_template.jinja':model['native_template_sha256']}
         config = json.loads((template_dir / 'config.json').read_text())
         context = config['max_position_embeddings']
         cap = 32768  # Validate the permitted repair allowance too.
@@ -98,6 +129,7 @@ def main():
                                                 add_generation_prompt=True)
             if tokenizer.encode(rendered, add_special_tokens=False) != ids:
                 raise ValueError('rendering/tokenization disagreement')
+            verify_native_rendering(tokenizer, messages, rendered, ids, unique_templates)
             if len(ids) + cap > context:
                 raise ValueError('prompt plus allowed output exceeds native context')
             rendered_hashes[row['id']] = digest(rendered)
@@ -127,14 +159,16 @@ def main():
             generation_reports.append({'step': model['step'], 'revision': model['revision'],
                                        'effective_config_hash': digest(resolved),
                                        'eos': native_eos})
-        release = json.loads(fetch('https://huggingface.co/api/models/allenai/Olmo-3-7B-Think?blobs=true'))
+        release_repo = f'allenai/Olmo-3-7B-{args.lineage.title()}'
+        release = json.loads(fetch(f'https://huggingface.co/api/models/{release_repo}?blobs=true'))
         release_weights = {s['rfilename']: s['lfs']['sha256'] for s in release['siblings']
                            if s['rfilename'].endswith('.safetensors')}
-        if release_weights == models[-1]['weights']:
+        if args.lineage == 'think' and release_weights == models[-1]['weights']:
             raise ValueError('release/last-numbered distinction changed; inspect protocol')
         recipe_url = ('https://raw.githubusercontent.com/allenai/open-instruct/main/'
-                      'scripts/train/olmo3/7b_think_rl.sh')
-        (args.out / '7b_think_rl.sh').write_bytes(fetch(recipe_url))
+                      f'scripts/train/olmo3/7b_{args.lineage}_rl.sh')
+        recipe_path = args.out / f'7b_{args.lineage}_rl.sh'
+        recipe_path.write_bytes(fetch(recipe_url))
         write_jsonl(args.out / 'matrix.jsonl', matrix)
         atomic_json(args.out / 'model_metadata.json', models)
         atomic_json(args.out / 'rendered_prompt_hashes.json', rendered_hashes)
@@ -151,7 +185,14 @@ def main():
                           template_dir / 'chat_template.jinja'),
                       matrix_sha256=sha256_file(args.out / 'matrix.jsonl'),
                       excluded_release_revision=release['sha'],
-                      recipe_url=recipe_url, recipe_sha256=sha256_file(args.out / '7b_think_rl.sh'))
+                      release_matches_last_scheduled_weights=(
+                          release_weights == models[-1]['weights']),
+                      lineage=args.lineage, recipe_url=recipe_url,
+                      native_template_files_identical=len(unique_templates) == 1,
+                      native_template_variants=len(unique_templates),
+                      native_template_rendering_checks=len(rendered_inputs)*len(unique_templates),
+                      native_text_and_token_equivalence=True,
+                      recipe_sha256=sha256_file(recipe_path))
     except Exception as error:
         report['error'] = f'{type(error).__name__}: {error}'
         raise

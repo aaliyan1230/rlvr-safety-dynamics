@@ -104,6 +104,24 @@ class CheckpointBundleTests(unittest.TestCase):
         self.assertEqual(protocol['generation']['max_new_tokens'], 8192)
         self.assertNotIn('api_key', protocol)
 
+    def test_instruct_bundle_names_the_actual_fallback_and_rehearses_its_endpoints(self):
+        matrix = build_matrix(ROOT, 'instruct')
+        for row in matrix:
+            row.update(revision=f"{row['step']:040x}", repo='test/instruct')
+            row['input_hash'] = digest({k:v for k,v in row.items() if k != 'input_hash'})
+        write_jsonl(self.prepared / 'matrix.jsonl', matrix)
+        atomic_json(self.prepared / 'model_metadata.json', [
+            {'step':step,'revision':f'{step:040x}','repo':'test/instruct','siblings':[]}
+            for step in sorted({r['step'] for r in matrix})])
+        bundle = self.bundle()
+        protocol = json.loads((bundle / 'protocol.json').read_text())
+        self.assertEqual(protocol['lineage'], 'olmo-3-7b-instruct')
+        result = self.run_worker(bundle)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        summary = json.loads((bundle / 'out/run_summary.json').read_text())
+        self.assertEqual(set(summary['models']), {'instruct_0000','instruct_0400'})
+        self.assertEqual(summary['records'], 24)
+
 
 if __name__ == '__main__':
     unittest.main()
