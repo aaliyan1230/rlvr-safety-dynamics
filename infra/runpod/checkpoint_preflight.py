@@ -38,6 +38,19 @@ def campaign_state_paths(campaign: Path) -> list[Path]:
                 campaign / 'billing-before.json'):
             raise ValueError('fallback must retain the original native billing baseline')
         roots.append(prior)
+    # A resumed primary keeps failed fallback charges even when its time window changes.
+    for name in limits.get('budget_peers', []):
+        peer = (campaign / name).resolve()
+        if peer in roots:
+            raise ValueError('duplicate campaign budget roots')
+        previous = json.loads((peer / 'campaign.json').read_text())
+        shared = ('started_at', 'gpu_ceiling_usd', 'api_ceiling_usd')
+        if any(previous.get(key) != limits.get(key) for key in shared):
+            raise ValueError('budget peers must retain campaign origin and spending caps')
+        if sha256_file(peer / 'billing-before.json') != sha256_file(
+                campaign / 'billing-before.json'):
+            raise ValueError('budget peers must retain the original native billing baseline')
+        roots.append(peer)
     return sorted(path for root in roots for path in root.glob('cloud/*/state.json'))
 
 

@@ -146,5 +146,29 @@ class NativePreflightTests(unittest.TestCase):
             guard.campaign_state_paths(self.root)
 
 
+    def test_resumed_primary_counts_failed_fallback_with_earlier_deadline(self):
+        peer = self.root / 'fallback'
+        limits = json.loads((self.root / 'campaign.json').read_text())
+        atomic_json(peer / 'campaign.json', {**limits, 'deadline': 'earlier-deadline',
+                                            'prior_campaigns': ['..']})
+        atomic_json(peer / 'billing-before.json', self.billing)
+        state = peer / 'cloud/failed-canary/state.json'
+        atomic_json(state, {'cleanup_verified': True, 'started_at': 0,
+                           'finished_at': 3600, 'launch': self.launch})
+        atomic_json(self.root / 'campaign.json', {**limits, 'budget_peers': ['fallback']})
+        self.assertIn(state.resolve(), guard.campaign_state_paths(self.root))
+        with patch.object(guard, 'request', side_effect=self.request), \
+                patch.object(guard, 'list_pods', return_value=[]):
+            with self.assertRaisesRegex(ValueError, 'canary GPU exposure'):
+                self.check()
+        atomic_json(peer / 'campaign.json', {**limits, 'gpu_ceiling_usd': 301})
+        with self.assertRaisesRegex(ValueError, 'spending caps'):
+            guard.campaign_state_paths(self.root)
+        atomic_json(peer / 'campaign.json', limits)
+        atomic_json(peer / 'billing-before.json', {'different': 'baseline'})
+        with self.assertRaisesRegex(ValueError, 'native billing baseline'):
+            guard.campaign_state_paths(self.root)
+
+
 if __name__ == '__main__':
     unittest.main()
