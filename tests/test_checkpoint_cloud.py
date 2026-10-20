@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import subprocess
 import sys
 import tempfile
 import time
@@ -96,6 +97,35 @@ class CheckpointCloudTests(unittest.TestCase):
             backup.assert_called_once()
             self.assertEqual(self.creates[0]['gpu']['count'], 1)
             self.assertNotIn('mounts', self.creates[0])
+
+    def test_read_only_ssh_reconnects_after_transport_failure(self):
+        disconnected = SimpleNamespace(returncode=255, stdout=b'')
+        recovered = SimpleNamespace(returncode=0, stdout=b'saved evidence')
+        with patch.object(runner.permission_run, 'ssh', side_effect=[disconnected, recovered]) as ssh:
+            with patch.object(runner.time, 'sleep'):
+                result = runner.read_remote({}, self.args, 'read evidence', deadline=time.time()+60)
+        self.assertEqual(result.stdout, b'saved evidence')
+        self.assertEqual(ssh.call_count, 2)
+
+    def test_read_only_ssh_retries_timeout_but_not_remote_failure(self):
+        failed = SimpleNamespace(returncode=1, stdout=b'')
+        with patch.object(runner.permission_run, 'ssh', side_effect=[
+                subprocess.TimeoutExpired('ssh', 1), failed]) as ssh:
+            with patch.object(runner.time, 'sleep'):
+                result = runner.read_remote({}, self.args, 'read evidence', deadline=time.time()+60)
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(ssh.call_count, 2)
+
+    def test_read_only_ssh_recovery_is_bounded_and_expired_read_never_connects(self):
+        with patch.object(runner.permission_run, 'ssh', return_value=SimpleNamespace(returncode=255)) as ssh:
+            with patch.object(runner.time, 'sleep'):
+                with self.assertRaisesRegex(RuntimeError, 'three read-only'):
+                    runner.read_remote({}, self.args, 'read evidence', deadline=time.time()+60)
+            self.assertEqual(ssh.call_count, 3)
+            ssh.reset_mock()
+            with self.assertRaisesRegex(TimeoutError, 'deadline expired'):
+                runner.read_remote({}, self.args, 'read evidence', deadline=time.time()-1)
+            ssh.assert_not_called()
 
     def test_real_retrieved_validation_requires_every_expected_answer_and_mapping(self):
         questions = build_matrix(HERE.parents[1])[:2]

@@ -46,8 +46,32 @@ EXPORT
 """
 
 
+def read_remote(connection, args, command: str, *, deadline: float, timeout: int = 120):
+    """Retry read-only transport failures, without retrying remote command failures."""
+    for attempt in range(3):
+        remaining = deadline - time.time()
+        if remaining <= 0:
+            raise TimeoutError('SSH read recovery deadline expired')
+        try:
+            result = permission_run.ssh(connection, args, command, check=False,
+                                        timeout=min(timeout, remaining))
+        except subprocess.TimeoutExpired:
+            if attempt == 2:
+                raise
+        else:
+            if result.returncode != 255:
+                return result
+            if attempt == 2:
+                raise RuntimeError('SSH transport unavailable after three read-only attempts')
+        time.sleep(min(5 * (attempt + 1), max(0, deadline - time.time())))
+    raise AssertionError('unreachable')
+
+
 def retrieve(connection, args, root: str) -> int:
-    exported = permission_run.ssh(connection, args, export_command(root), timeout=120)
+    deadline = min(getattr(args, 'transport_deadline', time.time() + 180), time.time() + 180)
+    exported = read_remote(connection, args, export_command(root), deadline=deadline)
+    if exported.returncode:
+        raise RuntimeError(f'remote export failed with exit {exported.returncode}')
     target = args.output / 'retrieved'
     # Existing sealed data must never be overwritten with different remote bytes.
     staging = args.output / 'retrieval-staging'
@@ -106,6 +130,7 @@ def run_batch(args, report: dict, *, backup) -> dict:
     args.output.chmod(0o700)
     state_path = args.output / 'state.json'
     deadline = time.time() + launch['max_seconds']
+    args.transport_deadline = deadline - 60
     state = {'name': 'rlvr-olmo-' + uuid.uuid4().hex[:12], 'pod_ids': [],
              'started_at': time.time(), 'deadline': deadline, 'launch': launch,
              'cleanup_verified': False, 'passed': False, 'bundle_sha256': archive_hash}
@@ -167,8 +192,8 @@ def run_batch(args, report: dict, *, backup) -> dict:
         state['workload_pid'] = launched.stdout.decode().strip()
         pilot.save(state_path, state)
         while time.time() < deadline - 240:
-            result = permission_run.ssh(connection, args,
-                f'cat {root}/exit.code 2>/dev/null', check=False)
+            result = read_remote(connection, args,
+                f'cat {root}/exit.code 2>/dev/null', deadline=deadline - 240)
             state['retrieved_chunks'] = retrieve(connection, args, root)
             pilot.save(state_path, state)
             if result.returncode == 0:
