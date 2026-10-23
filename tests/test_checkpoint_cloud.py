@@ -101,7 +101,8 @@ class CheckpointCloudTests(unittest.TestCase):
     def test_read_only_ssh_reconnects_after_transport_failure(self):
         disconnected = SimpleNamespace(returncode=255, stdout=b'')
         recovered = SimpleNamespace(returncode=0, stdout=b'saved evidence')
-        with patch.object(runner.permission_run, 'ssh', side_effect=[disconnected, recovered]) as ssh:
+        with patch.object(
+                runner.permission_run, 'ssh', side_effect=[disconnected, recovered]) as ssh:
             with patch.object(runner.time, 'sleep'):
                 result = runner.read_remote({}, self.args, 'read evidence', deadline=time.time()+60)
         self.assertEqual(result.stdout, b'saved evidence')
@@ -117,7 +118,8 @@ class CheckpointCloudTests(unittest.TestCase):
         self.assertEqual(ssh.call_count, 2)
 
     def test_read_only_ssh_recovery_is_bounded_and_expired_read_never_connects(self):
-        with patch.object(runner.permission_run, 'ssh', return_value=SimpleNamespace(returncode=255)) as ssh:
+        with patch.object(
+                runner.permission_run, 'ssh', return_value=SimpleNamespace(returncode=255)) as ssh:
             with patch.object(runner.time, 'sleep'):
                 with self.assertRaisesRegex(RuntimeError, 'three read-only'):
                     runner.read_remote({}, self.args, 'read evidence', deadline=time.time()+60)
