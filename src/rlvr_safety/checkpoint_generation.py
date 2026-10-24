@@ -1,0 +1,51 @@
+"""Legacy instrument adapter over the already tested pinned BF16 provider."""
+from __future__ import annotations
+
+from pathlib import Path
+
+from .checkpoint_study import digest
+from .permission.generation import HFPermissionProvider
+
+
+class HFCheckpointProvider:
+    def __init__(self, config: dict, metadata: dict, cache: Path):
+        import torch
+        expected_gpu = config.get('launch', {}).get('gpu')
+        if expected_gpu and torch.cuda.is_available():
+            actual = torch.cuda.get_device_name(0)
+            family = 'H100' if 'H100' in expected_gpu else 'A100'
+            if family not in actual or torch.cuda.get_device_properties(0).total_memory < 75e9:
+                raise ValueError('actual GPU differs from the frozen 80GB hardware choice')
+        self.provider = HFPermissionProvider(config, metadata, cache)
+        self.revision = config['model']['revision']
+        self.config = config
+        actual_files = self.provider.provenance['snapshot_file_sha256']
+        if any(actual_files.get(k) != value
+               for k, value in config.get('tokenizer_sha256', {}).items()):
+            self.provider.close()
+            raise ValueError('actual tokenizer files differ from the pinned common tokenizer')
+        if any(p.dtype != torch.bfloat16 for p in self.provider.model.parameters()
+               if p.is_floating_point()):
+            self.provider.close()
+            raise ValueError('actual parameter dtype differs from BF16')
+
+    def __call__(self, question: dict, protocol_hash: str) -> dict:
+        if question['revision'] != self.revision:
+            raise ValueError('loaded checkpoint differs from requested row')
+        messages = [{'role': 'system', 'content': question['system_prompt']},
+                    {'role': 'user', 'content': question['prompt']}]
+        request = {'messages': messages, 'condition_id': question['id'], 'sample_id': '0'}
+        response = self.provider.respond(request)
+        ids = response['generated_token_ids']
+        # Keep reasoning markers even if a tokenizer classifies them as special.
+        text_ids = ids[:-1] if ids and ids[-1] in self.provider.eos_ids else ids
+        raw = self.provider.tokenizer.decode(text_ids, skip_special_tokens=False)
+        rendered = response['rendered_prompt']
+        return {**response, 'id': question['id'], 'input_hash': question['input_hash'],
+                'protocol_hash': protocol_hash, 'raw_response': raw,
+                'model_revision_resolved': self.revision, 'stop': response['stop_status'],
+                'reasoning_open': rendered.count('<think>') > rendered.count('</think>'),
+                'runtime_hash': digest(self.provider.provenance)}
+
+    def close(self):
+        self.provider.close()

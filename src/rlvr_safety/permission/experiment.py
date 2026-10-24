@@ -28,7 +28,7 @@ from .schema import is_identifier, validate_bank
 SPEC_VERSION = "permission-experiment-2026-10-07"
 USER_AGENT = "OpenAI File Downloader, XaiImageApiFetch/1.0"
 READOUTS = {"generate", "choice_logprobs"}
-PLAN_KEYS = {"mcq", "executable", "option_free", "wordings"}
+PLAN_KEYS = {"mcq", "executable", "option_free", "wordings", "prompt_variant"}
 REVIEW_REQUIREMENTS = {"none", "accepted"}
 CODE_FILES = (
     "__init__.py",
@@ -91,7 +91,23 @@ def validate_spec(spec: dict) -> None:
         f"readouts must include 'generate' and be within {sorted(READOUTS)}",
     )
     generation = spec.get("generation", {})
-    _require(generation.get("do_sample") is False, "generation must be greedy (do_sample false)")
+    _require(isinstance(generation.get("do_sample"), bool), "generation.do_sample must be a bool")
+    if generation["do_sample"]:
+        for key in ("temperature", "top_p"):
+            value = generation.get(key)
+            _require(isinstance(value, (int, float)) and 0 < value <= (1 if key == "top_p" else 2),
+                     f"sampling needs an explicit generation.{key}")
+        samples = generation.get("samples")
+        _require(
+            isinstance(samples, dict) and samples
+            and set(samples) <= {"mcq", "executable", "option_free"}
+            and all(type(v) is int and 1 <= v <= 32 for v in samples.values()),
+            "sampling needs generation.samples: {format: draws (1-32)}",
+        )
+        _require(readouts == ["generate"], "sampled runs take no log-prob readouts")
+    else:
+        _require(not ({"temperature", "top_p", "samples"} & set(generation)),
+                 "greedy generation must not set temperature, top_p or samples")
     for key in ("max_new_tokens", "seed", "per_response_seconds"):
         _require(type(generation.get(key)) is int and generation[key] >= 0, f"generation.{key}")
     _require(isinstance(spec.get("runtime_pins"), dict) and spec["runtime_pins"], "runtime_pins")
@@ -226,6 +242,18 @@ def immutable_image(launch: dict) -> str:
     return image + "@" + digest
 
 
+def _requests_for(conditions: list[dict], generation: dict) -> list[dict]:
+    if not generation.get("do_sample"):
+        return prepare_requests(conditions)
+    built = []
+    for condition in conditions:
+        count = generation["samples"].get(condition["format"], 1)
+        for request in prepare_requests([condition], tuple(str(i) for i in range(count))):
+            request["sample_count"] = count
+            built.append(request)
+    return built
+
+
 def build_workload(spec: dict, root: Path) -> tuple[list[dict], list[dict], dict]:
     """Scenarios, requests and a per-workload report. Banks must pass the mechanical checks."""
     scenarios: dict[str, dict] = {}
@@ -254,7 +282,7 @@ def build_workload(spec: dict, root: Path) -> tuple[list[dict], list[dict], dict
                 existing is None or existing == row, f"conflicting records for {row['source_id']}"
             )
             scenarios[row["source_id"]] = row
-        built = prepare_requests(conditions)
+        built = _requests_for(conditions, spec["generation"])
         for request in built:
             request["workload"] = workload["name"]
         requests.extend(built)

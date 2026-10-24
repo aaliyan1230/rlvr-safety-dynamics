@@ -49,6 +49,38 @@ class RunPodPilotTests(unittest.TestCase):
         ), patch.object(pilot.time, 'sleep'), self.assertRaisesRegex(RuntimeError, 'not verified'):
             pilot.terminate('pod')
 
+    def test_gateway_delete_reconciles_before_retry(self):
+        for already_deleted in (True, False):
+            with self.subTest(already_deleted=already_deleted), patch.object(
+                pilot, 'request', side_effect=[pilot.ApiError('gateway timeout', 504), {}]
+            ) as request, patch.object(
+                pilot, 'deleted', side_effect=[already_deleted, True]
+            ) as deleted, patch.object(pilot.time, 'sleep'):
+                pilot.terminate('owned-pod')
+            self.assertEqual(request.call_count, 1 if already_deleted else 2)
+            self.assertEqual(deleted.call_count, 1 if already_deleted else 2)
+            self.assertTrue(all(c.args == ('/pods/owned-pod',) for c in request.call_args_list))
+            self.assertTrue(all(c.kwargs == {'method': 'DELETE'} for c in request.call_args_list))
+
+    def test_repeated_gateway_delete_failure_is_bounded(self):
+        with patch.object(
+            pilot, 'request', side_effect=pilot.ApiError('gateway timeout', 504)
+        ) as request, \
+             patch.object(pilot, 'deleted', return_value=False) as deleted, \
+             patch.object(pilot.time, 'sleep'), self.assertRaises(pilot.ApiError):
+            pilot.terminate('owned-pod')
+        self.assertEqual(request.call_count, 2)
+        self.assertEqual(deleted.call_count, 2)
+
+    def test_unauthorized_delete_is_not_retried(self):
+        with patch.object(
+            pilot, 'request', side_effect=pilot.ApiError('unauthorized', 401)
+        ) as request, \
+             patch.object(pilot, 'deleted') as deleted, self.assertRaises(pilot.ApiError):
+            pilot.terminate('owned-pod')
+        request.assert_called_once()
+        deleted.assert_not_called()
+
 
     def test_cleanup_runs_when_preflight_fails(self):
         with TemporaryDirectory() as directory:

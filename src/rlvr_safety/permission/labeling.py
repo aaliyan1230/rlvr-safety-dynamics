@@ -10,6 +10,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import random
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
@@ -43,23 +44,108 @@ def _label_set(job: str) -> set[str]:
     return LABEL_SETS[job]
 
 
-def export_csv(job_dir: Path, out_csv: Path) -> dict:
-    """Write a blinded labelling sheet with one row per task and empty label/notes columns."""
+def export_csv(
+    job_dir: Path,
+    out_csv: Path,
+    task_ids: list[str] | None = None,
+    candidates: dict[str, list[str]] | None = None,
+) -> dict:
+    """Write a blinded labelling sheet with one row per task and empty label/notes columns.
+
+    ``task_ids`` restricts the sheet to a subset (one labeller's assignment). ``candidates``
+    adds ``candidate_1``/``candidate_2`` columns for an adjudication sheet; their order is
+    shuffled per task so the adjudicator cannot tell which rater gave which label.
+    """
     manifest = load_manifest(job_dir)
     allowed = sorted(_label_set(manifest["job"]))
     if out_csv.exists():
         raise FileExistsError(f"{out_csv} already exists; choose a new file")
-    tasks = [load_task(job_dir, task_id) for task_id in sorted(manifest["tasks"])]
-    columns = ["task_id", *_flatten(tasks[0]), "label", "notes"]
+    ids = sorted(manifest["tasks"]) if task_ids is None else sorted(task_ids)
+    unknown = set(ids) - set(manifest["tasks"])
+    if unknown:
+        raise ValueError(f"unknown task IDs: {sorted(unknown)[:3]}")
+    tasks = [load_task(job_dir, task_id) for task_id in ids]
+    extra = ["candidate_1", "candidate_2"] if candidates is not None else []
+    columns = ["task_id", *_flatten(tasks[0]), *extra, "label", "notes"]
     out_csv.parent.mkdir(parents=True, exist_ok=True)
     with out_csv.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=columns)
         writer.writeheader()
         for task in tasks:
-            writer.writerow(
-                {"task_id": task["task_id"], **_flatten(task), "label": "", "notes": ""}
-            )
+            row = {"task_id": task["task_id"], **_flatten(task), "label": "", "notes": ""}
+            if candidates is not None:
+                pair = list(candidates[task["task_id"]])
+                random.Random(task["task_id"]).shuffle(pair)
+                row.update(candidate_1=pair[0], candidate_2=pair[1])
+            writer.writerow(row)
     return {"rows": len(tasks), "allowed_labels": allowed, "columns": columns}
+
+
+def assign_tasks(
+    task_ids: list[str], labellers: list[str], *, overlap: float, seed: int
+) -> dict[str, list[str]]:
+    """One labeller per task, balanced; a random ``overlap`` share goes to every labeller."""
+    ids = sorted(task_ids)
+    rng = random.Random(seed)
+    rng.shuffle(ids)
+    shared = set(ids[: round(overlap * len(ids))])
+    out = {}
+    for index, task_id in enumerate(ids):
+        out[task_id] = list(labellers) if task_id in shared else [
+            labellers[index % len(labellers)]
+        ]
+    return dict(sorted(out.items()))
+
+
+def human_judge_final(job_dir: Path, labellers: list[str]) -> dict:
+    """Final labels under the one-human + AI-judge protocol.
+
+    A task is settled by an adjudicated label, by two or more humans who agree, or by one human
+    whose label equals the judge's. Everything else (human-judge or human-human disagreement)
+    goes to adjudication. Final labels are always human labels.
+    """
+    humans = {}
+    for name in labellers:
+        path = job_dir / "human_labels" / f"{name}.jsonl"
+        humans[name] = load_human_labels(job_dir, name) if path.exists() else {}
+    judge = load_ai_labels(job_dir)
+    adjudicated_path = job_dir / "human_labels" / f"{ADJUDICATED}.jsonl"
+    adjudicated = load_human_labels(job_dir, ADJUDICATED) if adjudicated_path.exists() else {}
+    final, pending, missing, candidates = {}, [], [], {}
+    for task_id in sorted(load_manifest(job_dir)["tasks"]):
+        given = {n: labels[task_id] for n, labels in humans.items() if task_id in labels}
+        if task_id in adjudicated:
+            final[task_id] = adjudicated[task_id]
+        elif not given:
+            missing.append(task_id)
+        elif len(given) >= 2:
+            values = set(given.values())
+            if len(values) == 1:
+                final[task_id] = values.pop()
+            else:
+                pending.append(task_id)
+                candidates[task_id] = sorted(given.values())[:2]
+        else:
+            label = next(iter(given.values()))
+            if judge.get(task_id) == label:
+                final[task_id] = label
+            else:
+                pending.append(task_id)
+                candidates[task_id] = [label, judge.get(task_id, "missing")]
+    first_human: dict[str, str] = {}
+    for name in labellers:
+        for task_id, label in humans[name].items():
+            if task_id in judge:
+                first_human.setdefault(task_id, label)
+    pairs = [humans[a] for a in labellers]
+    return {
+        "final": final,
+        "needs_adjudication": pending,
+        "adjudication_candidates": candidates,
+        "unlabelled": missing,
+        "human_vs_judge": agreement(first_human, {t: judge[t] for t in first_human}),
+        "human_vs_human": agreement(pairs[0], pairs[1]) if len(pairs) >= 2 else None,
+    }
 
 
 def import_csv(

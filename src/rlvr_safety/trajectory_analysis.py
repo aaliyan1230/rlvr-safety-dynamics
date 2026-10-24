@@ -21,7 +21,9 @@ def _lookup_pair(rows: Iterable[Mapping[str, Any]], first: str, second: str) -> 
         if row["first"] == second and row["second"] == first:
             reversed_row = dict(row)
             reversed_row["first"], reversed_row["second"] = first, second
-            for field in ("estimate", "ci_low", "ci_high", "simultaneous_ci_low", "simultaneous_ci_high"):
+            for field in (
+                "estimate", "ci_low", "ci_high", "simultaneous_ci_low", "simultaneous_ci_high"
+            ):
                 if field in row:
                     if field.endswith("low"):
                         high_field = field.replace("low", "high")
@@ -43,6 +45,27 @@ def analyze_trajectory(
     bootstrap_seed: int = 20260713,
     margin: float = 0.10,
 ) -> dict[str, Any]:
+    frozen = [0, 40, 80, 160, 320, 640, 960, 1280, 1600, 1920, 2240, 2440]
+    if sorted(model_steps.values()) != frozen:
+        raise ValueError("checkpoint schedule differs from the frozen trajectory")
+    return analyze_checkpoint_schedule(
+        rows, model_steps, bootstrap_repetitions=bootstrap_repetitions,
+        bootstrap_seed=bootstrap_seed, margin=margin,
+    )
+
+
+def analyze_checkpoint_schedule(
+    rows: Iterable[Mapping[str, Any]],
+    model_steps: Mapping[str, int],
+    *,
+    bootstrap_repetitions: int = 5000,
+    bootstrap_seed: int = 20260713,
+    margin: float = 0.10,
+) -> dict[str, Any]:
+    """Apply the same estimands to an explicitly declared checkpoint schedule."""
+    steps = sorted(model_steps.values())
+    if len(steps) < 3 or steps[0] != 0 or len(set(steps)) != len(steps):
+        raise ValueError("declare distinct checkpoint steps including the parent at zero")
     all_rows = [dict(row) for row in rows]
     censored = [
         row
@@ -57,11 +80,9 @@ def analyze_trajectory(
         allow_incomplete=bool(censored),
     )
     observed_models = set(metrics["design"]["models"])
-    if observed_models != set(model_steps) or len(model_steps) != 12:
-        raise ValueError("trajectory analysis requires the exact 12-checkpoint model map")
+    if observed_models != set(model_steps):
+        raise ValueError("observed models differ from the declared checkpoint map")
     ordered = sorted(model_steps, key=lambda model: model_steps[model])
-    if [model_steps[model] for model in ordered] != [0, 40, 80, 160, 320, 640, 960, 1280, 1600, 1920, 2240, 2440]:
-        raise ValueError("checkpoint schedule differs from the frozen trajectory")
     means = {row["model"]: row for row in metrics["model_metrics"]}
     reliability = {row["model"]: row for row in metrics["reliability"]}
     checkpoints = [
@@ -113,7 +134,7 @@ def analyze_trajectory(
     persistent_pairs = []
     by_step = {row["step"]: row for row in candidates}
     steps = [model_steps[model] for model in ordered]
-    for first_step, second_step in zip(steps[1:], steps[2:]):
+    for first_step, second_step in zip(steps[1:], steps[2:], strict=False):
         first = by_step.get(first_step)
         second = by_step.get(second_step)
         if first and second and float(first["estimate"]) * float(second["estimate"]) > 0:
@@ -125,7 +146,7 @@ def analyze_trajectory(
                 }
             )
     adjacent = []
-    for first, second in zip(ordered, ordered[1:]):
+    for first, second in zip(ordered, ordered[1:], strict=False):
         behavior = _lookup_pair(metrics["model_contrasts"], first, second)
         measurement = {}
         for metric_name in ("permutation_invariance", "wording_range", "order_range"):
@@ -162,7 +183,10 @@ def analyze_trajectory(
         "h6": {
             "supported": bool(persistent_pairs),
             "persistent_pairs": persistent_pairs,
-            "rule": "Relative to step 0, magnitude >= 0.10 with a simultaneous 95% interval excluding zero at two adjacent prespecified checkpoints in the same direction.",
+            "rule": (
+                "Relative to step 0, magnitude >= 0.10 with a simultaneous 95% interval "
+                "excluding zero at two adjacent prespecified checkpoints in the same direction."
+            ),
         },
         "full_factorial_metrics": metrics,
     }

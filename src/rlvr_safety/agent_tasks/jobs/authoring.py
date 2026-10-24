@@ -12,6 +12,7 @@ from ...permission.schema import (
     CONTROL_FAMILY,
     SCENARIO_FAMILIES,
     SCHEMA_VERSION,
+    SPLITS,
     digest,
     is_identifier,
     validate_scenario,
@@ -191,10 +192,22 @@ def validate_brief(brief: dict) -> None:
     reqs = brief.get("requirements", [])
     if not isinstance(reqs, list) or not all(isinstance(r, str) for r in reqs):
         raise ValueError("requirements must be a list of strings")
+    if brief.get("split", "development") not in SPLITS:
+        raise ValueError(f"split must be one of {sorted(SPLITS)}")
+    slots = brief.get("slots")
+    if slots is not None:
+        if not isinstance(slots, list) or not all(isinstance(x, str) and x for x in slots):
+            raise ValueError("slots must be a list of non-empty strings")
+        if len(slots) != brief["count"]:
+            raise ValueError("slots must have exactly count entries")
 
 
 def build_tasks(brief: dict, existing_skeletons: list[str] | None = None):
-    """One task per scenario, or one per control template (two records each)."""
+    """One task per scenario, or one per control template (two records each).
+
+    With ``slots`` each task carries only its own requirement (``slot_requirement``) next to the
+    shared requirements; ``split`` other than development is stated in the task input.
+    """
     validate_brief(brief)
     record_type = brief.get("record_type", "scenario")
     family = CONTROL_FAMILY if record_type == "control" else brief["family"]
@@ -203,22 +216,21 @@ def build_tasks(brief: dict, existing_skeletons: list[str] | None = None):
     for slot in range(brief["count"]):
         base = f"{brief['brief_id']}-{slot + 1:02d}"
         source_ids = [f"{base}-a", f"{base}-b"] if record_type == "control" else [base]
-        task = make_task(
-            JOB,
-            RUBRIC_ID,
-            INSTRUCTIONS,
-            {
-                "record_type": record_type,
-                "family": family,
-                "source_ids": source_ids,
-                "requirements": brief.get("requirements", []),
-                "avoid_skeletons": avoid,
-                "exemplar": CONTROL_EXEMPLAR
-                if record_type == "control"
-                else {"records": [SCENARIO_EXEMPLAR]},
-            },
-            SCHEMA,
-        )
+        task_input = {
+            "record_type": record_type,
+            "family": family,
+            "source_ids": source_ids,
+            "requirements": brief.get("requirements", []),
+            "avoid_skeletons": avoid,
+            "exemplar": CONTROL_EXEMPLAR
+            if record_type == "control"
+            else {"records": [SCENARIO_EXEMPLAR]},
+        }
+        if brief.get("slots"):
+            task_input["slot_requirement"] = brief["slots"][slot]
+        if brief.get("split", "development") != "development":
+            task_input["split"] = brief["split"]
+        task = make_task(JOB, RUBRIC_ID, INSTRUCTIONS, task_input, SCHEMA)
         tasks.append(task)
         refs[task["task_id"]] = [{"brief_id": brief["brief_id"], "brief_sha256": digest(brief)}]
     return tasks, refs
@@ -233,7 +245,7 @@ def _assemble(task: dict, payload_record: dict, index: int) -> dict:
     record.update(
         {
             "schema_version": SCHEMA_VERSION,
-            "split": "development",
+            "split": spec.get("split", "development"),
             "source_id": spec["source_ids"][index],
             "review": {"status": "pending", "reviewers": []},
         }

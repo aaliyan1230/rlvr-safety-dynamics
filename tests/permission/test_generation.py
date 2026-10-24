@@ -13,10 +13,13 @@ from rlvr_safety.permission.generation import (
     GREEDY_OVERRIDES,
     HFPermissionProvider,
     build_effective_config,
+    build_sampling_config,
     classify_stop,
+    condition_seed,
     greedy_violations,
     sequence_logprob,
     snapshot_file_hashes,
+    split_sequences,
     verify_weights,
 )
 
@@ -138,6 +141,36 @@ class PureFunctionTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "stop_strings"):
             build_effective_config(Stubborn(**SAMPLING, stop_strings=["early"]), 64, 2)
+
+
+    def test_sampling_config_pins_temperature_and_top_p_and_disables_top_k(self):
+        inherited = FakeGenerationConfig(**dict(SAMPLING, top_k=50))
+        _, as_dict, _ = build_sampling_config(inherited, 2048, 2, 0.6, 0.9)
+        self.assertEqual((as_dict["do_sample"], as_dict["temperature"], as_dict["top_p"]),
+                         (True, 0.6, 0.9))
+        self.assertIsNone(as_dict["top_k"])
+        self.assertEqual((as_dict["num_beams"], as_dict["repetition_penalty"]), (1, 1.0))
+
+    def test_sampling_preserves_native_eos_and_clears_inherited_early_stop(self):
+        inherited = FakeGenerationConfig(
+            **SAMPLING, eos_token_id=None, stop_strings=["early"], max_time=0.01
+        )
+        _, effective, _ = build_sampling_config(
+            inherited, 64, 2, 0.6, 0.9, eos_token_ids=[2]
+        )
+        self.assertEqual(effective["eos_token_id"], [2])
+        self.assertIsNone(effective["stop_strings"])
+        self.assertIsNone(effective["max_time"])
+        self.assertEqual(inherited.stop_strings, ["early"])
+
+    def test_condition_seeds_differ_and_are_stable(self):
+        self.assertEqual(condition_seed(0, "a"), condition_seed(0, "a"))
+        self.assertNotEqual(condition_seed(0, "a"), condition_seed(0, "b"))
+
+    def test_batched_sequences_are_trimmed_after_eos(self):
+        rows = [[5, 6, 2, 0, 0], [7, 2, 0, 0, 0], [8, 9, 9, 9, 9]]
+        self.assertEqual(split_sequences(rows, [2], 0), [[5, 6, 2], [7, 2], [8, 9, 9, 9, 9]])
+        self.assertEqual(split_sequences([[8, 0, 0]], [2], 0), [[8]])
 
     def test_greedy_violations_names_each_offender(self):
         self.assertEqual(
@@ -332,6 +365,88 @@ class ProviderWiringTests(unittest.TestCase):
                 changed = {**config, "runtime_pins": {"torch": "bad"}}
                 with self.assertRaisesRegex(ValueError, "runtime pin"):
                     HFPermissionProvider(changed, metadata, root)
+
+
+class BatchOutput:
+    def __init__(self, rows):
+        self.rows = rows
+
+    def __getitem__(self, key):
+        index, cut = key
+        return SimpleNamespace(tolist=lambda: self.rows[index][cut])
+
+
+class SamplingModel(Model):
+    calls = 0
+
+    def generate(self, **kwargs):
+        self.kwargs = kwargs
+        self.calls += 1
+        n = kwargs["num_return_sequences"]
+        rows = [[0, 0, 0, 10 + i, 2, 0] for i in range(n)]
+        return BatchOutput(rows)
+
+
+class SamplingProviderTests(unittest.TestCase):
+    def test_draws_come_from_one_batched_call_with_a_per_condition_seed(self):
+        tokenizer, model, seeds = Tokenizer(), SamplingModel(), []
+        tokenizer.pad_token_id = 0
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "model.safetensors").write_bytes(b"weights")
+            metadata = {"id": "example/model", "sha": "a" * 40, "siblings": [
+                {"rfilename": "model.safetensors",
+                 "lfs": {"sha256": hashlib.sha256(b"weights").hexdigest()}}]}
+            config = {
+                "model": {"repo": "example/model", "revision": "a" * 40, "label": "s",
+                          "chat_template_sha256": hashlib.sha256(
+                              tokenizer.chat_template.encode()).hexdigest()},
+                "generation": {"max_new_tokens": 64, "seed": 0, "per_response_seconds": 120,
+                               "do_sample": True, "temperature": 0.6, "top_p": 0.9,
+                               "samples": {"option_free": 3}},
+                "runtime_pins": {"torch": "2.8.0"},
+                "readouts": ["generate"],
+            }
+            torch = SimpleNamespace(
+                cuda=SimpleNamespace(is_available=lambda: True, device_count=lambda: 1,
+                                     get_device_name=lambda n: "gpu",
+                                     manual_seed_all=lambda s: None,
+                                     reset_peak_memory_stats=lambda: None,
+                                     synchronize=lambda: None, max_memory_allocated=lambda: 1),
+                bfloat16="bf16", version=SimpleNamespace(cuda="12.8"),
+                manual_seed=seeds.append, inference_mode=Context)
+            transformers = SimpleNamespace(
+                AutoTokenizer=SimpleNamespace(from_pretrained=lambda *a, **k: tokenizer),
+                AutoModelForCausalLM=SimpleNamespace(from_pretrained=lambda *a, **k: model),
+                StoppingCriteria=object, StoppingCriteriaList=list)
+            hub = SimpleNamespace(snapshot_download=lambda **kwargs: str(root))
+            with (
+                patch.dict("sys.modules",
+                           {"torch": torch, "huggingface_hub": hub, "transformers": transformers}),
+                patch("rlvr_safety.permission.generation.configure_downloads"),
+                patch("rlvr_safety.permission.generation.importlib.metadata.version",
+                      return_value="2.8.0"),
+                patch("rlvr_safety.permission.generation._driver_version", return_value="1"),
+            ):
+                provider = HFPermissionProvider(config, metadata, root)
+                eff = provider.provenance["effective_generation_config"]
+                self.assertEqual((eff["do_sample"], eff["temperature"], eff["top_p"]),
+                                 (True, 0.6, 0.9))
+                base = {"messages": [{"role": "user", "content": "x"}], "sample_count": 3,
+                        "answer_candidates": {"a": "b"}}
+                out = [provider.respond({**base, "condition_id": "c1", "sample_id": str(i)})
+                       for i in range(3)]
+                self.assertEqual(model.calls, 1)
+                self.assertEqual(model.kwargs["num_return_sequences"], 3)
+                self.assertEqual([o["generated_token_ids"] for o in out],
+                                 [[10, 2], [11, 2], [12, 2]])
+                self.assertEqual([o["sample_id"] for o in out], ["0", "1", "2"])
+                self.assertTrue(all(o["stop_status"] == "complete" for o in out))
+                self.assertNotIn("answer_logprobs", out[0])
+                provider.respond({**base, "condition_id": "c2", "sample_id": "0"})
+                self.assertEqual(model.calls, 2)
+                self.assertEqual(seeds, [condition_seed(0, "c1"), condition_seed(0, "c2")])
+
 
 
 if __name__ == "__main__":

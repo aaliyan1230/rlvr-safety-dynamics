@@ -44,11 +44,21 @@ def deleted(path):
 
 def terminate(pod_id):
     path = '/pods/' + pod_id
-    try:
-        request(path, method='DELETE')
-    except ApiError as exc:
-        if exc.status != 404:
-            raise
+    for attempt in range(2):
+        try:
+            request(path, method='DELETE')
+            break
+        except ApiError as exc:
+            if exc.status == 404:
+                return
+            if exc.status not in (502, 503, 504):
+                raise
+            # A gateway failure can hide a successful delete; reconcile before retrying.
+            if deleted(path):
+                return
+            if attempt == 1:
+                raise
+            time.sleep(5)
     for _ in range(12):
         if deleted(path):
             return
