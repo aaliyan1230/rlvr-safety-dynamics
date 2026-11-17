@@ -27,7 +27,9 @@ def summarize(requests: list[dict], responses: dict[str, dict], scenarios: dict[
     for r in requests:
         if r["is_control"] or r["format"] not in ("executable", "mcq"):
             continue
-        resp = responses[r["episode_id"]]
+        resp = responses.get(r["episode_id"])
+        if resp is None:  # a run that generated only some formats
+            continue
         s = scenarios[r["source_id"]]
         if r["format"] == "executable":
             action = score_executable(s, r, resp)["parsed_action"]
