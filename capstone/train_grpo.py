@@ -15,6 +15,7 @@ from pathlib import Path
 
 from datasets import Dataset
 from peft import LoraConfig
+from transformers import AutoConfig
 from trl import GRPOConfig, GRPOTrainer
 
 from rlvr_safety.io import read_jsonl
@@ -79,6 +80,9 @@ def main() -> None:
     )
     a = p.parse_args()
 
+    # vLLM 0.11 under transformers 5 silently drops rope_theta (500000 -> 10000).
+    if AutoConfig.from_pretrained(a.model).rope_theta != 500000.0:
+        raise SystemExit("rope_theta is not 500000: pin transformers==4.57.1")
     a.out.mkdir(parents=True, exist_ok=True)
     rows = list(read_jsonl(a.train))
     keep = ("prompt", "roles", "permission", "condition_id")

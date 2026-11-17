@@ -13,7 +13,7 @@ import json
 import time
 from pathlib import Path
 
-from transformers import AutoTokenizer
+from transformers import AutoConfig, AutoTokenizer
 from vllm import LLM, SamplingParams
 from vllm.lora.request import LoRARequest
 
@@ -37,6 +37,9 @@ def main() -> None:
     a = p.parse_args()
 
     tok = AutoTokenizer.from_pretrained(a.model)
+    # vLLM 0.11 under transformers 5 silently drops rope_theta (500000 -> 10000).
+    if AutoConfig.from_pretrained(a.model).rope_theta != 500000.0:
+        raise SystemExit("rope_theta is not 500000: pin transformers==4.57.1")
     formats = set(a.formats.split(","))
     requests = [json.loads(line) for line in a.requests.open()]
     requests = [r for r in requests if r["format"] in formats]

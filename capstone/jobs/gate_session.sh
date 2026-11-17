@@ -13,7 +13,7 @@ if [ ! -x $W/venv/bin/python ]; then
   uv venv -q -p 3.12 $W/venv
 fi
 . $W/venv/bin/activate
-uv pip install -q "trl[vllm]==0.29.1" "vllm==0.11.0" peft datasets hf_transfer || { fail env; exit 1; }
+uv pip install -q "trl[vllm]==0.29.1" "vllm==0.11.0" "transformers==4.57.1" "datasets<5" peft hf_transfer || { fail env; exit 1; }
 uv pip install -q --no-deps -e $W/code || { fail env; exit 1; }
 uv pip freeze > $OUT/freeze.txt; nvidia-smi > $OUT/nvidia-smi.txt
 
