@@ -20,7 +20,7 @@ from pathlib import Path
 
 from rlvr_safety.agent_tasks.jobs import freeform_prelabel as fp
 
-MODEL = "gemini-3.1-pro-preview"
+MODEL = "gemini-3.8-flash"
 RUBRIC = fp.RUBRIC_RULES_B_ID
 SETTINGS = {
     "temperature": 0,
@@ -39,12 +39,18 @@ SETTINGS = {
         "required": ["matches", "evidence"],
     },
 }
-# USD per million tokens (input, output incl. thinking); conservative for the preview tier.
-RATES = (2.5, 15.0)
+# USD per million tokens (input, output incl. thinking), list prices checked 2026-11-18,
+# rounded up so the ceiling stays conservative.
+RATES = {
+    "gemini-3.1-pro-preview": (2.5, 15.0),
+    "gemini-3.8-flash": (1.5, 7.5),
+    "gemini-4-argon": (4.0, 20.0),
+}
 LOCK = threading.Lock()
 
 
 def call(api_key: str, prompt: str) -> dict:
+    assert MODEL in RATES, f"no price recorded for {MODEL}"
     payload = {
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
         "generationConfig": SETTINGS,
@@ -61,7 +67,8 @@ def call(api_key: str, prompt: str) -> dict:
 
 def cost(usage: dict) -> float:
     out = usage.get("candidatesTokenCount", 0) + usage.get("thoughtsTokenCount", 0)
-    return (usage.get("promptTokenCount", 0) * RATES[0] + out * RATES[1]) / 1e6
+    rate_in, rate_out = RATES[MODEL]
+    return (usage.get("promptTokenCount", 0) * rate_in + out * rate_out) / 1e6
 
 
 def render(task: dict) -> str:
@@ -125,14 +132,17 @@ def label_task(task: dict, cache: Path, api_key: str, spent: list, ceiling: floa
 
 
 def main() -> None:
+    global MODEL
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--requests", type=Path, required=True)
     p.add_argument("--scenarios", type=Path, required=True)
     p.add_argument("--cache", type=Path, required=True)
     p.add_argument("--ceiling", type=float, required=True, help="USD for this invocation")
     p.add_argument("--workers", type=int, default=8)
+    p.add_argument("--model", default=MODEL, choices=sorted(RATES))
     p.add_argument("responses", type=Path, nargs="+")
     a = p.parse_args()
+    MODEL = a.model
     api_key = os.environ["GEMINI_API_KEY"]
     requests = {json.loads(x)["episode_id"]: json.loads(x) for x in a.requests.open()}
     scenarios = {json.loads(x)["source_id"]: json.loads(x) for x in a.scenarios.open()}
