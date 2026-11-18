@@ -35,7 +35,7 @@ stage baseline
 python capstone/generate.py --requests $W/data/requests.jsonl --out $OUT/eval --parent \
   || fail baseline
 
-RUNS="blind:1 aware:1 shuffled:1 blind:2 aware:2 shuffled:2 blind:3 aware:3 shuffled:3 blind:4 aware:4"
+RUNS="${RUNS:-blind:1 aware:1 shuffled:1 blind:2 aware:2 shuffled:2 blind:3 aware:3 shuffled:3 blind:4 aware:4}"
 for run in $RUNS; do
   arm=${run%%:*}; seed=${run##*:}; name=$arm-s$seed
   stage "train $name"
