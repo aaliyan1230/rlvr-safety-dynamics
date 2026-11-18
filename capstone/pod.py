@@ -4,8 +4,10 @@
 Adapted from graft-monitors infra/runpod/graft_pod.py. Every resource is named `capstone-*`
 (shared team account). State lives in local/capstone/pods/<name>.json (private repo). A
 detached local watchdog deletes the Pod at its deadline or after `idle_min` idle minutes, and
-`finish` pulls results and deletes the Pod as soon as a job exits. All of this needs the laptop
-online; it is not a cloud cap. No credentials are sent to the Pod: only the SSH public key.
+`finish` deletes the Pod once every model file is checksum-verified off the Pod. All of this
+needs the laptop online; it is not a cloud cap. Default artifact path: `run --hf-prefix` has the
+Pod upload its outputs to the private HF dataset itself, so the only credential a Pod receives is
+that HF token (over SSH stdin, mode 0600); the RunPod key never leaves the laptop.
 """
 
 from __future__ import annotations
@@ -37,6 +39,7 @@ KEY = Path("~/.ssh/id_ed25519").expanduser()
 KNOWN_HOSTS = STATE_DIR / "known_hosts"
 IMAGE = "runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404"
 JOBS = "/workspace/jobs"
+HF_REPO = "ic-org/rlvr-safety-dynamics-shared"
 
 
 def state_path(name: str) -> Path:
@@ -445,6 +448,20 @@ def cmd_run(a) -> None:
     """Start a detached job: /workspace/jobs/<job>/{cmd.sh,job.log,exit.code}."""
     state = load(a.name)
     d = f"{JOBS}/{a.job}"
+    if a.hf_prefix:
+        # Default artifact path: the Pod uploads to the private HF org itself (Aaliyan,
+        # 2026-11-18), because Pod-to-laptop copies ran at ~100 kB/s. The token travels over
+        # SSH stdin into a 0600 file and is never printed or put on a command line.
+        from huggingface_hub import get_token
+
+        remote(
+            state,
+            "umask 077; mkdir -p /root/.cache/huggingface; cat > /root/.cache/huggingface/token",
+            input_text=get_token(),
+        )
+        remote(state, "cat > /workspace/hf_prefix", input_text=a.hf_prefix)
+        state["hf_prefix"] = a.hf_prefix
+        save(state)
     script = Path(a.script).read_text()
     remote(state, f"mkdir -p {d} && rm -f {d}/exit.code && cat > {d}/cmd.sh", input_text=script)
     launch = (
@@ -472,7 +489,7 @@ def cmd_job(a) -> None:
     sys.stdout.write(r.stdout)
 
 
-def rsync_pull(state: dict, remote_dir: str, local_dir: str) -> None:
+def rsync_pull(state: dict, remote_dir: str, local_dir: str, skip_models: bool = False) -> None:
     c = state["ssh"]
     rsh = (
         f"ssh -i {KEY} -p {c['port']} -o BatchMode=yes -o StrictHostKeyChecking=accept-new "
@@ -482,11 +499,13 @@ def rsync_pull(state: dict, remote_dir: str, local_dir: str) -> None:
     subprocess.run(
         [
             "rsync",
-            "-rlptz",
+            "-rlpt",
+            "--partial",
             "--exclude",
             "optimizer.pt",
             "--exclude",
             "*.safetensors.tmp",
+            *(["--exclude", "*.safetensors", "--exclude", "*.bin"] if skip_models else []),
             "-e",
             rsh,
             f"root@{c['host']}:{remote_dir.rstrip('/')}/",
@@ -496,14 +515,64 @@ def rsync_pull(state: dict, remote_dir: str, local_dir: str) -> None:
     )
 
 
+def verify_artifacts(state: dict, remote_dir: str, local_dir: str) -> list[str]:
+    """Model files (*.safetensors, *.bin, *.pt) whose local sha256 is missing or differs."""
+    r = remote(
+        state,
+        f"cd {remote_dir} && find . -type f \\( -name '*.safetensors' -o -name '*.bin' "
+        "-o -name '*.pt' \\) ! -name optimizer.pt -exec sha256sum {} +",
+        timeout=600,
+    )
+    bad = []
+    for line in r.stdout.splitlines():
+        digest, rel = line.split(maxsplit=1)
+        path = Path(local_dir) / rel
+        local = (
+            subprocess.run(
+                ["shasum", "-a", "256", str(path)], capture_output=True, text=True
+            ).stdout.split(" ")[0]
+            if path.exists()
+            else ""
+        )
+        if local != digest:
+            bad.append(rel)
+    return bad
+
+
+def verify_hf(state: dict, remote_dir: str, prefix: str) -> list[str]:
+    """Model files on the Pod whose sha256 is missing or different on the private HF dataset."""
+    from huggingface_hub import HfApi
+
+    r = remote(
+        state,
+        f"cd {remote_dir} && find . -type f \\( -name '*.safetensors' -o -name '*.bin' "
+        "-o -name '*.pt' \\) ! -name optimizer.pt -exec sha256sum {} +",
+        timeout=600,
+    )
+    info = HfApi().dataset_info(HF_REPO, files_metadata=True)
+    hf = {s.rfilename: (s.lfs.sha256 if s.lfs else None) for s in info.siblings}
+    bad = []
+    for line in r.stdout.splitlines():
+        digest, rel = line.split(maxsplit=1)
+        if hf.get(f"{prefix.rstrip('/')}/{rel[2:]}") != digest:
+            bad.append(rel)
+    return bad
+
+
 def cmd_pull(a) -> None:
     rsync_pull(load(a.name), a.remote_dir, a.local_dir)
     emit("pulled", src=a.remote_dir, dst=a.local_dir)
 
 
 def cmd_finish(a) -> None:
-    """Wait for a job's exit code, pull its outputs, then delete the Pod (run detached)."""
+    """Copy outputs back while the job runs; after it exits, pull, verify, then delete the Pod.
+
+    The Pod is deleted only once every model file's sha256 matches the Pod's copy. If that
+    never happens, the Pod stays up until its deadline (the watchdog's hard cost bound) and
+    the failure is logged, so artifacts are never thrown away by an incomplete copy.
+    """
     d = f"{JOBS}/{a.job}"
+    last_sync = 0.0
     while True:
         state = load(a.name)
         if state.get("deleted_at"):
@@ -511,27 +580,56 @@ def cmd_finish(a) -> None:
             return
         r = remote(state, f"cat {d}/exit.code 2>/dev/null", check=False, timeout=60)
         if r.returncode == 0 and r.stdout.strip():
-            code = r.stdout.strip()
-            emit("job_exited", job=a.job, code=code)
-            state["pulling_since"] = time.time()
-            save(state)
-            for attempt in range(3):
-                try:
-                    rsync_pull(state, a.remote_dir, a.local_dir)
-                    rsync_pull(state, d, a.local_dir.rstrip("/") + "/_job")
-                    break
-                except subprocess.CalledProcessError as exc:
-                    emit("pull_retry", attempt=attempt, error=str(exc))
-                    time.sleep(20)
-            state = load(a.name)
-            state.pop("pulling_since", None)
-            save(state)
-            if a.keep:
-                emit("kept_alive", name=a.name)
-                return
-            cmd_down(a)
-            return
+            break
+        if time.time() - last_sync >= a.sync_min * 60:
+            try:
+                rsync_pull(
+                    state, a.remote_dir, a.local_dir, skip_models=bool(state.get("hf_prefix"))
+                )
+                emit("synced", dst=a.local_dir)
+            except subprocess.CalledProcessError as exc:
+                emit("sync_failed", error=str(exc))
+            last_sync = time.time()
         time.sleep(a.poll)
+    emit("job_exited", job=a.job, code=r.stdout.strip())
+    state["pulling_since"] = time.time()
+    save(state)
+    prefix = state.get("hf_prefix")
+    bad = ["(not checked)"]
+    while not load(a.name).get("deleted_at"):
+        try:
+            if prefix:
+                # Model files go Pod -> HF; only small files come to the laptop.
+                remote(
+                    state,
+                    "cd /workspace/code && HF_HUB_DISABLE_PROGRESS_BARS=1 "
+                    "/workspace/venv/bin/python capstone/hf_sync.py",
+                    timeout=1800,
+                )
+                rsync_pull(state, a.remote_dir, a.local_dir, skip_models=True)
+                rsync_pull(state, d, a.local_dir.rstrip("/") + "/_job")
+                bad = verify_hf(state, a.remote_dir, prefix)
+            else:
+                rsync_pull(state, a.remote_dir, a.local_dir)
+                rsync_pull(state, d, a.local_dir.rstrip("/") + "/_job")
+                bad = verify_artifacts(state, a.remote_dir, a.local_dir)
+        except (subprocess.CalledProcessError, RuntimeError, ValueError) as exc:
+            emit("pull_retry", error=str(exc))
+        if not bad:
+            break
+        emit("verify_pending", missing=bad[:10], count=len(bad))
+        time.sleep(30)
+    if bad:
+        emit("artifacts_unverified", name=a.name, missing=bad)
+        return
+    emit("artifacts_verified", name=a.name)
+    state = load(a.name)
+    state.pop("pulling_since", None)
+    save(state)
+    if a.keep:
+        emit("kept_alive", name=a.name)
+        return
+    cmd_down(a)
 
 
 def cmd_list(_a) -> None:
@@ -601,6 +699,10 @@ def main() -> None:
     r.add_argument("job")
     r.add_argument("script")
     r.add_argument("--timeout-h", type=float, default=8)
+    r.add_argument(
+        "--hf-prefix",
+        help="path in ic-org/rlvr-safety-dynamics-shared the Pod uploads /workspace/out to",
+    )
     j = s.add_parser("job")
     j.add_argument("name")
     j.add_argument("job")
@@ -615,6 +717,9 @@ def main() -> None:
     fi.add_argument("remote_dir")
     fi.add_argument("local_dir")
     fi.add_argument("--poll", type=int, default=60)
+    fi.add_argument(
+        "--sync-min", type=float, default=5.0, help="minutes between copies while the job runs"
+    )
     fi.add_argument("--keep", action="store_true", help="pull but leave the Pod running")
     s.add_parser("list")
     a = p.parse_args()

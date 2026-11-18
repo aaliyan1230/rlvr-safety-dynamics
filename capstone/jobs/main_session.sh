@@ -49,5 +49,10 @@ for run in $RUNS; do
     || fail "eval $name"
   find $OUT/train/$name -name "optimizer.pt" -delete
   rm -rf $OUT/train/$name/checkpoint-60  # identical to final
+  stage "hf-sync $name"
+  HF_HUB_DISABLE_PROGRESS_BARS=1 python capstone/hf_sync.py || fail "hf-sync $name"
 done
+cp $W/jobs/*/job.log $OUT/ 2>/dev/null
+stage hf-sync-final
+HF_HUB_DISABLE_PROGRESS_BARS=1 python capstone/hf_sync.py || fail "hf-sync final"
 stage done
