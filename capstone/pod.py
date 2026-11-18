@@ -349,7 +349,17 @@ def cmd_watchdog(a) -> None:
             return
         reason = "deadline_teardown" if time.time() >= state["deadline"] else None
         idle_min = state.get("idle_min") or 0
-        if not reason and idle_min and state.get("ready_at") and time.time() - last_sample >= 60:
+        # A finish controller copying results back leaves the GPU idle on purpose.
+        pulling = state.get("pulling_since")
+        if pulling:
+            idle_since = None
+        if (
+            not reason
+            and not pulling
+            and idle_min
+            and state.get("ready_at")
+            and time.time() - last_sample >= 60
+        ):
             last_sample = time.time()
             util = gpu_utilization(state)
             if util is None:
@@ -503,6 +513,8 @@ def cmd_finish(a) -> None:
         if r.returncode == 0 and r.stdout.strip():
             code = r.stdout.strip()
             emit("job_exited", job=a.job, code=code)
+            state["pulling_since"] = time.time()
+            save(state)
             for attempt in range(3):
                 try:
                     rsync_pull(state, a.remote_dir, a.local_dir)
@@ -511,6 +523,9 @@ def cmd_finish(a) -> None:
                 except subprocess.CalledProcessError as exc:
                     emit("pull_retry", attempt=attempt, error=str(exc))
                     time.sleep(20)
+            state = load(a.name)
+            state.pop("pulling_since", None)
+            save(state)
             if a.keep:
                 emit("kept_alive", name=a.name)
                 return

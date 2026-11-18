@@ -48,5 +48,6 @@ for run in $RUNS; do
     --adapter "$name-final=$OUT/train/$name/final" \
     || fail "eval $name"
   find $OUT/train/$name -name "optimizer.pt" -delete
+  rm -rf $OUT/train/$name/checkpoint-60  # identical to final
 done
 stage done
