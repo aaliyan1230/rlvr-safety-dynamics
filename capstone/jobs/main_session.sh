@@ -5,12 +5,13 @@
 # run is evaluated on the 2,528 held-out requests as soon as it finishes.
 # Runs detached on the Pod; capstone/pod.py finish pulls /workspace/out and deletes the Pod.
 set -uo pipefail
-export HF_HUB_ENABLE_HF_TRANSFER=1 PYTHONUNBUFFERED=1 TOKENIZERS_PARALLELISM=false
+export PYTHONUNBUFFERED=1 TOKENIZERS_PARALLELISM=false
 W=/workspace; OUT=$W/out; mkdir -p $OUT
 stage() { echo "=== $(date -u +%FT%TZ) $*"; }
 fail() { echo "STAGE FAILED: $1"; echo "$1" >> $OUT/failed_stages.txt; }
 
 stage env
+df -h /workspace | tail -1
 if [ ! -x $W/venv/bin/python ]; then
   pip install -q uv
   uv venv -q -p 3.12 $W/venv
@@ -21,7 +22,12 @@ uv pip install -q --no-deps -e $W/code || { fail env; exit 1; }
 uv pip freeze > $OUT/freeze.txt; nvidia-smi > $OUT/nvidia-smi.txt
 
 stage model
-python -c "from huggingface_hub import snapshot_download as d; d('allenai/Llama-3.1-Tulu-3-8B-DPO', revision='a7beb67e33ffd01cc87ac3b46cadc1000985b8db', local_dir='$W/models/tulu-dpo', ignore_patterns=['*.pth', 'original/*'])" > /dev/null || { fail model; exit 1; }
+# Bounded download with one retry; progress goes to the log so a stall is visible.
+for attempt in 1 2; do
+  timeout 900 python -c "from huggingface_hub import snapshot_download as d; d('allenai/Llama-3.1-Tulu-3-8B-DPO', revision='a7beb67e33ffd01cc87ac3b46cadc1000985b8db', local_dir='$W/models/tulu-dpo', ignore_patterns=['*.pth', 'original/*'])" && break
+  echo "model download attempt $attempt failed"; [ $attempt = 2 ] && { fail model; exit 1; }
+done
+du -sh $W/models/tulu-dpo
 sha256sum $W/models/tulu-dpo/*.safetensors > $OUT/weights.sha256
 
 cd $W/code

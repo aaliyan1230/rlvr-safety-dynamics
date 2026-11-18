@@ -362,6 +362,11 @@ def cmd_watchdog(a) -> None:
                     reason = "idle_teardown"
         if reason:
             try:
+                rsync_pull(state, JOBS, str(STATE_DIR / f"{a.name}-salvage"))
+                emit("salvaged_logs", name=a.name)
+            except (subprocess.CalledProcessError, OSError) as exc:
+                emit("salvage_failed", error=str(exc))
+            try:
                 cmd_down(a)
                 emit(reason, name=a.name)
                 return
